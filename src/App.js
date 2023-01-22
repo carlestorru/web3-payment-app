@@ -1,24 +1,44 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect, useCallback, useState } from 'react';
+import { useWeb3React } from '@web3-react/core'; 
+import { connector } from './config/web3'
+
+import { Wallet } from './components/Wallet';
 
 function App() {
+  const { activate, active, deactivate, error } = useWeb3React();
+
+  const connect = useCallback(() => {
+    activate(connector);
+    localStorage.setItem('previouslyConnected', true);
+  }, [activate]);
+
+  useEffect(() => {
+    if (localStorage.getItem('previouslyConnected') === 'true') {
+      connect()
+    }
+  }, [connect]);
+
+  const disconnect = () => {
+    deactivate();
+    localStorage.removeItem('previouslyConnected');
+  };
+
+  if (error) {
+    console.error(error);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <main>
+      {
+        active 
+        ? <>
+            <button onClick={disconnect}>Desconectar Wallet</button>
+            <Wallet />
+          </>
+        : <button onClick={connect}>Conectar wallet</button>
+      }
+    </main>
   );
 }
 
