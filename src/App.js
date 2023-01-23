@@ -1,7 +1,8 @@
 import './App.css';
-import { useEffect, useCallback, useState } from 'react';
-import { useWeb3React } from '@web3-react/core'; 
+import { useEffect, useCallback } from 'react';
+import { useWeb3React, UnsupportedChainIdError } from '@web3-react/core'; 
 import { connector } from './config/web3'
+import { NoEthereumProviderError, UserRejectedRequestError } from '@web3-react/injected-connector';
 
 import { Wallet } from './components/Wallet';
 
@@ -24,9 +25,12 @@ function App() {
     localStorage.removeItem('previouslyConnected');
   };
 
-  if (error) {
-    console.error(error);
-  }
+  const isNoEthereumProviderError = error instanceof NoEthereumProviderError;
+  const isUserRejectedRequestError = error instanceof UserRejectedRequestError;
+  const isUnsupportedChainIdError  = error instanceof UnsupportedChainIdError;
+  console.log(isNoEthereumProviderError);
+  console.log(isUserRejectedRequestError);
+  console.log(isUnsupportedChainIdError );
 
   return (
     <main>
