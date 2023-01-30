@@ -1,4 +1,3 @@
-import './App.css';
 import { WalletConnector } from './components/WalletConnector';
 
 function App() {
