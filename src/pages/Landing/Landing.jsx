@@ -1,12 +1,12 @@
-import { WalletConnector } from "../../components/WalletConnector";
+import { WalletConnector } from '../../components/WalletConnector';
 
 const Landing = () => {
-    return (
-        <main className='flex flex-col justify-center items-center h-screen'>
-            <h1>Landing page</h1>
-            <WalletConnector />
-        </main>
-    )
-}
+	return (
+		<main className='flex h-screen flex-col items-center justify-center'>
+			<h1>Landing page</h1>
+			<WalletConnector />
+		</main>
+	);
+};
 
 export default Landing;
