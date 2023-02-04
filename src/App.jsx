@@ -1,11 +1,7 @@
-import { WalletConnector } from './components/WalletConnector';
+import Routes from './routes';
 
 function App() {
-	return (
-		<main>
-			<WalletConnector />
-		</main>
-	);
+	return <Routes />
 }
 
 export default App;
