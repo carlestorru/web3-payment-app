@@ -35,15 +35,19 @@ export function WalletConnector() {
 	console.log(isUnsupportedChainIdError);
 
 	return (
-		<main>
+		<>
 			{active ? (
 				<>
 					<button onClick={disconnect}>Desconectar Wallet</button>
 					<Wallet />
 				</>
 			) : (
-				<button onClick={connect}>Conectar wallet</button>
+				<button
+					className='bg-sky-700 px-4 py-2 text-white hover:bg-sky-800 sm:px-8 sm:py-3'
+					onClick={connect}>
+					Conectar wallet
+				</button>
 			)}
-		</main>
+		</>
 	);
 }
