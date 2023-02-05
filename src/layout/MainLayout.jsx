@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import Ethereum from '../components/Icons/Ethereum';
 import Menu from '../components/Icons/Menu';
@@ -6,8 +6,10 @@ import menuItems from '../menu-items';
 
 const MainLayout = () => {
 	const [showMenu, setShowMenu] = useState(true);
+	const sidebar = useRef();
 	const toggleMenu = () => {
 		const sidebar = document.querySelector('.sidebar');
+		console.log(sidebar)
 		sidebar.classList.toggle('-translate-x-full');
 		setShowMenu(!showMenu);
 	};
@@ -28,6 +30,7 @@ const MainLayout = () => {
 
 			{/* Sidebar */}
 			<header
+				ref={sidebar}
 				className={
 					'sidebar absolute inset-y-0 left-0 w-64 -translate-x-full transform space-y-6 bg-blue-800 py-7 px-2 text-blue-100 transition duration-200 ease-in-out md:relative md:translate-x-0'
 				}>
