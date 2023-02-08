@@ -8,16 +8,14 @@ const MainLayout = () => {
 	const [showMenu, setShowMenu] = useState(true);
 	const sidebar = useRef();
 	const toggleMenu = () => {
-		const sidebar = document.querySelector('.sidebar');
-		console.log(sidebar)
-		sidebar.classList.toggle('-translate-x-full');
+		sidebar.current.classList.toggle('-translate-x-full');
 		setShowMenu(!showMenu);
 	};
 
 	return (
 		<div className='relative min-h-screen md:flex'>
 			{/* Mobile menu bar */}
-			<div className='flex justify-between bg-gray-800 text-gray-100 md:hidden'>
+			<header className='flex justify-between bg-gray-800 text-gray-100 md:hidden'>
 				{/* Logo */}
 				<span className='text-2xl font-extrabold'>Ethereum</span>
 
@@ -26,13 +24,13 @@ const MainLayout = () => {
 					onClick={toggleMenu}>
 					<Menu />
 				</button>
-			</div>
+			</header>
 
 			{/* Sidebar */}
-			<header
+			<div
 				ref={sidebar}
 				className={
-					'sidebar absolute inset-y-0 left-0 w-64 -translate-x-full transform space-y-6 bg-blue-800 py-7 px-2 text-blue-100 transition duration-200 ease-in-out md:relative md:translate-x-0'
+					'absolute inset-y-0 left-0 w-64 -translate-x-full transform space-y-6 bg-blue-800 py-7 px-2 text-blue-100 transition duration-200 ease-in-out md:relative md:translate-x-0'
 				}>
 				{/* Logo */}
 				<Ethereum />
@@ -61,7 +59,7 @@ const MainLayout = () => {
 						);
 					})}
 				</nav>
-			</header>
+			</div>
 			{/* Content */}
 			<main className='flex-1 p-10 text-2xl font-bold'>
 				<Outlet />
