@@ -22,7 +22,7 @@ const MainLayout = () => {
 				<button
 					className='p-4 focus:bg-gray-700 focus:outline-none'
 					onClick={toggleMenu}>
-					<Menu />
+					<Menu color='#FFF'/>
 				</button>
 			</header>
 
