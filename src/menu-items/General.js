@@ -21,7 +21,7 @@ const General = {
 			id: 'logout',
 			title: 'Salir',
 			type: 'item',
-			url: '',
+			url: '/logout',
 			icon: '',
 		}
 	],
