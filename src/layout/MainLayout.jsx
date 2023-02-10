@@ -4,7 +4,7 @@ import Ethereum from '../components/Icons/Ethereum';
 import Menu from '../components/Icons/Menu';
 import menuItems from '../menu-items';
 
-const MainLayout = () => {
+function MainLayout () {
 	const [showMenu, setShowMenu] = useState(true);
 	const sidebar = useRef();
 	const toggleMenu = () => {
@@ -22,7 +22,7 @@ const MainLayout = () => {
 				<button
 					className='p-4 focus:bg-gray-700 focus:outline-none'
 					onClick={toggleMenu}>
-					<Menu color='#FFF'/>
+					<Menu color='#FFF' />
 				</button>
 			</header>
 
@@ -44,10 +44,12 @@ const MainLayout = () => {
 									return (
 										<li
 											key={child.id}
-											className='duration block rounded py-2.5 px-4 transition hover:bg-blue-700'>
+											className='rounded transition hover:bg-blue-700'>
 											<NavLink
 												className={({ isActive }) => {
-													return isActive ? 'font-semibold' : undefined;
+													return isActive
+														? 'list-item rounded bg-red-500 py-2.5 px-4 font-semibold'
+														: 'list-item rounded py-2.5 px-4';
 												}}
 												to={child.url}>
 												{child.title}
