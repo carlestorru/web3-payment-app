@@ -7,13 +7,17 @@ import {
 } from '@web3-react/injected-connector';
 
 import { Wallet } from './WalletCard';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function WalletConnector() {
 	const { activate, active, deactivate, error } = useWeb3React();
+	const navigate = useNavigate();
+	const location = useLocation();
 
 	const connect = useCallback(() => {
 		activate(connector);
 		localStorage.setItem('previouslyConnected', true);
+		if (location.state?.from) navigate(location.state.from);
 	}, [activate]);
 
 	useEffect(() => {
