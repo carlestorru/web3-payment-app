@@ -1,6 +1,6 @@
 export default function Ethereum(props) {
 	return (
-		<div className='flex flex-col items-center space-x-2 px-4 text-white'>
+		<div className='flex flex-col items-center space-x-2 px-4 text-black'>
 			<svg
 				id='Layer_1'
 				className='h-24 w-24'

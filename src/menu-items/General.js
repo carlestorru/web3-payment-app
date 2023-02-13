@@ -1,3 +1,7 @@
+import Bell from '../components/Icons/Bell';
+import Settings from '../components/Icons/Settings';
+import Logout from '../components/Icons/Logout';
+
 const General = {
 	id: 'general',
 	title: 'General',
@@ -8,21 +12,21 @@ const General = {
 			title: 'Notificaciones',
 			type: 'item',
 			url: '/notifications',
-			icon: '',
+			icon: <Bell />,
 		},
         {
 			id: 'settings',
 			title: 'Ajustes',
 			type: 'item',
 			url: '/settings',
-			icon: '',
+			icon: <Settings />,
 		},
         {
 			id: 'logout',
 			title: 'Salir',
 			type: 'item',
 			url: '/logout',
-			icon: '',
+			icon: <Logout />,
 		}
 	],
 };

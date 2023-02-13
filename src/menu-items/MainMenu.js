@@ -1,3 +1,8 @@
+import Home from '../components/Icons/Home';
+import Wallet from '../components/Icons/Wallet';
+import CreditCard from '../components/Icons/CreditCard';
+import ShoppingBag from '../components/Icons/ShoppingBag';
+
 const MainMenu = {
 	id: 'main-menu',
 	title: 'Menú Principal',
@@ -8,29 +13,29 @@ const MainMenu = {
 			title: 'Panel',
 			type: 'item',
 			url: '/panel',
-			icon: '',
+			icon: <Home />,
 		},
-        {
+		{
 			id: 'transfer',
 			title: 'Enviar y solicitar',
 			type: 'item',
 			url: '/transfer',
-			icon: '',
+			icon: <CreditCard />,
 		},
-        {
+		{
 			id: 'wallet',
 			title: 'Wallet',
 			type: 'item',
 			url: '/wallet',
-			icon: '',
+			icon: <Wallet />,
 		},
-        {
+		{
 			id: 'activity',
 			title: 'Actividad',
 			type: 'item',
 			url: '/activity',
-			icon: '',
-		}
+			icon: <ShoppingBag />,
+		},
 	],
 };
 
