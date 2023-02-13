@@ -5,13 +5,13 @@ import { useLayoutMode } from '../context/LayoutContext';
 import { NavLink } from 'react-router-dom';
 
 export default function SideBar() {
-    const [isOpen] = useLayoutMode()
+	const [isOpen] = useLayoutMode();
 
 	return (
 		<div
-			className={
-				`${isOpen ? '' : '-translate-x-full'} absolute inset-y-0 left-0 w-64 transform space-y-6 bg-white py-7 px-2 text-gray-600 transition duration-200 ease-in-out md:relative md:translate-x-0`
-			}>
+			className={`${
+				isOpen ? '' : '-translate-x-full'
+			} absolute inset-y-0 left-0 w-64 transform space-y-6 bg-white py-7 px-2 text-gray-600 transition duration-200 ease-in-out md:relative md:translate-x-0`}>
 			{/* Logo */}
 			<Ethereum />
 			{/* Nav */}
@@ -32,7 +32,7 @@ export default function SideBar() {
 															: 'list-item rounded transition hover:bg-blue-200';
 													}}
 													to={child.url}>
-													<div className='flex flex-row items-center justify-start gap-4 py-2.5 px-1'>
+													<div className='flex flex-row items-center justify-start gap-4 py-2 px-1'>
 														{child.icon}
 														{child.title}
 													</div>
