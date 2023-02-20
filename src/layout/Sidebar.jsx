@@ -1,15 +1,25 @@
 import Ethereum from '../components/Icons/Ethereum';
 import menuItems from '../menu-items';
+import { useWeb3React } from '@web3-react/core';
 import { useLayoutMode } from '../context/LayoutContext';
 
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 export default function SideBar() {
+	const { deactivate } = useWeb3React();
+	const navigate = useNavigate();
+
 	const [isOpen] = useLayoutMode();
 
 	const isLinkActive = (url) => {
 		const location = useLocation();
 		return location.pathname === url;
+	};
+
+	const disconnect = () => {
+		deactivate();
+		localStorage.removeItem('previouslyConnected');
+		navigate('/landing');
 	};
 
 	return (
@@ -28,6 +38,20 @@ export default function SideBar() {
 								<span className='font-bold uppercase'>{item.title}</span>
 								<ul>
 									{item.children.map((child) => {
+										if (child.id === 'logout') {
+											return (
+												<li
+													key={child.id}
+													className='list-item rounded py-0.5 transition hover:bg-blue-200'>
+													<button onClick={disconnect}>
+														<div className='flex flex-row items-center justify-start gap-4 py-2 px-1'>
+															{child.icon}
+															{child.title}
+														</div>
+													</button>
+												</li>
+											);
+										}
 										return (
 											<li key={child.id} className='py-0.5'>
 												<NavLink
