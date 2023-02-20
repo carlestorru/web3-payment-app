@@ -6,7 +6,6 @@ export function LayoutModeProvider({ children }) {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleSideBar = () => {
-        console.log(isOpen)
         setIsOpen(prevOpen => !prevOpen);
     }
 
