@@ -43,7 +43,9 @@ export default function SideBar() {
 												<li
 													key={child.id}
 													className='list-item rounded py-0.5 transition hover:bg-blue-200'>
-													<button onClick={disconnect} className='w-full active:bg-blue-300 active:font-medium'>
+													<button
+														onClick={disconnect}
+														className='w-full active:bg-blue-300 active:font-medium'>
 														<div className='flex flex-row items-center justify-start gap-4 py-2 px-1'>
 															{child.icon}
 															{child.title}
