@@ -42,12 +42,16 @@ export function WalletConnector() {
 		<>
 			{active ? (
 				<>
-					<button className='rounded-3xl bg-sky-800 px-4 py-2 text-white hover:bg-sky-700 sm:px-8 sm:py-3' onClick={disconnect}>Desconectar Wallet</button>
+					<button
+						className='rounded-3xl bg-sky-800 px-4 py-2 text-white hover:bg-sky-700 sm:px-8 sm:py-3'
+						onClick={disconnect}>
+						Desconectar Wallet
+					</button>
 					<Wallet />
 				</>
 			) : (
 				<button
-					className='rounded-3xl bg-sky-700 px-4 py-2 text-white hover:bg-sky-800 sm:px-8 sm:py-3'
+					className='transform rounded-3xl bg-gradient-to-r from-sky-400 to-sky-600 px-4 py-2 text-white transition duration-300 hover:scale-105 hover:bg-gradient-to-l hover:from-sky-400 hover:to-sky-600 sm:px-8 sm:py-3'
 					onClick={connect}>
 					Conectar wallet
 				</button>
