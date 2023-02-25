@@ -6,7 +6,6 @@ import {
 	UserRejectedRequestError,
 } from '@web3-react/injected-connector';
 
-import { Wallet } from './WalletCard';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { HiInformationCircle } from './Icons/HiInformationCircle';
 import { Alert } from 'flowbite-react';
@@ -20,7 +19,11 @@ export function WalletConnector() {
 	const connect = useCallback(() => {
 		activate(connector);
 		localStorage.setItem('previouslyConnected', true);
-		if (location.state?.from) navigate(location.state.from);
+		if (location.state?.from) {
+			navigate(location.state.from);	
+		} else {
+			navigate('/')
+		}
 	}, [activate]);
 
 	useEffect(() => {
@@ -61,7 +64,6 @@ export function WalletConnector() {
 						onClick={disconnect}>
 						Desconectar Wallet
 					</button>
-					<Wallet />
 				</>
 			) : (
 				<button
