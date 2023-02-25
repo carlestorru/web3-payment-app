@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
 import { connector } from '../config/web3';
 import {
@@ -8,9 +8,12 @@ import {
 
 import { Wallet } from './WalletCard';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { HiInformationCircle } from './Icons/HiInformationCircle';
+import { Alert } from 'flowbite-react';
 
 export function WalletConnector() {
 	const { activate, active, deactivate, error } = useWeb3React();
+	const [typeError, setTypeError] = useState('');
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -31,12 +34,23 @@ export function WalletConnector() {
 		localStorage.removeItem('previouslyConnected');
 	};
 
-	const isNoEthereumProviderError = error instanceof NoEthereumProviderError;
-	const isUserRejectedRequestError = error instanceof UserRejectedRequestError;
-	const isUnsupportedChainIdError = error instanceof UnsupportedChainIdError;
-	console.log(isNoEthereumProviderError);
-	console.log(isUserRejectedRequestError);
-	console.log(isUnsupportedChainIdError);
+	useEffect(() => {
+		const isNoEthereumProviderError = error instanceof NoEthereumProviderError;
+		const isUserRejectedRequestError =
+			error instanceof UserRejectedRequestError;
+		const isUnsupportedChainIdError = error instanceof UnsupportedChainIdError;
+		let typeErr = '';
+		if (isNoEthereumProviderError) {
+			typeErr = 'Please install Metamask extension:';
+		} else if (isUserRejectedRequestError) {
+			typeErr = 'User rejected request:';
+		} else if (isUnsupportedChainIdError) {
+			typeErr = 'Unsupported Chain connection:';
+		}
+		if (error) {
+			setTypeError(typeErr);
+		}
+	}, [error]);
 
 	return (
 		<>
@@ -55,6 +69,18 @@ export function WalletConnector() {
 					onClick={connect}>
 					Conectar wallet
 				</button>
+			)}
+			{error ? (
+				<Alert
+					className='absolute right-2 bottom-2'
+					color='failure'
+					icon={HiInformationCircle}>
+					<span>
+						<span className='font-medium'>{typeError}</span> {error.message}
+					</span>
+				</Alert>
+			) : (
+				''
 			)}
 		</>
 	);
