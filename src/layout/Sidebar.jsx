@@ -1,4 +1,4 @@
-import Ethereum from '../components/Icons/Ethereum';
+import { Wallet } from '../components//WalletCard';
 import menuItems from '../menu-items';
 import { useWeb3React } from '@web3-react/core';
 import { useLayoutMode } from '../context/LayoutContext';
@@ -26,9 +26,9 @@ export default function SideBar() {
 		<div
 			className={`${
 				isOpen ? '' : '-translate-x-full'
-			} absolute inset-y-0 left-0 w-64 transform space-y-6 bg-white py-7 px-2 text-gray-600 transition duration-200 ease-in-out md:relative md:translate-x-0`}>
+			} absolute inset-y-0 left-0 w-64 transform space-y-4 bg-white py-7 px-2 text-gray-600 transition duration-200 ease-in-out md:relative md:translate-x-0`}>
 			{/* Logo */}
-			<Ethereum />
+			<Wallet />
 			{/* Nav */}
 			<nav>
 				{menuItems.map((item) => {
