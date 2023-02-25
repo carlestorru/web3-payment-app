@@ -8,9 +8,9 @@ import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-	<BrowserRouter>
-		<Web3ReactProvider getLibrary={getLibrary}>
+	<Web3ReactProvider getLibrary={getLibrary}>
+		<BrowserRouter>
 			<App />
-		</Web3ReactProvider>
-	</BrowserRouter>
+		</BrowserRouter>
+	</Web3ReactProvider>
 );
