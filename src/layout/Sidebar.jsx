@@ -26,7 +26,7 @@ export default function SideBar() {
 		<div
 			className={`${
 				isOpen ? '' : '-translate-x-full'
-			} absolute inset-y-0 left-0 w-64 transform space-y-4 bg-white py-7 px-2 text-gray-600 transition duration-200 ease-in-out md:relative md:translate-x-0`}>
+			} absolute inset-y-0 left-0 w-64 transform space-y-4 bg-white py-7 px-2 text-slate-600 transition duration-200 ease-in-out md:relative md:translate-x-0`}>
 			{/* Logo */}
 			<Wallet />
 			{/* Nav */}
@@ -60,7 +60,7 @@ export default function SideBar() {
 													className={({ isActive }) => {
 														return isActive
 															? 'list-item rounded bg-blue-300 bg-opacity-40 font-medium text-black'
-															: 'list-item rounded transition hover:bg-blue-200';
+															: 'list-item rounded transition hover:bg-blue-200 hover:font-medium';
 													}}
 													to={child.url}>
 													{() =>
