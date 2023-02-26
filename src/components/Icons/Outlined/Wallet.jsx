@@ -1,4 +1,4 @@
-export default function Wallet(props) {
+export function Wallet() {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'

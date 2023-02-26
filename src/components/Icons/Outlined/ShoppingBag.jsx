@@ -1,4 +1,4 @@
-export default function ShoppingBag(props) {
+export function ShoppingBag() {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'

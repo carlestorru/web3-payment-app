@@ -1,7 +1,11 @@
-import Home from '../components/Icons/Home';
-import Wallet from '../components/Icons/Wallet';
-import CreditCard from '../components/Icons/CreditCard';
-import ShoppingBag from '../components/Icons/ShoppingBag';
+import { Home } from '../components/Icons/Outlined/Home';
+import { Home as HomeSolid } from '../components/Icons/Solid/Home';
+import { Wallet } from '../components/Icons/Outlined/Wallet';
+import { Wallet as WalletSolid } from '../components/Icons/Solid/Wallet';
+import CreditCard from '../components/Icons/Outlined/CreditCard';
+import { CreditCard as CreditCardSolid } from '../components/Icons/Solid/CreditCard';
+import { ShoppingBag } from '../components/Icons/Outlined/ShoppingBag';
+import { ShoppingBag as ShoppingBagSolid } from '../components/Icons/Solid/ShoppingBag';
 
 const MainMenu = {
 	id: 'main-menu',
@@ -14,6 +18,7 @@ const MainMenu = {
 			type: 'item',
 			url: '/panel',
 			icon: <Home />,
+			activeIcon: <HomeSolid />,
 		},
 		{
 			id: 'transfer',
@@ -21,6 +26,7 @@ const MainMenu = {
 			type: 'item',
 			url: '/transfer',
 			icon: <CreditCard />,
+			activeIcon: <CreditCardSolid />,
 		},
 		{
 			id: 'wallet',
@@ -28,6 +34,7 @@ const MainMenu = {
 			type: 'item',
 			url: '/wallet',
 			icon: <Wallet />,
+			activeIcon: <WalletSolid />,
 		},
 		{
 			id: 'activity',
@@ -35,6 +42,7 @@ const MainMenu = {
 			type: 'item',
 			url: '/activity',
 			icon: <ShoppingBag />,
+			activeIcon: <ShoppingBagSolid />,
 		},
 	],
 };
