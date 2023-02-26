@@ -1,11 +1,11 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 
-function Activity() {
+function Settings() {
 	useAuth();
-	useDocumentTitle('Activity');
+	useDocumentTitle('Settings');
 
-	return <h2>Activity</h2>;
+	return <h2>Settings</h2>;
 }
 
-export default Activity;
+export default Settings;

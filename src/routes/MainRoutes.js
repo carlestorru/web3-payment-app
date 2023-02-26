@@ -8,6 +8,8 @@ const Panel = Loadable(lazy(() => import('../pages/Panel/Panel')));
 const Transfer = Loadable(lazy(() => import('../pages/Transfer/Transfer')));
 const Wallet = Loadable(lazy(() => import('../pages/Wallet/Wallet')));
 const Activity = Loadable(lazy(() => import('../pages/Activity/Activity')));
+const Notifications = Loadable(lazy(() => import('../pages/Notifications/Notifications')));
+const Settings = Loadable(lazy(() => import('../pages/Settings/Settings')));
 
 const MainRoutes = [
 	{
@@ -37,6 +39,14 @@ const MainRoutes = [
 			{
 				path: '/activity',
 				element: <Activity />,
+			},
+			{
+				path: '/notifications',
+				element: <Notifications />,
+			},
+			{
+				path: '/settings',
+				element: <Settings />,
 			},
 		],
 	},

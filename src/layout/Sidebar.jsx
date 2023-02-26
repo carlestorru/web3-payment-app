@@ -59,15 +59,15 @@ export default function SideBar() {
 												<NavLink
 													className={({ isActive }) => {
 														return isActive
-															? 'list-item rounded bg-blue-300 font-medium text-black'
+															? 'list-item rounded bg-blue-300 bg-opacity-40 font-medium text-black'
 															: 'list-item rounded transition hover:bg-blue-200';
 													}}
 													to={child.url}>
 													{() =>
 														isLinkActive(child.url) ? (
-															<div className='flex flex-row items-center justify-start gap-4 py-2 px-1 text-blue-800'>
-																{child.icon}
-																{child.title}
+															<div className='flex flex-row items-center justify-start gap-4 py-2 px-1 text-blue-500'>
+																{child.activeIcon}
+																<h3 className='text-black'>{child.title}</h3>
 															</div>
 														) : (
 															<div className='flex flex-row items-center justify-start gap-4 py-2 px-1'>
