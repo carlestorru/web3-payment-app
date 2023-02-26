@@ -35,7 +35,9 @@ export default function SideBar() {
 					return (
 						<ul key={item.id} className='block py-2.5 px-2'>
 							<li>
-								<h4 className='text-slate-600 font-medium text-xs uppercase mb-3'>{item.title}</h4>
+								<h4 className='mb-3 text-xs font-medium uppercase text-slate-600'>
+									{item.title}
+								</h4>
 								<ul>
 									{item.children.map((child) => {
 										if (child.id === 'logout') {
