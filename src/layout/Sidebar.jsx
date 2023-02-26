@@ -67,12 +67,12 @@ export default function SideBar() {
 														isLinkActive(child.url) ? (
 															<div className='flex flex-row items-center justify-start gap-4 py-2 px-1 text-blue-500'>
 																{child.activeIcon}
-																<h3 className='text-black'>{child.title}</h3>
+																<h5 className='text-black'>{child.title}</h5>
 															</div>
 														) : (
 															<div className='flex flex-row items-center justify-start gap-4 py-2 px-1'>
 																{child.icon}
-																{child.title}
+																<h5>{child.title}</h5>
 															</div>
 														)
 													}
