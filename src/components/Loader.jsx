@@ -1,5 +1,7 @@
-const Loader = () => (
-    <p>Cargando...</p>
-);
+import './Loader.css'
 
-export default Loader;
+export default function Loader () {
+    return (
+        <div className="loader"></div>
+    )
+}
