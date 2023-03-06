@@ -14,7 +14,7 @@ function MainLayout() {
 				<SideBar />
 
 				{/* Content */}
-				<main className='min-h-screen flex-1 overflow-auto bg-slate-100 p-10 text-2xl font-bold'>
+				<main className='min-h-screen flex-1 overflow-auto bg-slate-100 p-10'>
 					<Outlet />
 				</main>
 			</div>
