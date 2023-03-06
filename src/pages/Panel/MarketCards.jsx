@@ -29,7 +29,7 @@ export function MarketCards({ limit, data }) {
 							<span className='font-normal text-slate-500'>Activo total: </span>
 							$ {Math.round(el.marketCapUsd* 100) / 100}
 						</p>
-						<p className='font-semibold'>
+						<p className='pt-2 font-semibold border-t-[1px] border-b-slate-300'>
 							<span className='font-normal text-slate-500'>Precio: </span>${' '}
 							{Math.round(el.priceUsd * 100) / 100}
 						</p>
