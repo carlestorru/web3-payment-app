@@ -18,7 +18,7 @@ function Panel() {
 				Visión general de los mercados y últimos pedidos
 			</h4>
 			<div className='grid grid-cols-3 grid-rows-2 gap-8'>
-				{isLoading ? <p>Cargando</p> : <MarketCards limit='10' data={data} />}
+				{isLoading ? <p>Cargando</p> : <MarketCards data={data} />}
 				{isError ? <p>Error</p> : ''}
 				<LastOrders />
 				<Aside />
