@@ -11,10 +11,9 @@ export function LastOrders() {
 		if (web3 !== undefined) {
 			getTransacctionsByAccount(account, web3).then((res) => {
 				setTransactions(res);
-				console.log(transactions);
 			});
 		}
-	}, []);
+	}, [web3]);
 
 	return (
 		<section className='col-span-3 row-span-1 flex flex-col gap-4 '>
