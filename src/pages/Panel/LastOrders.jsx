@@ -16,7 +16,7 @@ export function LastOrders() {
 	}, [web3]);
 
 	return (
-		<section className='col-span-3 row-span-1 flex flex-col gap-4 '>
+		<section className='col-span-7 max-sm:col-span-8 row-span-1 flex flex-col gap-4'>
 			<h3 className='text-xl font-bold'>Últimas transacciones</h3>
 			<Table hoverable={true}>
 				<Table.Head>
@@ -45,7 +45,7 @@ export function LastOrders() {
 								<a
 									href='/tables'
 									className='font-medium text-blue-600 hover:underline dark:text-blue-500'>
-									Edit
+									Ver
 								</a>
 							</Table.Cell>
 						</Table.Row>
