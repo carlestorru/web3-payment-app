@@ -7,7 +7,7 @@ const API_URL = `https://min-api.cryptocompare.com/data/top/mktcapfull?${API_KEY
 export default async function getMarketAssets() {
 	const response = await fetch(API_URL);
 	const data = await response.json();
-	return data.Data?.slice(1).map((el) => ({
+	return data.Data?.map((el) => ({
 		id: el.CoinInfo.Id,
 		name: el.CoinInfo.FullName,
 		symbol: el.CoinInfo.Name,
