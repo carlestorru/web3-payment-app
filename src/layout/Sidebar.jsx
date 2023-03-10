@@ -26,7 +26,7 @@ export default function SideBar() {
 		<section
 			className={`${
 				isOpen ? '' : '-translate-x-full'
-			} absolute inset-y-0 left-0 w-64 transform space-y-4 bg-white py-7 px-2 text-slate-600 transition duration-200 ease-in-out md:relative md:translate-x-0`}>
+			} absolute inset-y-0 left-0 z-10 w-64 transform space-y-4 bg-white py-7 px-2 text-slate-600 transition duration-200 ease-in-out md:sticky md:translate-x-0 md:self-start`}>
 			{/* Header */}
 			<header>
 				<Wallet />
