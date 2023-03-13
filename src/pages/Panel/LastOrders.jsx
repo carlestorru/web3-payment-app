@@ -19,7 +19,7 @@ export function LastOrders() {
 		<section className='col-span-7 max-sm:col-span-8 row-span-1 flex flex-col gap-4'>
 			<h3 className='text-xl font-bold'>Últimas transacciones</h3>
 			<Table hoverable={true}>
-				<Table.Head>
+				<Table.Head className='bg-blue-500 text-gray-50'>
 					<Table.HeadCell>ID. transacción</Table.HeadCell>
 					<Table.HeadCell>De</Table.HeadCell>
 					<Table.HeadCell>Para</Table.HeadCell>
@@ -32,11 +32,11 @@ export function LastOrders() {
 					{transactions.from.map((tx) => (
 						<Table.Row
 							key={tx.hash}
-							className='bg-white dark:border-gray-700 dark:bg-gray-800'>
-							<Table.Cell className='whitespace-nowrap font-semibold text-gray-900 dark:text-white'>
+							className='bg-white'>
+							<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
 								{tx.hash}
 							</Table.Cell>
-							<Table.Cell className='font-medium'>{tx.from}</Table.Cell>
+							<Table.Cell>{tx.from}</Table.Cell>
 							<Table.Cell>{tx.to}</Table.Cell>
 							<Table.Cell className='whitespace-nowrap'>
 								{web3.utils.fromWei(tx.value)} ETH
@@ -44,7 +44,7 @@ export function LastOrders() {
 							<Table.Cell>
 								<a
 									href='/tables'
-									className='font-medium text-blue-600 hover:underline dark:text-blue-500'>
+									className='font-medium text-blue-600 hover:underline'>
 									Ver
 								</a>
 							</Table.Cell>
@@ -53,19 +53,19 @@ export function LastOrders() {
 					{transactions.to.map((tx) => (
 						<Table.Row
 							key={tx.hash}
-							className='bg-white dark:border-gray-700 dark:bg-gray-800'>
-							<Table.Cell className='whitespace-nowrap font-semibold text-gray-900 dark:text-white'>
+							className='bg-white'>
+							<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
 								{tx.hash}
 							</Table.Cell>
 							<Table.Cell>{tx.from}</Table.Cell>
-							<Table.Cell className='font-medium'>{tx.to}</Table.Cell>
+							<Table.Cell>{tx.to}</Table.Cell>
 							<Table.Cell className='whitespace-nowrap'>
 								{web3.utils.fromWei(tx.value)} ETH
 							</Table.Cell>
 							<Table.Cell>
 								<a
 									href='/tables'
-									className='font-medium text-blue-600 hover:underline dark:text-blue-500'>
+									className='font-medium text-blue-600 hover:underline'>
 									Edit
 								</a>
 							</Table.Cell>
