@@ -8,6 +8,8 @@ import {
 
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { HiInformationCircle } from './Icons/HiInformationCircle';
+import MetamaskIcon from './Icons/MetamaskIcon';
+
 import { Alert } from 'flowbite-react';
 
 export function WalletConnector() {
@@ -52,9 +54,11 @@ export function WalletConnector() {
 				<Navigate to='/' />
 			) : (
 				<button
-					className='transform rounded-3xl bg-gradient-to-r from-sky-400 to-sky-600 px-4 py-2 text-white transition duration-300 hover:scale-105 hover:bg-gradient-to-l hover:from-sky-400 hover:to-sky-600 sm:px-8 sm:py-3'
-					onClick={connect}>
-					Conectar wallet
+					type='button'
+					onClick={connect}
+					className='mr-2 mb-2 inline-flex items-center rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-center text-base font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-100'>
+					<MetamaskIcon />
+					Conectar con MetaMask
 				</button>
 			)}
 			{error ? (
