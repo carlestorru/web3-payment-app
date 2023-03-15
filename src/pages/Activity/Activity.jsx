@@ -1,6 +1,6 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Table, Modal, Button } from 'flowbite-react';
+import { Table, Modal, Button, Label, RangeSlider } from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
 import getTransacctionsByAccount from '../../services/getTransactionsByAccount';
@@ -60,8 +60,8 @@ function Activity() {
 				Visión general de los mercados y últimos pedidos
 			</h4>
 			<section className='pt-4'>
-				<div className='flex flex-row'>
-					<div className='pb-4'>
+				<div className='flex flex-row gap-3 items-center pb-4'>
+					<div>
 						<label htmlFor='table-search' className='sr-only'>
 							Search
 						</label>
@@ -89,7 +89,57 @@ function Activity() {
 							/>
 						</div>
 					</div>
-					<input placeholder='hola' />
+					<div className='flex items-center'>
+						<div className='relative'>
+							<div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
+								<svg
+									aria-hidden='true'
+									className='h-5 w-5 text-gray-500 dark:text-gray-400'
+									fill='currentColor'
+									viewBox='0 0 20 20'
+									xmlns='http://www.w3.org/2000/svg'>
+									<path
+										fillRule='evenodd'
+										d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
+										clipRule='evenodd'></path>
+								</svg>
+							</div>
+							<input
+								name='start'
+								type='text'
+								className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500  dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
+								placeholder='Select date start'
+							/>
+						</div>
+						<span className='mx-4 text-gray-500'>to</span>
+						<div className='relative'>
+							<div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
+								<svg
+									aria-hidden='true'
+									className='h-5 w-5 text-gray-500 dark:text-gray-400'
+									fill='currentColor'
+									viewBox='0 0 20 20'
+									xmlns='http://www.w3.org/2000/svg'>
+									<path
+										fillRule='evenodd'
+										d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
+										clipRule='evenodd'></path>
+								</svg>
+							</div>
+							<input
+								name='end'
+								type='text'
+								className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500  dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
+								placeholder='Select date end'
+							/>
+						</div>
+					</div>
+					<div>
+						<div className='mb-1 block'>
+							<Label htmlFor='price-range' value='Precio' />
+						</div>
+						<RangeSlider id='price-range' />
+					</div>
 				</div>
 				{transactions.from.length === 0 && transactions.to.length === 0 ? (
 					<p className='pt-4 text-center font-semibold'>
@@ -115,7 +165,10 @@ function Activity() {
 									<Table.Cell>{tx.from}</Table.Cell>
 									<Table.Cell>{tx.to}</Table.Cell>
 									<Table.Cell className='whitespace-nowrap'>
-										{web3.utils.fromWei(tx.value)} ETH
+										<span className='text-red-500'>
+											{' '}
+											- {web3.utils.fromWei(tx.value)} ETH
+										</span>
 									</Table.Cell>
 									<Table.Cell>
 										<button
@@ -134,7 +187,10 @@ function Activity() {
 									<Table.Cell>{tx.from}</Table.Cell>
 									<Table.Cell>{tx.to}</Table.Cell>
 									<Table.Cell className='whitespace-nowrap'>
-										{web3.utils.fromWei(tx.value)} ETH
+										<span className='text-green-500'>
+											{' '}
+											+ {web3.utils.fromWei(tx.value)} ETH
+										</span>
 									</Table.Cell>
 									<Table.Cell>
 										<button
