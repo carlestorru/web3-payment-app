@@ -7,7 +7,7 @@ import getTransacctionsByAccount from '../../services/getTransactionsByAccount';
 
 function Activity() {
 	const { account, library: web3 } = useWeb3React();
-	const [transactions, setTransactions] = useState({ from: [], to: [] });
+	const [transactions, setTransactions] = useState([]);
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedTx, setDetailedTx] = useState(null);
 	const [inputSearch, setInputSearch] = useState('');
@@ -36,20 +36,14 @@ function Activity() {
 		const inputValue = event.target.value;
 		setInputSearch(inputValue);
 		getTransacctionsByAccount(account, web3).then((res) => {
-			const filteredFromTxs = res.from.filter(
-				(tx) =>
-					tx.hash.startsWith(inputValue) ||
-					tx.from.startsWith(inputValue) ||
-					tx.to.startsWith(inputValue)
-			);
-			const filteredToTxs = res.to.filter(
+			const filteredTxs = res.filter(
 				(tx) =>
 					tx.hash.startsWith(inputValue) ||
 					tx.from.startsWith(inputValue) ||
 					tx.to.startsWith(inputValue)
 			);
 
-			setTransactions({ from: filteredFromTxs, to: filteredToTxs });
+			setTransactions(filteredTxs);
 		});
 	};
 
@@ -60,7 +54,7 @@ function Activity() {
 				Visión general de los mercados y últimos pedidos
 			</h4>
 			<section className='pt-4'>
-				<div className='flex flex-row gap-3 items-center pb-4'>
+				<div className='flex flex-row items-center gap-3 pb-4'>
 					<div>
 						<label htmlFor='table-search' className='sr-only'>
 							Search
@@ -141,55 +135,36 @@ function Activity() {
 						<RangeSlider id='price-range' />
 					</div>
 				</div>
-				{transactions.from.length === 0 && transactions.to.length === 0 ? (
+				{transactions.length === 0 ? (
 					<p className='pt-4 text-center font-semibold'>
 						No existen transacciones para esta cuenta
 					</p>
 				) : (
 					<Table hoverable={true} className='w-full overflow-x-auto'>
-						<Table.Head className='bg-blue-500 text-gray-50'>
-							<Table.HeadCell>ID. transacción</Table.HeadCell>
-							<Table.HeadCell>De</Table.HeadCell>
-							<Table.HeadCell>Para</Table.HeadCell>
-							<Table.HeadCell>Precio</Table.HeadCell>
+						<Table.Head className='bg-blue-500'>
+							<Table.HeadCell className='text-white'>
+								ID. transacción
+							</Table.HeadCell>
+							<Table.HeadCell className='text-white'>De / Para</Table.HeadCell>
+							<Table.HeadCell className='text-white'>Cantidad</Table.HeadCell>
 							<Table.HeadCell>
 								<span className='sr-only'>Edit</span>
 							</Table.HeadCell>
 						</Table.Head>
 						<Table.Body className='divide-y'>
-							{transactions.from.map((tx) => (
+							{transactions.map((tx) => (
 								<Table.Row key={tx.hash} className='bg-white'>
 									<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
 										{tx.hash}
 									</Table.Cell>
-									<Table.Cell>{tx.from}</Table.Cell>
 									<Table.Cell>{tx.to}</Table.Cell>
 									<Table.Cell className='whitespace-nowrap'>
-										<span className='text-red-500'>
+										<span
+											className={
+												tx.from === account ? `text-red-500` : `text-green-500`
+											}>
 											{' '}
 											- {web3.utils.fromWei(tx.value)} ETH
-										</span>
-									</Table.Cell>
-									<Table.Cell>
-										<button
-											className='font-medium text-blue-600 hover:underline'
-											onClick={() => onOpenModal(tx)}>
-											Ver
-										</button>
-									</Table.Cell>
-								</Table.Row>
-							))}
-							{transactions.to.map((tx) => (
-								<Table.Row key={tx.hash} className='bg-white'>
-									<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
-										{tx.hash}
-									</Table.Cell>
-									<Table.Cell>{tx.from}</Table.Cell>
-									<Table.Cell>{tx.to}</Table.Cell>
-									<Table.Cell className='whitespace-nowrap'>
-										<span className='text-green-500'>
-											{' '}
-											+ {web3.utils.fromWei(tx.value)} ETH
 										</span>
 									</Table.Cell>
 									<Table.Cell>
@@ -219,9 +194,7 @@ function Activity() {
 						</div>
 					</Modal.Body>
 					<Modal.Footer className='flex justify-end'>
-						<Button outline={true} onClick={onCloseModal}>
-							Cerrar
-						</Button>
+						<Button onClick={onCloseModal}>Cerrar</Button>
 					</Modal.Footer>
 				</Modal>
 			) : (
