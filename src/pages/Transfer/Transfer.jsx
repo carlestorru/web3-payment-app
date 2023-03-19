@@ -1,15 +1,44 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Label, TextInput, Button, Select, Radio } from 'flowbite-react';
+import { Label, TextInput, Button, Select, Tabs } from 'flowbite-react';
+import { useWeb3React } from '@web3-react/core';
 
 function Transfer() {
+	const { account, library: web3 } = useWeb3React();
 	useAuth();
 	useDocumentTitle('Transfer');
 
-	const onSubmit = (event) => {
+	const onSubmit = async (event) => {
 		event.preventDefault();
-		const fields = Object.fromEntries(new window.FormData(event.target))
-		console.log(fields)
+		const fields = Object.fromEntries(new window.FormData(event.target));
+		console.log(fields);
+		const nonce = await web3.eth.getTransactionCount(account, 'latest');
+
+		const value = web3.utils.toWei(fields.quantity);
+
+		const transaction = {
+			from: account,
+			to: fields.address, // faucet address to return eth
+			value: value,
+			nonce: nonce,
+			data: web3.utils.toHex(fields.message),
+		};
+
+		const signedTx = await web3.eth.sendTransaction(
+			transaction,
+			function (error, hash) {
+				if (!error) {
+					console.log('🎉 The hash of your transaction is: ', hash);
+				} else {
+					console.log(
+						'❗Something went wrong while submitting your transaction:',
+						error
+					);
+				}
+			}
+		);
+
+		console.log(signedTx)
 	};
 
 	return (
@@ -18,64 +47,64 @@ function Transfer() {
 			<h4 className='text-slate-500'>
 				Recibe y transfiere dinero a otras cuentas
 			</h4>
-			<section className='flex justify-center pt-4'>
-				<form
-					className='flex flex-col content-center justify-center gap-4'
-					onSubmit={onSubmit}>
-					<div>
-						<Label htmlFor='address' value='Wallet' />
-						<TextInput
-							id='address'
-							name='address'
-							placeholder='Introduce una dirección wallet...'
-							required={true}
-							addon='0x'
-						/>
-					</div>
-
-					<div className='flex flex-row justify-between'>
-						<div>
+			<section className='m-auto w-full pt-4  lg:w-3/5'>
+				<Tabs.Group
+					className='flex justify-center'
+					aria-label='Tabs with underline'
+					style='underline'>
+					<Tabs.Item active={true} title='Enviar'>
+						<form
+							className='flex flex-col content-center justify-center gap-4'
+							onSubmit={onSubmit}>
 							<div>
-								<Label htmlFor='quantity' value='Cantidad' />
-							</div>
-							<div className='flex flex-row'>
+								<Label htmlFor='address' value='Wallet' />
 								<TextInput
-									id='quantity'
-									name='quantity'
-									placeholder='Cantidad...'
+									id='address'
+									name='address'
+									placeholder='Introduce una dirección wallet...'
 									required={true}
+									addon='0x'
 								/>
-								<Select name='currency' id='currencies' required={true}>
-									<option>ETH</option>
-									<option>$</option>
-								</Select>
 							</div>
-						</div>
-						<fieldset className='flex flex-row gap-4' id='radio'>
-							<div className='flex items-center gap-2'>
-								<Radio
-									id='send'
-									name='actions'
-									value='Send'
-									defaultChecked={true}
-								/>
-								<Label htmlFor='send'>Enviar</Label>
-							</div>
-							<div className='flex items-center gap-2'>
-								<Radio id='recieve' name='actions' value='Recieve' />
-								<Label htmlFor='recieve'>Solicitar</Label>
-							</div>
-						</fieldset>
-					</div>
 
-					<div>
-						<div>
-							<Label htmlFor='message' value='¿Para que es este pago?' />
-						</div>
-						<TextInput id='message' name='message' type='text' sizing='lg' />
-					</div>
-					<Button type='submit' fullSized={true}>Enviar</Button>
-				</form>
+							<div className='flex flex-row justify-between'>
+								<div>
+									<div>
+										<Label htmlFor='quantity' value='Cantidad' />
+									</div>
+									<div className='flex flex-row'>
+										<TextInput
+											id='quantity'
+											name='quantity'
+											placeholder='Cantidad...'
+											required={true}
+										/>
+										<Select name='currency' id='currencies' required={true}>
+											<option>ETH</option>
+											<option>$</option>
+										</Select>
+									</div>
+								</div>
+							</div>
+
+							<div>
+								<div>
+									<Label htmlFor='message' value='¿Para que es este pago?' />
+								</div>
+								<TextInput
+									id='message'
+									name='message'
+									type='text'
+									sizing='lg'
+								/>
+							</div>
+							<Button type='submit' fullSized={true}>
+								Enviar
+							</Button>
+						</form>
+					</Tabs.Item>
+					<Tabs.Item title='Solicitar'>Solicitar</Tabs.Item>
+				</Tabs.Group>
 			</section>
 		</>
 	);
