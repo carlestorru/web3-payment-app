@@ -1,6 +1,15 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Table, Modal, Button, Label, RangeSlider } from 'flowbite-react';
+import {
+	Table,
+	Modal,
+	Button,
+	Dropdown,
+	Checkbox,
+	Label,
+	TextInput,
+	Select,
+} from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
 import getTransacctionsByAccount from '../../services/getTransactionsByAccount';
@@ -11,6 +20,10 @@ function Activity() {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedTx, setDetailedTx] = useState(null);
 	const [inputSearch, setInputSearch] = useState('');
+	const [showPays, setShowPays] = useState(true);
+	const [showInc, setShowInc] = useState(true);
+	const [sortType, setSortType] = useState('dateNew');
+
 
 	useEffect(() => {
 		if (web3 !== undefined) {
@@ -36,15 +49,64 @@ function Activity() {
 		const inputValue = event.target.value;
 		setInputSearch(inputValue);
 		getTransacctionsByAccount(account, web3).then((res) => {
-			const filteredTxs = res.filter(
+			const searchedTxs = res.filter(
 				(tx) =>
 					tx.hash.startsWith(inputValue) ||
 					tx.from.startsWith(inputValue) ||
 					tx.to.startsWith(inputValue)
 			);
 
-			setTransactions(filteredTxs);
+			setTransactions(searchedTxs);
 		});
+	};
+
+	const onCheckPayments = () => {
+		setShowPays((prev) => !prev);
+	};
+
+	const onCheckIncomes = () => {
+		setShowInc((prev) => !prev);
+	};
+
+	const onChangeSort = (event) => {
+		setSortType(event.target.value)
+	}
+
+	const sortTransactions = (filteredTxs) => {
+		let sortedTxs = [];
+		if (sortType === 'dateNew') {
+			sortedTxs = filteredTxs.sort((a, b) => a.timestamp - b.timestamp).reverse();
+			setTransactions(sortedTxs);
+		} else if (sortType === 'dateOld') {
+			sortedTxs = filteredTxs.sort((a, b) => a.timestamp - b.timestamp);
+			setTransactions(sortedTxs);
+		} else if (sortType === 'priceLow') {
+			sortedTxs = filteredTxs.sort((a, b) => a.value.localeCompare(b.value)).reverse();
+			setTransactions(sortedTxs);
+		} else if (sortType === 'priceHigh') {
+			sortedTxs = filteredTxs.sort((a, b) => a.value.localeCompare(b.value));
+			setTransactions(sortedTxs);
+		}
+	}
+
+	const onApplyFilters = () => {
+		getTransacctionsByAccount(account, web3).then((res) => {
+			const filteredTxs = res.filter((tx) => {
+				if (showPays && showInc) {
+					return true;
+				}
+				if (showPays) {
+					return tx.from === account;
+				}
+				if (showInc) {
+					return tx.to === account;
+				}
+				return null;
+			});
+
+			sortTransactions(filteredTxs);
+		});
+
 	};
 
 	return (
@@ -54,7 +116,7 @@ function Activity() {
 				Visión general de los mercados y últimos pedidos
 			</h4>
 			<section className='pt-4'>
-				<div className='flex flex-row items-center gap-3 pb-4'>
+				<div className='flex flex-row items-center justify-between pb-4'>
 					<div>
 						<label htmlFor='table-search' className='sr-only'>
 							Search
@@ -83,57 +145,74 @@ function Activity() {
 							/>
 						</div>
 					</div>
-					<div className='flex items-center'>
-						<div className='relative'>
-							<div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
-								<svg
-									aria-hidden='true'
-									className='h-5 w-5 text-gray-500 dark:text-gray-400'
-									fill='currentColor'
-									viewBox='0 0 20 20'
-									xmlns='http://www.w3.org/2000/svg'>
-									<path
-										fillRule='evenodd'
-										d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
-										clipRule='evenodd'></path>
-								</svg>
+					<Dropdown dismissOnClick={false} label='Filtrar'>
+						<Dropdown.Item>
+							<div className='flex items-center gap-2'>
+								<Label htmlFor='sort'>Ordenar por:</Label>
+								<Select id='sort' required={true} onChange={onChangeSort} >
+									<option value='dateNew'>Fecha: Más recientes</option>
+									<option value='dateOld'>Fecha: Más antiguas</option>
+									<option value='priceHigh'>Precio: De menor a mayor</option>
+									<option value='priceLow'>Precio: De mayor a menor</option>
+								</Select>
 							</div>
-							<input
-								name='start'
-								type='text'
-								className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500  dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
-								placeholder='Select date start'
-							/>
-						</div>
-						<span className='mx-4 text-gray-500'>to</span>
-						<div className='relative'>
-							<div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
-								<svg
-									aria-hidden='true'
-									className='h-5 w-5 text-gray-500 dark:text-gray-400'
-									fill='currentColor'
-									viewBox='0 0 20 20'
-									xmlns='http://www.w3.org/2000/svg'>
-									<path
-										fillRule='evenodd'
-										d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
-										clipRule='evenodd'></path>
-								</svg>
+						</Dropdown.Item>
+						<Dropdown.Divider />
+						<Dropdown.Item>
+							<div className='flex items-center gap-2'>
+								<Checkbox
+									id='payments'
+									defaultChecked={showPays}
+									onClick={onCheckPayments}
+								/>
+								<Label htmlFor='payments'>Pagos</Label>
 							</div>
-							<input
-								name='end'
-								type='text'
-								className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500  dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
-								placeholder='Select date end'
-							/>
-						</div>
-					</div>
-					<div>
-						<div className='mb-1 block'>
-							<Label htmlFor='price-range' value='Precio' />
-						</div>
-						<RangeSlider id='price-range' />
-					</div>
+						</Dropdown.Item>
+						<Dropdown.Item>
+							<div className='flex items-center gap-2'>
+								<Checkbox
+									id='incomes'
+									defaultChecked={showInc}
+									onClick={onCheckIncomes}
+								/>
+								<Label htmlFor='incomes'>Ingresos</Label>
+							</div>
+						</Dropdown.Item>
+						<Dropdown.Divider />
+						<Dropdown.Item>
+							<div className='flex flex-row items-center gap-2'>
+								<div>
+									<div className='mb-2 block'>
+										<Label htmlFor='from' value='Desde' />
+									</div>
+									<TextInput
+										id='from'
+										type='text'
+										sizing='sm'
+										placeholder='ex.: 0'
+									/>
+								</div>
+								<div className='mt-5'>
+									<p>-</p>
+								</div>
+								<div>
+									<div className='mb-2 block'>
+										<Label htmlFor='to' value='Hasta' />
+									</div>
+									<TextInput
+										id='to'
+										type='text'
+										sizing='sm'
+										placeholder='ex.:100'
+									/>
+								</div>
+							</div>
+						</Dropdown.Item>
+						<Dropdown.Divider />
+						<Dropdown.Item>
+							<Button onClick={onApplyFilters}>Aplicar</Button>
+						</Dropdown.Item>
+					</Dropdown>
 				</div>
 				{transactions.length === 0 ? (
 					<p className='pt-4 text-center font-semibold'>
@@ -164,7 +243,8 @@ function Activity() {
 												tx.from === account ? `text-red-500` : `text-green-500`
 											}>
 											{' '}
-											- {web3.utils.fromWei(tx.value)} ETH
+											{tx.from === account ? '-' : '+'}{' '}
+											{web3.utils.fromWei(tx.value)} ETH
 										</span>
 									</Table.Cell>
 									<Table.Cell>

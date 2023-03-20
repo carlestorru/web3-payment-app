@@ -13,13 +13,12 @@ export default async function getTransacctionsByAccount(account, web3) {
 						...tx,
 						date: blockDate.toLocaleDateString(),
 						time: blockDate.toLocaleTimeString(),
+						timestamp: block.timestamp
 					});
 				}
 			}
 		}
 	}
-
-	console.log(transactions);
 
 	return transactions;
 }
