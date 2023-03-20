@@ -47,7 +47,7 @@ function Transfer() {
 			<h4 className='text-slate-500'>
 				Recibe y transfiere dinero a otras cuentas
 			</h4>
-			<section className='m-auto w-full pt-4  lg:w-3/5'>
+			<section className='m-auto w-full pt-4 lg:w-3/5'>
 				<Tabs.Group
 					className='flex justify-center'
 					aria-label='Tabs with underline'
