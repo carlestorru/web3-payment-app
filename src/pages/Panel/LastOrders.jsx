@@ -10,7 +10,8 @@ export function LastOrders() {
 	useEffect(() => {
 		if (web3 !== undefined) {
 			getTransacctionsByAccount(account, web3).then((res) => {
-				setTransactions(res);
+				const lastTenTxs = res.slice(Math.max(res.length - 10, 0))
+				setTransactions(lastTenTxs);
 			});
 		}
 	}, [web3]);
