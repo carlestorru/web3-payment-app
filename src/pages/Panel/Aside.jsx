@@ -5,7 +5,7 @@ import {
 
 export function Aside() {
 	return (
-		<aside className='col-start-8 row-span-2 row-start-1 flex flex-col justify-start items-center max-sm:hidden'>
+		<aside className='col-start-8 row-start-1 flex flex-col justify-start items-center max-sm:hidden'>
 			<section className='flex flex-col justify-center gap-4'>
 				<h4></h4>
 				<article className='flex flex-col items-center'>

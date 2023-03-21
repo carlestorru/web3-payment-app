@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp } from '../../components/Icons/Outlined/Arrow';
 
 export function MarketCards({ data }) {
 	return (
-		<section className='col-span-7 max-sm:col-span-8 row-span-1 flex flex-wrap justify-center gap-4 pt-4 md:flex-row md:flex-nowrap md:justify-start md:overflow-auto'>
+		<section className='col-span-7 max-sm:col-span-8 flex flex-wrap justify-center gap-4 pt-4 md:flex-row md:flex-nowrap md:justify-start md:overflow-auto'>
 			{data.map((el) => (
 				<article key={el.id}>
 					<Card className='w-72'>

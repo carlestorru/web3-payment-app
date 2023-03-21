@@ -17,7 +17,7 @@ function Panel() {
 			<h4 className='text-slate-500'>
 				Visión general de los mercados y últimos pedidos
 			</h4>
-			<div className='grid grid-cols-8 grid-rows-2 gap-8'>
+			<div className='grid grid-cols-8 gap-8'>
 				{isLoading ? <p>Cargando</p> :  <MarketCards data={data} /> }
 				{isError ? <p>Error</p> : ''}
 				<LastOrders />
