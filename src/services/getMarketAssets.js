@@ -12,9 +12,9 @@ export default async function getMarketAssets() {
 		name: el.CoinInfo.FullName,
 		symbol: el.CoinInfo.Name,
 		image: `https://www.cryptocompare.com${el.CoinInfo.ImageUrl}`,
-		marketCapUsd: el.DISPLAY.USD.MKTCAP,
-		changePercent24Hr: el.DISPLAY.USD.CHANGEPCT24HOUR,
+		marketCapUsd: el.DISPLAY.USD.MKTCAP || '$ -',
+		changePercent24Hr: el.DISPLAY.USD.CHANGEPCT24HOUR || '0',
 		url: `https://www.cryptocompare.com${el.CoinInfo.Url}`,
-		price: el.DISPLAY.USD.PRICE
+		price: el.DISPLAY.USD.PRICE || '$ -'
 	}));
 }
