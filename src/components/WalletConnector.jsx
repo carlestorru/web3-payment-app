@@ -15,6 +15,7 @@ import { Alert } from 'flowbite-react';
 export function WalletConnector() {
 	const { activate, active, error } = useWeb3React();
 	const [typeError, setTypeError] = useState('');
+	const [showAlert, setShowAlert] = useState(true);
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -24,6 +25,10 @@ export function WalletConnector() {
 		if (location.state?.from) navigate(location.state.from);
 	}, [activate]);
 
+	const onCloseAlert = () => {
+		setShowAlert(false);
+	};
+
 	useEffect(() => {
 		if (localStorage.getItem('previouslyConnected') === 'true') {
 			connect();
@@ -31,6 +36,7 @@ export function WalletConnector() {
 	}, [connect]);
 
 	useEffect(() => {
+		setShowAlert(true);
 		const isNoEthereumProviderError = error instanceof NoEthereumProviderError;
 		const isUserRejectedRequestError =
 			error instanceof UserRejectedRequestError;
@@ -44,6 +50,7 @@ export function WalletConnector() {
 			typeErr = 'Unsupported Chain connection:';
 		}
 		if (error) {
+			localStorage.removeItem('previouslyConnected');
 			setTypeError(typeErr);
 		}
 	}, [error]);
@@ -61,8 +68,9 @@ export function WalletConnector() {
 					Conectar con MetaMask
 				</button>
 			)}
-			{error ? (
+			{error && showAlert ? (
 				<Alert
+					onDismiss={onCloseAlert}
 					className='absolute right-2 bottom-2'
 					color='failure'
 					icon={HiInformationCircle}>

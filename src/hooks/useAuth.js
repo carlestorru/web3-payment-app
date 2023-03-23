@@ -10,7 +10,6 @@ export default function useAuth() {
 
 	const connect = useCallback(() => {
 		activate(connector);
-		localStorage.setItem('previouslyConnected', true);
 	}, [activate]);
 
 	useEffect(() => {
