@@ -5,6 +5,8 @@ import { useWeb3React } from '@web3-react/core';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import EthereumLogo from '../../assets/Ethereum_logo_2014.png';
 
+import HelloWorldAbi from '../../config/abis/HelloWorld.json';
+
 function Wallet() {
 	useAuth();
 	useDocumentTitle('Wallet');
@@ -25,6 +27,10 @@ function Wallet() {
 			setGasPrice(web3.utils.fromWei(gasPrice));
 			setNodeInfo(nodeInfo);
 			setBalance(balance.USD * balanceEther);
+
+			const contract = new web3.eth.Contract(HelloWorldAbi.abi,'0x55b4D4e52b45eeD2672B9D4dCe386671B4C7B718');
+			console.log(contract)
+			console.log(await contract.methods.sayHelloWorld().call())
 		}
 
 		loadWalletInfo();
