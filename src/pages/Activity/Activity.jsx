@@ -13,6 +13,29 @@ import {
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
 import getTransacctionsByAccount from '../../services/getTransactionsByAccount';
+import Datepicker from 'tailwind-datepicker-react';
+
+const datePickerOptions = {
+	autoHide: true,
+	todayBtn: false,
+	clearBtn: false,
+	maxDate: new Date('2030-01-01'),
+	minDate: new Date('1950-01-01'),
+	theme: {
+		background: '',
+		todayBtn: '',
+		clearBtn: '',
+		icons: '',
+		text: '',
+		disabledText: '',
+		input: '',
+		inputIcon: '',
+		selected: '',
+	},
+	datepickerClassNames: '',
+	defaultDate: new Date(),
+	language: 'es',
+};
 
 function Activity() {
 	const { account, library: web3 } = useWeb3React();
@@ -20,10 +43,11 @@ function Activity() {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedTx, setDetailedTx] = useState(null);
 	const [inputSearch, setInputSearch] = useState('');
+	const [showDatePickerTo, setShowDatePickerTo] = useState(false);
+	const [showDatePickerFrom, setShowDatePickerFrom] = useState(false);
 	const [showPays, setShowPays] = useState(true);
 	const [showInc, setShowInc] = useState(true);
 	const [sortType, setSortType] = useState('dateNew');
-
 
 	useEffect(() => {
 		if (web3 !== undefined) {
@@ -69,25 +93,41 @@ function Activity() {
 	};
 
 	const onChangeSort = (event) => {
-		setSortType(event.target.value)
-	}
+		setSortType(event.target.value);
+	};
+
+	const handleChange = (selectedDate) => {
+		console.log(new Date(selectedDate).getTime());
+	};
+
+	const handleCloseDatePickerFrom = (state) => {
+		setShowDatePickerFrom(state);
+	};
+
+	const handleCloseDatePickerTo = (state) => {
+		setShowDatePickerTo(state);
+	};
 
 	const sortTransactions = (filteredTxs) => {
 		let sortedTxs = [];
 		if (sortType === 'dateNew') {
-			sortedTxs = filteredTxs.sort((a, b) => a.timestamp - b.timestamp).reverse();
+			sortedTxs = filteredTxs
+				.sort((a, b) => a.timestamp - b.timestamp)
+				.reverse();
 			setTransactions(sortedTxs);
 		} else if (sortType === 'dateOld') {
 			sortedTxs = filteredTxs.sort((a, b) => a.timestamp - b.timestamp);
 			setTransactions(sortedTxs);
 		} else if (sortType === 'priceLow') {
-			sortedTxs = filteredTxs.sort((a, b) => a.value.localeCompare(b.value)).reverse();
+			sortedTxs = filteredTxs
+				.sort((a, b) => a.value.localeCompare(b.value))
+				.reverse();
 			setTransactions(sortedTxs);
 		} else if (sortType === 'priceHigh') {
 			sortedTxs = filteredTxs.sort((a, b) => a.value.localeCompare(b.value));
 			setTransactions(sortedTxs);
 		}
-	}
+	};
 
 	const onApplyFilters = () => {
 		getTransacctionsByAccount(account, web3).then((res) => {
@@ -106,7 +146,6 @@ function Activity() {
 
 			sortTransactions(filteredTxs);
 		});
-
 	};
 
 	return (
@@ -116,8 +155,8 @@ function Activity() {
 				Visión general de los mercados y últimos pedidos
 			</h4>
 			<section className='pt-4'>
-				<div className='flex flex-row items-center justify-between pb-4'>
-					<div>
+				<div className='flex flex-row items-center justify-between gap-2 pb-4 max-sm:flex-col'>
+					<div className='sm:self-end'>
 						<label htmlFor='table-search' className='sr-only'>
 							Search
 						</label>
@@ -138,81 +177,127 @@ function Activity() {
 							<input
 								type='text'
 								id='table-search'
-								className='block w-80 rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+								className='block min-w-[250px] rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
 								placeholder='Buscar...'
 								value={inputSearch}
 								onChange={onChangeSearch}
 							/>
 						</div>
 					</div>
-					<Dropdown dismissOnClick={false} label='Filtrar'>
-						<Dropdown.Item>
-							<div className='flex items-center gap-2'>
-								<Label htmlFor='sort'>Ordenar por:</Label>
-								<Select id='sort' required={true} onChange={onChangeSort} >
-									<option value='dateNew'>Fecha: Más recientes</option>
-									<option value='dateOld'>Fecha: Más antiguas</option>
-									<option value='priceHigh'>Precio: De menor a mayor</option>
-									<option value='priceLow'>Precio: De mayor a menor</option>
-								</Select>
-							</div>
-						</Dropdown.Item>
-						<Dropdown.Divider />
-						<Dropdown.Item>
-							<div className='flex items-center gap-2'>
-								<Checkbox
-									id='payments'
-									defaultChecked={showPays}
-									onClick={onCheckPayments}
-								/>
-								<Label htmlFor='payments'>Pagos</Label>
-							</div>
-						</Dropdown.Item>
-						<Dropdown.Item>
-							<div className='flex items-center gap-2'>
-								<Checkbox
-									id='incomes'
-									defaultChecked={showInc}
-									onClick={onCheckIncomes}
-								/>
-								<Label htmlFor='incomes'>Ingresos</Label>
-							</div>
-						</Dropdown.Item>
-						<Dropdown.Divider />
-						<Dropdown.Item>
-							<div className='flex flex-row items-center gap-2'>
-								<div>
-									<div className='mb-2 block'>
-										<Label htmlFor='from' value='Desde' />
-									</div>
-									<TextInput
-										id='from'
-										type='text'
-										sizing='sm'
-										placeholder='ex.: 0'
-									/>
-								</div>
-								<div className='mt-5'>
-									<p>-</p>
+					<div className='flow-row flex items-center gap-4 max-sm:flex-col'>
+						<div className='flex flex-row items-center gap-2'>
+							<div>
+								<div className='mb-2 block'>
+									<Label className='font-normal' htmlFor='from' value='Desde' />
 								</div>
 								<div>
-									<div className='mb-2 block'>
-										<Label htmlFor='to' value='Hasta' />
-									</div>
-									<TextInput
-										id='to'
-										type='text'
-										sizing='sm'
-										placeholder='ex.:100'
+									<Datepicker
+										options={datePickerOptions}
+										onChange={handleChange}
+										show={showDatePickerFrom}
+										setShow={handleCloseDatePickerFrom}
 									/>
 								</div>
 							</div>
-						</Dropdown.Item>
-						<Dropdown.Divider />
-						<Dropdown.Item>
-							<Button onClick={onApplyFilters}>Aplicar</Button>
-						</Dropdown.Item>
-					</Dropdown>
+							<div className='mt-5'>
+								<p>-</p>
+							</div>
+							<div>
+								<div className='mb-2 block'>
+									<Label className='font-normal' htmlFor='to' value='Hasta' />
+								</div>
+								<div>
+									<Datepicker
+										options={datePickerOptions}
+										onChange={handleChange}
+										show={showDatePickerTo}
+										setShow={handleCloseDatePickerTo}
+									/>
+								</div>
+							</div>
+						</div>
+						<div className='self-end max-sm:self-center'>
+							<Dropdown dismissOnClick={false} label='Filtrar'>
+								<Dropdown.Item>
+									<div className='flex items-center gap-2'>
+										<Label htmlFor='sort'>Ordenar por:</Label>
+										<Select id='sort' required={true} onChange={onChangeSort}>
+											<option value='dateNew'>Fecha: Más recientes</option>
+											<option value='dateOld'>Fecha: Más antiguas</option>
+											<option value='priceHigh'>
+												Precio: De menor a mayor
+											</option>
+											<option value='priceLow'>Precio: De mayor a menor</option>
+										</Select>
+									</div>
+								</Dropdown.Item>
+								<Dropdown.Divider />
+								<Dropdown.Item>
+									<div className='flex items-center gap-2'>
+										<Checkbox
+											id='payments'
+											defaultChecked={showPays}
+											onClick={onCheckPayments}
+										/>
+										<Label htmlFor='payments'>Pagos</Label>
+									</div>
+								</Dropdown.Item>
+								<Dropdown.Item>
+									<div className='flex items-center gap-2'>
+										<Checkbox
+											id='incomes'
+											defaultChecked={showInc}
+											onClick={onCheckIncomes}
+										/>
+										<Label htmlFor='incomes'>Ingresos</Label>
+									</div>
+								</Dropdown.Item>
+								<Dropdown.Divider />
+								<Dropdown.Header>
+									<span className='mb-2 block text-sm font-medium'>Precio</span>
+									<div className='flex flex-row items-center gap-2'>
+										<div>
+											<div className='mb-2 block'>
+												<Label
+													className='font-normal'
+													htmlFor='from'
+													value='Desde'
+												/>
+											</div>
+											<TextInput
+												id='from'
+												type='text'
+												sizing='sm'
+												placeholder='ex.: 0'
+											/>
+										</div>
+										<div className='mt-5'>
+											<p>-</p>
+										</div>
+										<div>
+											<div className='mb-2 block'>
+												<Label
+													className='font-normal'
+													htmlFor='to'
+													value='Hasta'
+												/>
+											</div>
+											<TextInput
+												id='to'
+												type='text'
+												sizing='sm'
+												placeholder='ex.:100'
+											/>
+										</div>
+									</div>
+								</Dropdown.Header>
+								<Dropdown.Divider />
+								<Dropdown.Item>
+									<Button onClick={onApplyFilters}>Aplicar</Button>
+								</Dropdown.Item>
+							</Dropdown>
+						</div>
+					</div>
 				</div>
 				{transactions.length === 0 ? (
 					<p className='pt-4 text-center font-semibold'>
