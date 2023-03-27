@@ -13,16 +13,34 @@ import MetamaskIcon from './Icons/MetamaskIcon';
 import { Alert } from 'flowbite-react';
 
 export function WalletConnector() {
-	const { activate, active, error } = useWeb3React();
+	const { activate, active } = useWeb3React();
 	const [typeError, setTypeError] = useState('');
 	const [showAlert, setShowAlert] = useState(true);
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	const connect = useCallback(() => {
-		activate(connector);
-		localStorage.setItem('previouslyConnected', true);
-		if (location.state?.from) navigate(location.state.from);
+	const connect = useCallback(async () => {
+		try {
+			await activate(connector, {}, true);
+			localStorage.setItem('previouslyConnected', true);
+			if (location.state?.from) navigate(location.state.from);
+		} catch (err) {
+			setShowAlert(true);
+			const isNoEthereumProviderError = err instanceof NoEthereumProviderError;
+			const isUserRejectedRequestError =
+				err instanceof UserRejectedRequestError;
+			const isUnsupportedChainIdError = err instanceof UnsupportedChainIdError;
+			let typeErr = '';
+			if (isNoEthereumProviderError) {
+				typeErr = 'Please install Metamask extension:';
+			} else if (isUserRejectedRequestError) {
+				typeErr = 'User rejected request:';
+			} else if (isUnsupportedChainIdError) {
+				typeErr = 'Unsupported Chain connection:';
+			}
+			setTypeError(typeErr + ' ' + err.message);
+			console.log(typeErr + ' ' + err.message)
+		}
 	}, [activate]);
 
 	const onCloseAlert = () => {
@@ -34,26 +52,6 @@ export function WalletConnector() {
 			connect();
 		}
 	}, [connect]);
-
-	useEffect(() => {
-		setShowAlert(true);
-		const isNoEthereumProviderError = error instanceof NoEthereumProviderError;
-		const isUserRejectedRequestError =
-			error instanceof UserRejectedRequestError;
-		const isUnsupportedChainIdError = error instanceof UnsupportedChainIdError;
-		let typeErr = '';
-		if (isNoEthereumProviderError) {
-			typeErr = 'Please install Metamask extension:';
-		} else if (isUserRejectedRequestError) {
-			typeErr = 'User rejected request:';
-		} else if (isUnsupportedChainIdError) {
-			typeErr = 'Unsupported Chain connection:';
-		}
-		if (error) {
-			localStorage.removeItem('previouslyConnected');
-			setTypeError(typeErr);
-		}
-	}, [error]);
 
 	return (
 		<>
@@ -68,14 +66,14 @@ export function WalletConnector() {
 					Conectar con MetaMask
 				</button>
 			)}
-			{error && showAlert ? (
+			{typeError && showAlert ? (
 				<Alert
 					onDismiss={onCloseAlert}
 					className='absolute right-2 bottom-2'
 					color='failure'
 					icon={HiInformationCircle}>
 					<span>
-						<span className='font-medium'>{typeError}</span> {error.message}
+						<span className='font-medium'>{typeError}</span>
 					</span>
 				</Alert>
 			) : (
