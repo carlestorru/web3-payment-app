@@ -33,7 +33,7 @@ const datePickerOptions = {
 		selected: '',
 	},
 	datepickerClassNames: '',
-	defaultDate: new Date(),
+	defaultDate: '',
 	language: 'es',
 };
 
@@ -43,19 +43,14 @@ function Activity() {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedTx, setDetailedTx] = useState(null);
 	const [inputSearch, setInputSearch] = useState('');
+	const [dateRange, setDateRange] = useState({ from: '', to: '' });
 	const [showDatePickerTo, setShowDatePickerTo] = useState(false);
 	const [showDatePickerFrom, setShowDatePickerFrom] = useState(false);
+	const [isInvalidDateRange, setIsInvalidDateRange] = useState(false);
 	const [showPays, setShowPays] = useState(true);
 	const [showInc, setShowInc] = useState(true);
 	const [sortType, setSortType] = useState('dateNew');
 
-	useEffect(() => {
-		if (web3 !== undefined) {
-			getTransacctionsByAccount(account, web3).then((res) => {
-				setTransactions(res);
-			});
-		}
-	}, [web3]);
 	useAuth();
 	useDocumentTitle('Activity');
 
@@ -96,8 +91,14 @@ function Activity() {
 		setSortType(event.target.value);
 	};
 
-	const handleChange = (selectedDate) => {
-		console.log(new Date(selectedDate).getTime());
+	const handleChangeDateFrom = (selectedDate) => {
+		const timestamp = new Date(selectedDate / 1000).getTime();
+		setDateRange((prev) => ({ ...prev, from: timestamp }));
+	};
+
+	const handleChangeDateTo = (selectedDate) => {
+		const timestamp = new Date(selectedDate / 1000).getTime();
+		setDateRange((prev) => ({ ...prev, to: timestamp }));
 	};
 
 	const handleCloseDatePickerFrom = (state) => {
@@ -129,6 +130,22 @@ function Activity() {
 		}
 	};
 
+	const filterByDate = (transactions) => {
+		if (dateRange.from !== '' && dateRange.to !== '') {
+			if (dateRange.from <= dateRange.to) {
+				setIsInvalidDateRange(false);
+				const filteredTxs = transactions.filter((tx) => {
+					return tx.timestamp >= dateRange.from && tx.timestamp <= dateRange.to;
+				});
+				sortTransactions(filteredTxs);
+			} else {
+				setIsInvalidDateRange(true);
+			}
+		} else {
+			sortTransactions(transactions);
+		}
+	};
+
 	const onApplyFilters = () => {
 		getTransacctionsByAccount(account, web3).then((res) => {
 			const filteredTxs = res.filter((tx) => {
@@ -144,9 +161,27 @@ function Activity() {
 				return null;
 			});
 
+			if (!isInvalidDateRange) {
+				filterByDate(filteredTxs);
+				return;
+			}
+
 			sortTransactions(filteredTxs);
 		});
 	};
+
+	useEffect(() => {
+		if (web3 !== undefined) {
+			getTransacctionsByAccount(account, web3).then((res) => {
+				setTransactions(res);
+			});
+		}
+	}, [web3]);
+
+	useEffect(() => {
+		onApplyFilters();
+		filterByDate(transactions);
+	}, [dateRange]);
 
 	return (
 		<>
@@ -155,7 +190,7 @@ function Activity() {
 				Visión general de los mercados y últimos pedidos
 			</h4>
 			<section className='pt-4'>
-				<div className='flex flex-row items-center justify-between gap-2 pb-4 max-sm:flex-col'>
+				<div className='flex flex-row items-center justify-between gap-2 pb-12 max-sm:flex-col'>
 					<div className='sm:self-end'>
 						<label htmlFor='table-search' className='sr-only'>
 							Search
@@ -185,39 +220,55 @@ function Activity() {
 						</div>
 					</div>
 					<div className='flow-row flex items-center gap-4 max-sm:flex-col'>
-						<div className='flex flex-row items-center gap-2'>
-							<div>
-								<div className='mb-2 block'>
-									<Label className='font-normal' htmlFor='from' value='Desde' />
+						<div>
+							<div className='flex flex-row items-center gap-2'>
+								<div>
+									<div className='mb-2 block'>
+										<Label
+											className='font-normal'
+											htmlFor='from'
+											value='Desde'
+										/>
+									</div>
+									<div>
+										<Datepicker
+											options={datePickerOptions}
+											onChange={handleChangeDateFrom}
+											show={showDatePickerFrom}
+											setShow={handleCloseDatePickerFrom}
+										/>
+									</div>
+								</div>
+								<div className='mt-5'>
+									<p>-</p>
 								</div>
 								<div>
-									<Datepicker
-										options={datePickerOptions}
-										onChange={handleChange}
-										show={showDatePickerFrom}
-										setShow={handleCloseDatePickerFrom}
-									/>
+									<div className='mb-2 block'>
+										<Label className='font-normal' htmlFor='to' value='Hasta' />
+									</div>
+									<div>
+										<Datepicker
+											options={datePickerOptions}
+											onChange={handleChangeDateTo}
+											show={showDatePickerTo}
+											setShow={handleCloseDatePickerTo}
+										/>
+									</div>
 								</div>
 							</div>
-							<div className='mt-5'>
-								<p>-</p>
-							</div>
-							<div>
-								<div className='mb-2 block'>
-									<Label className='font-normal' htmlFor='to' value='Hasta' />
-								</div>
-								<div>
-									<Datepicker
-										options={datePickerOptions}
-										onChange={handleChange}
-										show={showDatePickerTo}
-										setShow={handleCloseDatePickerTo}
-									/>
-								</div>
-							</div>
+							{isInvalidDateRange ? (
+								<p className='absolute mt-3 text-sm text-red-600 max-sm:relative'>
+									Rango de fechas inválido
+								</p>
+							) : (
+								''
+							)}
 						</div>
 						<div className='self-end max-sm:self-center'>
-							<Dropdown dismissOnClick={false} label='Filtrar'>
+							<Dropdown
+								dismissOnClick={false}
+								label='Filtrar'
+								placement='bottom'>
 								<Dropdown.Item>
 									<div className='flex items-center gap-2'>
 										<Label htmlFor='sort'>Ordenar por:</Label>
@@ -306,6 +357,7 @@ function Activity() {
 				) : (
 					<Table hoverable={true} className='w-full overflow-x-auto'>
 						<Table.Head className='bg-blue-500'>
+							<Table.HeadCell className='text-white'>Fecha</Table.HeadCell>
 							<Table.HeadCell className='text-white'>
 								ID. transacción
 							</Table.HeadCell>
@@ -318,6 +370,9 @@ function Activity() {
 						<Table.Body className='divide-y'>
 							{transactions.map((tx) => (
 								<Table.Row key={tx.hash} className='bg-white'>
+									<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
+										{tx.date}
+									</Table.Cell>
 									<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
 										{tx.hash}
 									</Table.Cell>

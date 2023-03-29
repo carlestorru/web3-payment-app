@@ -2,7 +2,7 @@ export default async function getTransacctionsByAccount(account, web3) {
 	const latestBlock = await web3.eth.getBlock('latest');
 	const transactions = [];
 
-	for (let blockNum = 0; blockNum <= latestBlock.number; blockNum++) {
+	for (let blockNum = latestBlock.number; blockNum >= 0; blockNum--) {
 		const block = await web3.eth.getBlock(blockNum);
 		const blockDate = new Date(block.timestamp * 1000);
 		if (block !== null && block.transactions !== null) {
@@ -13,7 +13,7 @@ export default async function getTransacctionsByAccount(account, web3) {
 						...tx,
 						date: blockDate.toLocaleDateString(),
 						time: blockDate.toLocaleTimeString(),
-						timestamp: block.timestamp
+						timestamp: block.timestamp,
 					});
 				}
 			}
