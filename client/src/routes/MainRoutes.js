@@ -10,6 +10,8 @@ const Wallet = Loadable(lazy(() => import('../pages/Wallet/Wallet')));
 const Activity = Loadable(lazy(() => import('../pages/Activity/Activity')));
 const Notifications = Loadable(lazy(() => import('../pages/Notifications/Notifications')));
 const Settings = Loadable(lazy(() => import('../pages/Settings/Settings')));
+const Pay = Loadable(lazy(() => import('../pages/Payment/Pay')));
+
 
 const MainRoutes = [
 	{
@@ -49,6 +51,10 @@ const MainRoutes = [
 				element: <Settings />,
 			},
 		],
+	},
+	{
+		path: '/pay/:clientId/:productId',
+		element: <Pay />,
 	},
 	{
 		path: '*',
