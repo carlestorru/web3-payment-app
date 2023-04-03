@@ -1,6 +1,6 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Label, TextInput, Button, Select, Tabs } from 'flowbite-react';
+import { Label, TextInput, Button, Select, Tabs, Textarea } from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 
 function Transfer() {
@@ -38,7 +38,7 @@ function Transfer() {
 			}
 		);
 
-		console.log(signedTx)
+		console.log(signedTx);
 	};
 
 	return (
@@ -57,10 +57,13 @@ function Transfer() {
 							className='flex flex-col content-center justify-center gap-4'
 							onSubmit={onSubmit}>
 							<div>
-								<Label htmlFor='address' value='Wallet' />
+								<div className='mb-2 block'>
+									<Label htmlFor='address' value='Wallet' />
+								</div>
 								<TextInput
 									id='address'
 									name='address'
+									shadow={true}
 									placeholder='Introduce una dirección wallet...'
 									required={true}
 									addon='0x'
@@ -69,7 +72,7 @@ function Transfer() {
 
 							<div className='flex flex-row justify-between'>
 								<div>
-									<div>
+									<div className='mb-2 block'>
 										<Label htmlFor='quantity' value='Cantidad' />
 									</div>
 									<div className='flex flex-row'>
@@ -88,14 +91,14 @@ function Transfer() {
 							</div>
 
 							<div>
-								<div>
+								<div className='mb-2 block'>
 									<Label htmlFor='message' value='¿Para que es este pago?' />
 								</div>
-								<TextInput
+								<Textarea
 									id='message'
 									name='message'
-									type='text'
-									sizing='lg'
+									placeholder="Escribe un mensaje..."
+									rows={3}
 								/>
 							</div>
 							<Button type='submit' fullSized={true}>
