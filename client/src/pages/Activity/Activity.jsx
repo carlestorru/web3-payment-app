@@ -212,7 +212,7 @@ function Activity() {
 							<input
 								type='text'
 								id='table-search'
-								className='block min-w-[250px] rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+								className='block min-w-[250px] rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-700 focus:ring-blue-700'
 								placeholder='Buscar...'
 								value={inputSearch}
 								onChange={onChangeSearch}
@@ -356,7 +356,7 @@ function Activity() {
 					</p>
 				) : (
 					<Table hoverable={true} className='w-full overflow-x-auto'>
-						<Table.Head className='bg-blue-500'>
+						<Table.Head className='bg-blue-700'>
 							<Table.HeadCell className='text-white'>Fecha</Table.HeadCell>
 							<Table.HeadCell className='text-white'>
 								ID. transacción
