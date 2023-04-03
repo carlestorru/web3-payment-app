@@ -7,7 +7,7 @@ import EthereumLogo from '../../assets/Ethereum_logo_2014.png';
 import WalletBackgroundBlue from '../../assets/walletcard_bg_blue.png';
 import html2canvas from 'html2canvas';
 import JsPDF from 'jspdf';
-import HelloWorldAbi from '../../config/abis/HelloWorld.json';
+import HelloWorldAbi from '../../contracts/HelloWorld.json';
 import { ArrowDownTray } from '../../components/Icons/Outlined/Arrow';
 import { Button } from 'flowbite-react';
 
@@ -34,10 +34,10 @@ function Wallet() {
 
 			const contract = new web3.eth.Contract(
 				HelloWorldAbi.abi,
-				'0x55b4D4e52b45eeD2672B9D4dCe386671B4C7B718'
+				'0x6F1d229ecC5f8A7F5B2b326485cDd17d127EB60b'
 			);
 			console.log(contract);
-			console.log(await contract.methods.sayHelloWorld().call());
+			console.log(await contract.methods.hi().call());
 		}
 
 		if (web3 !== undefined) {

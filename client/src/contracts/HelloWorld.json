@@ -3,7 +3,7 @@
   "abi": [
     {
       "inputs": [],
-      "name": "sayHelloWorld",
+      "name": "hi",
       "outputs": [
         {
           "internalType": "string",
@@ -16,9 +16,9 @@
       "constant": true
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"sayHelloWorld\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/HelloWorld.sol\":\"HelloWorld\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/HelloWorld.sol\":{\"keccak256\":\"0x150492c27fae4cbf2741fbfe48463d3a5e450ecbc5b445080ae47b95782baf24\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a37fefa384cc6f29fa9e786ad1df2bb0a8fc2008a53215d99922dc8db9c9bebb\",\"dweb:/ipfs/Qmak1gGECgmGH9t8soUQo7zXjEVGBsYBEbujyxFAbPJNCt\"]}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b50610173806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806345773e4e14610030575b600080fd5b61003861004e565b604051610045919061011b565b60405180910390f35b60606040518060400160405280600b81526020017f48656c6c6f20576f726c64000000000000000000000000000000000000000000815250905090565b600081519050919050565b600082825260208201905092915050565b60005b838110156100c55780820151818401526020810190506100aa565b60008484015250505050565b6000601f19601f8301169050919050565b60006100ed8261008b565b6100f78185610096565b93506101078185602086016100a7565b610110816100d1565b840191505092915050565b6000602082019050818103600083015261013581846100e2565b90509291505056fea2646970667358221220d6c7f76f90ad992319937267062643eada1c479abac73268b8108c69567b569f64736f6c63430008130033",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c806345773e4e14610030575b600080fd5b61003861004e565b604051610045919061011b565b60405180910390f35b60606040518060400160405280600b81526020017f48656c6c6f20576f726c64000000000000000000000000000000000000000000815250905090565b600081519050919050565b600082825260208201905092915050565b60005b838110156100c55780820151818401526020810190506100aa565b60008484015250505050565b6000601f19601f8301169050919050565b60006100ed8261008b565b6100f78185610096565b93506101078185602086016100a7565b610110816100d1565b840191505092915050565b6000602082019050818103600083015261013581846100e2565b90509291505056fea2646970667358221220d6c7f76f90ad992319937267062643eada1c479abac73268b8108c69567b569f64736f6c63430008130033",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"hi\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/HelloWorld.sol\":\"HelloWorld\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/HelloWorld.sol\":{\"keccak256\":\"0x8049cd82f4d497ef7991f31f9e581ac2c4ed0413618a6cdbcf1fbbb5aafc0797\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d87ddb158bffae30f06d8b3c16f96489e56c245f15c845d80c880ce30527f216\",\"dweb:/ipfs/QmdUy3WzZLNJx6oJ3jqtse7dkD9mX6m2KBEmnFbLoyMHmS\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610173806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063a99dca3f14610030575b600080fd5b61003861004e565b604051610045919061011b565b60405180910390f35b60606040518060400160405280600e81526020017f48656c6c6f576f726c642e736f6c000000000000000000000000000000000000815250905090565b600081519050919050565b600082825260208201905092915050565b60005b838110156100c55780820151818401526020810190506100aa565b60008484015250505050565b6000601f19601f8301169050919050565b60006100ed8261008b565b6100f78185610096565b93506101078185602086016100a7565b610110816100d1565b840191505092915050565b6000602082019050818103600083015261013581846100e2565b90509291505056fea26469706673582212202c5f3720b54fc04317de604723e56fa46176e64435617459855b446fd5ac37ea64736f6c63430008130033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063a99dca3f14610030575b600080fd5b61003861004e565b604051610045919061011b565b60405180910390f35b60606040518060400160405280600e81526020017f48656c6c6f576f726c642e736f6c000000000000000000000000000000000000815250905090565b600081519050919050565b600082825260208201905092915050565b60005b838110156100c55780820151818401526020810190506100aa565b60008484015250505050565b6000601f19601f8301169050919050565b60006100ed8261008b565b6100f78185610096565b93506101078185602086016100a7565b610110816100d1565b840191505092915050565b6000602082019050818103600083015261013581846100e2565b90509291505056fea26469706673582212202c5f3720b54fc04317de604723e56fa46176e64435617459855b446fd5ac37ea64736f6c63430008130033",
   "immutableReferences": {},
   "generatedSources": [],
   "deployedGeneratedSources": [
@@ -850,10 +850,10 @@
       "name": "#utility.yul"
     }
   ],
-  "sourceMap": "66:126:0:-:0;;;;;;;;;;;;;;;;;;;",
-  "deployedSourceMap": "66:126:0:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;92:98;;;:::i;:::-;;;;;;;:::i;:::-;;;;;;;;;138:13;163:20;;;;;;;;;;;;;;;;;;;92:98;:::o;7:99:1:-;59:6;93:5;87:12;77:22;;7:99;;;:::o;112:169::-;196:11;230:6;225:3;218:19;270:4;265:3;261:14;246:29;;112:169;;;;:::o;287:246::-;368:1;378:113;392:6;389:1;386:13;378:113;;;477:1;472:3;468:11;462:18;458:1;453:3;449:11;442:39;414:2;411:1;407:10;402:15;;378:113;;;525:1;516:6;511:3;507:16;500:27;349:184;287:246;;;:::o;539:102::-;580:6;631:2;627:7;622:2;615:5;611:14;607:28;597:38;;539:102;;;:::o;647:377::-;735:3;763:39;796:5;763:39;:::i;:::-;818:71;882:6;877:3;818:71;:::i;:::-;811:78;;898:65;956:6;951:3;944:4;937:5;933:16;898:65;:::i;:::-;988:29;1010:6;988:29;:::i;:::-;983:3;979:39;972:46;;739:285;647:377;;;;:::o;1030:313::-;1143:4;1181:2;1170:9;1166:18;1158:26;;1230:9;1224:4;1220:20;1216:1;1205:9;1201:17;1194:47;1258:78;1331:4;1322:6;1258:78;:::i;:::-;1250:86;;1030:313;;;;:::o",
-  "source": "// SPDX-License-Identifier: MIT\npragma solidity >=0.4.22 <0.9.0;\n\ncontract HelloWorld {\n    function sayHelloWorld() public pure returns (string memory) {\n        return \"Hello World\";\n    }\n}\n",
-  "sourcePath": "H:\\Projects\\smartcontracts\\HelloWorld\\contracts\\HelloWorld.sol",
+  "sourceMap": "66:110:0:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "66:110:0:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;90:84;;;:::i;:::-;;;;;;;:::i;:::-;;;;;;;;;125:13;146:23;;;;;;;;;;;;;;;;;;;90:84;:::o;7:99:1:-;59:6;93:5;87:12;77:22;;7:99;;;:::o;112:169::-;196:11;230:6;225:3;218:19;270:4;265:3;261:14;246:29;;112:169;;;;:::o;287:246::-;368:1;378:113;392:6;389:1;386:13;378:113;;;477:1;472:3;468:11;462:18;458:1;453:3;449:11;442:39;414:2;411:1;407:10;402:15;;378:113;;;525:1;516:6;511:3;507:16;500:27;349:184;287:246;;;:::o;539:102::-;580:6;631:2;627:7;622:2;615:5;611:14;607:28;597:38;;539:102;;;:::o;647:377::-;735:3;763:39;796:5;763:39;:::i;:::-;818:71;882:6;877:3;818:71;:::i;:::-;811:78;;898:65;956:6;951:3;944:4;937:5;933:16;898:65;:::i;:::-;988:29;1010:6;988:29;:::i;:::-;983:3;979:39;972:46;;739:285;647:377;;;;:::o;1030:313::-;1143:4;1181:2;1170:9;1166:18;1158:26;;1230:9;1224:4;1220:20;1216:1;1205:9;1201:17;1194:47;1258:78;1331:4;1322:6;1258:78;:::i;:::-;1250:86;;1030:313;;;;:::o",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity >=0.4.22 <0.9.0;\n\ncontract HelloWorld {\n  function hi() public pure returns (string memory) {\n    return \"HelloWorld.sol\";\n  }\n}\n",
+  "sourcePath": "C:\\Users\\ctorrubiano\\Projects\\web3-payment-app\\truffle\\contracts\\HelloWorld.sol",
   "ast": {
     "absolutePath": "project:/contracts/HelloWorld.sol",
     "exportedSymbols": {
@@ -898,11 +898,11 @@
             "body": {
               "id": 8,
               "nodeType": "Block",
-              "src": "153:37:0",
+              "src": "140:34:0",
               "statements": [
                 {
                   "expression": {
-                    "hexValue": "48656c6c6f20576f726c64",
+                    "hexValue": "48656c6c6f576f726c642e736f6c",
                     "id": 6,
                     "isConstant": false,
                     "isLValue": false,
@@ -910,33 +910,33 @@
                     "kind": "string",
                     "lValueRequested": false,
                     "nodeType": "Literal",
-                    "src": "170:13:0",
+                    "src": "153:16:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_stringliteral_592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba",
-                      "typeString": "literal_string \"Hello World\""
+                      "typeIdentifier": "t_stringliteral_4ad7ac2ccb610f9674f75174551de5239db6d0bb58c8641235f9c102e52432e3",
+                      "typeString": "literal_string \"HelloWorld.sol\""
                     },
-                    "value": "Hello World"
+                    "value": "HelloWorld.sol"
                   },
                   "functionReturnParameters": 5,
                   "id": 7,
                   "nodeType": "Return",
-                  "src": "163:20:0"
+                  "src": "146:23:0"
                 }
               ]
             },
-            "functionSelector": "45773e4e",
+            "functionSelector": "a99dca3f",
             "id": 9,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
-            "name": "sayHelloWorld",
-            "nameLocation": "101:13:0",
+            "name": "hi",
+            "nameLocation": "99:2:0",
             "nodeType": "FunctionDefinition",
             "parameters": {
               "id": 2,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "114:2:0"
+              "src": "101:2:0"
             },
             "returnParameters": {
               "id": 5,
@@ -950,7 +950,7 @@
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
                   "scope": 9,
-                  "src": "138:13:0",
+                  "src": "125:13:0",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -961,7 +961,7 @@
                     "id": 3,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "138:6:0",
+                    "src": "125:6:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -970,21 +970,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "137:15:0"
+              "src": "124:15:0"
             },
             "scope": 10,
-            "src": "92:98:0",
+            "src": "90:84:0",
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "public"
           }
         ],
         "scope": 11,
-        "src": "66:126:0",
+        "src": "66:110:0",
         "usedErrors": []
       }
     ],
-    "src": "32:161:0"
+    "src": "32:145:0"
   },
   "compiler": {
     "name": "solc",
@@ -994,12 +994,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x55b4D4e52b45eeD2672B9D4dCe386671B4C7B718",
-      "transactionHash": "0x09ac3a2e955d25399f988058659507ac8e79164ab07109ef7b47e40ab64a53ff"
+      "address": "0xb209e64D946cfF2fEdacfaB737eBf2DA447e2006",
+      "transactionHash": "0x1ed7038699dc560d17fb514e341fd791d1d6b281bed6851c7b6dc20761155246"
     }
   },
   "schemaVersion": "3.4.13",
-  "updatedAt": "2023-03-23T16:08:02.819Z",
+  "updatedAt": "2023-04-03T14:47:38.407Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

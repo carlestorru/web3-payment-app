@@ -19,6 +19,6 @@ export default async function getTransacctionsByAccount(account, web3) {
 			}
 		}
 	}
-
+	
 	return transactions;
 }
