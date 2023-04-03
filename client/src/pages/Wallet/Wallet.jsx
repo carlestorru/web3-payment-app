@@ -5,11 +5,17 @@ import { useWeb3React } from '@web3-react/core';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import EthereumLogo from '../../assets/Ethereum_logo_2014.png';
 import WalletBackgroundBlue from '../../assets/walletcard_bg_blue.png';
+import WalletBackgroundOrange from '../../assets/walletcard_bg_orange.png';
 import html2canvas from 'html2canvas';
 import JsPDF from 'jspdf';
 import HelloWorldAbi from '../../contracts/HelloWorld.json';
 import { ArrowDownTray } from '../../components/Icons/Outlined/Arrow';
 import { Button } from 'flowbite-react';
+
+const walletColors = {
+	walletBlue: WalletBackgroundBlue,
+	walletOrange: WalletBackgroundOrange,
+};
 
 function Wallet() {
 	useAuth();
@@ -19,6 +25,24 @@ function Wallet() {
 	const [balance, setBalance] = useState(0);
 	const [gasPrice, setGasPrice] = useState(0);
 	const [nodeInfo, setNodeInfo] = useState('');
+	const [walletBg, setWalletBg] = useState(WalletBackgroundBlue);
+
+	const generatePDF = () => {
+		const input = document.getElementById('wallet-card');
+		html2canvas(input).then((canvas) => {
+			const imgData = canvas.toDataURL('image/jpg');
+			const pdf = new JsPDF('landscape', 'mm', [85, 53]);
+			const pageWidth = pdf.internal.pageSize.getWidth();
+			const pageHeight = pdf.internal.pageSize.getHeight();
+			pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+			pdf.save('wallet.pdf');
+		});
+	};
+
+	const onChangeWalletBg = (event) => {
+		const colorId = event.currentTarget.id;
+		setWalletBg(walletColors[colorId]);
+	};
 
 	useEffect(() => {
 		async function loadWalletInfo() {
@@ -45,30 +69,18 @@ function Wallet() {
 		}
 	}, [web3]);
 
-	const generatePDF = () => {
-		const input = document.getElementById('wallet-card');
-		html2canvas(input).then((canvas) => {
-			const imgData = canvas.toDataURL('image/jpg');
-			const pdf = new JsPDF('landscape', 'mm', [85, 53]);
-			const pageWidth = pdf.internal.pageSize.getWidth();
-			const pageHeight = pdf.internal.pageSize.getHeight();
-			pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
-			pdf.save('wallet.pdf');
-		});
-	};
-
 	return (
 		<>
 			<h2 className='text-2xl font-bold'>Wallet</h2>
 			{error ? (
 				<div className='mb-4 text-red-500'>{error.message}</div>
 			) : (
-				<div className='flex flex-col items-center gap-12'>
+				<section className='flex flex-col items-center gap-12'>
 					<div
 						id='wallet-card'
 						className='relative mx-auto mt-8 mb-8 h-2/4 transform rounded-xl text-white shadow-2xl transition-transform hover:scale-110 sm:w-4/5 md:w-4/5 lg:w-4/5 xl:w-3/5 2xl:w-2/4'>
 						<img
-							src={WalletBackgroundBlue}
+							src={walletBg}
 							alt='wallet-background-blue'
 							className='absolute -z-10 h-full w-full rounded-xl object-cover'
 						/>
@@ -122,11 +134,27 @@ function Wallet() {
 							</div>
 						</div>
 					</div>
+					<section className='flex flex-row gap-8'>
+						<button id='walletBlue' onClick={onChangeWalletBg}>
+							<img
+								className='h-8 w-8 rounded-full'
+								src={WalletBackgroundBlue}
+								alt='bg_blue'
+							/>
+						</button>
+						<button id='walletOrange' onClick={onChangeWalletBg}>
+							<img
+								className='h-8 w-8 rounded-full'
+								src={WalletBackgroundOrange}
+								alt='bg_blue'
+							/>
+						</button>
+					</section>
 					<Button onClick={generatePDF}>
 						<ArrowDownTray className='mr-2' />
 						Descargar
 					</Button>
-				</div>
+				</section>
 			)}
 		</>
 	);
