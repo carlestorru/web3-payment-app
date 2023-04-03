@@ -3,6 +3,7 @@ import { WalletConnector } from '../../components/WalletConnector';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { useCallback } from 'react';
 import { loadFull } from 'tsparticles';
+import Logo from '../../assets/3pay_logo/4x/3pay_logo_blue@4x.png';
 
 import './Landing.css';
 
@@ -135,8 +136,9 @@ const Landing = () => {
 			/>
 			<main className='flex h-screen w-full flex-col justify-evenly bg-blue-600 p-5 text-center text-white'>
 				<h1 className='w-[80%] self-center rounded-lg bg-white py-3 text-7xl font-bold text-blue-500'>
-					3Pay
+					<img className='h-20 w-36 m-auto' src={Logo} alt='3pay logo' />
 				</h1>
+
 				<section className='z-10 flex flex-row items-center justify-evenly'>
 					<article className='flex w-[25%] flex-col'>
 						<h2 className='mb-6 text-left text-2xl font-medium'>

@@ -1,6 +1,6 @@
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
-import EthereumLogo from '../assets/Ethereum_logo_2014.png';
+import Logo from '../assets/3pay_logo/4x/3pay_logo_gradient@4x.png';
 import { Clipboard } from './Icons/Outlined/Clipboard';
 
 export function Wallet() {
@@ -33,7 +33,7 @@ export function Wallet() {
 	return (
 		<div className='flex flex-col gap-2 text-center'>
 			<div className='flex flex-col items-center justify-around px-2'>
-				<img className='h-10 w-6 m-2' src={EthereumLogo} alt='Ethereum Logo' />
+				<img className='h-full w-2/4 m-2' src={Logo} alt='3pay logo' />
 				<div className='flex flex-row gap-1 justify-between'>
 					<h2
 						title={account}
