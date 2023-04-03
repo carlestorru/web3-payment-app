@@ -77,6 +77,9 @@ function Wallet() {
 	return (
 		<>
 			<h2 className='text-2xl font-bold'>Wallet</h2>
+			<h4 className='text-slate-500'>
+				Consulta y personaliza tu billetera
+			</h4>
 			{error ? (
 				<div className='mb-4 text-red-500'>{error.message}</div>
 			) : (
