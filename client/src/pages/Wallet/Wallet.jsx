@@ -3,18 +3,23 @@ import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { useState, useEffect } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import getSymbolPrice from '../../services/getSymbolPrice';
-import EthereumLogo from '../../assets/Ethereum_logo_2014.png';
-import WalletBackgroundBlue from '../../assets/walletcard_bg_blue.png';
-import WalletBackgroundOrange from '../../assets/walletcard_bg_orange.png';
 import html2canvas from 'html2canvas';
 import JsPDF from 'jspdf';
 import HelloWorldAbi from '../../contracts/HelloWorld.json';
 import { ArrowDownTray } from '../../components/Icons/Outlined/Arrow';
 import { Button } from 'flowbite-react';
 
+import EthereumLogo from '../../assets/Ethereum_logo_2014.png';
+import WalletBackgroundBlue from '../../assets/walletcard_bg_blue.png';
+import WalletBackgroundOrange from '../../assets/walletcard_bg_orange.png';
+import WalletBackgroundMetamask from '../../assets/walletcard_bg_metamask.png';
+import WalletBackgroundEth from '../../assets/walletcard_bg_eth.png';
+
 const walletColors = {
 	walletBlue: WalletBackgroundBlue,
 	walletOrange: WalletBackgroundOrange,
+	walletMetamask: WalletBackgroundMetamask,
+	walletEth: WalletBackgroundEth
 };
 
 function Wallet() {
@@ -78,7 +83,7 @@ function Wallet() {
 				<section className='flex flex-col items-center gap-12'>
 					<div
 						id='wallet-card'
-						className='relative mx-auto mt-8 mb-8 h-2/4 transform rounded-xl text-white shadow-2xl transition-transform hover:scale-110 sm:w-4/5 md:w-4/5 lg:w-4/5 xl:w-3/5 2xl:w-2/4'>
+						className='relative mx-auto mt-8 mb-6 h-2/4 transform rounded-xl text-white shadow-2xl transition-transform hover:scale-110 sm:w-4/5 md:w-4/5 lg:w-4/5 xl:w-3/5 2xl:w-2/4'>
 						<img
 							src={walletBg}
 							alt='wallet-background-blue'
@@ -134,19 +139,34 @@ function Wallet() {
 							</div>
 						</div>
 					</div>
-					<section className='flex flex-row gap-8'>
+					<section className='flex flex-row gap-6 items-center'>
+						<h3 className='font-medium'>Personaliza tu tarjeta: </h3>
 						<button id='walletBlue' onClick={onChangeWalletBg}>
 							<img
-								className='h-8 w-8 rounded-full'
+								className='h-10 w-10 rounded-full transform transition-transform hover:scale-110'
 								src={WalletBackgroundBlue}
 								alt='bg_blue'
 							/>
 						</button>
 						<button id='walletOrange' onClick={onChangeWalletBg}>
 							<img
-								className='h-8 w-8 rounded-full'
+								className='h-10 w-10 rounded-full transition-transform hover:scale-110'
 								src={WalletBackgroundOrange}
-								alt='bg_blue'
+								alt='bg_orange'
+							/>
+						</button>
+						<button id='walletMetamask' onClick={onChangeWalletBg}>
+							<img
+								className='h-10 w-10 rounded-full transition-transform hover:scale-110'
+								src={WalletBackgroundMetamask}
+								alt='bg_metamask'
+							/>
+						</button>
+						<button id='walletEth' onClick={onChangeWalletBg}>
+							<img
+								className='h-10 w-10 rounded-full transition-transform hover:scale-110'
+								src={WalletBackgroundEth}
+								alt='bg_eth'
 							/>
 						</button>
 					</section>
