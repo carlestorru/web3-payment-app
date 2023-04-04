@@ -1,6 +1,13 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Label, TextInput, Button, Select, Tabs, Textarea } from 'flowbite-react';
+import {
+	Label,
+	TextInput,
+	Button,
+	Select,
+	Tabs,
+	Textarea,
+} from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 
 function Transfer() {
@@ -11,14 +18,13 @@ function Transfer() {
 	const onSubmit = async (event) => {
 		event.preventDefault();
 		const fields = Object.fromEntries(new window.FormData(event.target));
-		console.log(fields);
 		const nonce = await web3.eth.getTransactionCount(account, 'latest');
 
 		const value = web3.utils.toWei(fields.quantity);
 
 		const transaction = {
 			from: account,
-			to: fields.address, // faucet address to return eth
+			to: fields.address,
 			value: value,
 			nonce: nonce,
 			data: web3.utils.toHex(fields.message),
@@ -26,19 +32,39 @@ function Transfer() {
 
 		const signedTx = await web3.eth.sendTransaction(
 			transaction,
-			function (error, hash) {
+			async function (error, hash) {
 				if (!error) {
-					console.log('🎉 The hash of your transaction is: ', hash);
+					console.log('The hash of your transaction is: ', hash);
 				} else {
 					console.log(
-						'❗Something went wrong while submitting your transaction:',
+						'Something went wrong while submitting your transaction:',
 						error
 					);
 				}
 			}
 		);
 
-		console.log(signedTx);
+		const transactionMined = await web3.eth.getTransaction(
+			signedTx.transactionHash
+		);
+
+		const insertedTx = {
+			...transactionMined,
+			blockHash: signedTx.blockHash,
+			blockNumber: signedTx.blockNumber,
+			transactionIndex: signedTx.transactionIndex,
+		};
+
+		fetch('http://localhost:3001/api/v1/transactions', {
+			method: 'POST',
+			body: JSON.stringify(insertedTx),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
+			.then((res) => res.json())
+			.catch((err) => console.error(err))
+			.then((response) => console.log(response));
 	};
 
 	return (
@@ -97,7 +123,7 @@ function Transfer() {
 								<Textarea
 									id='message'
 									name='message'
-									placeholder="Escribe un mensaje..."
+									placeholder='Escribe un mensaje...'
 									rows={3}
 								/>
 							</div>
