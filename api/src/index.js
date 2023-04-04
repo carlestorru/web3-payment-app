@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 const v1AppRouter = require('./v1/routes/appRoutes');
 
@@ -15,6 +16,7 @@ async function start() {
 	try {
 		await mongoose.connect(mongoString);
 		console.log('Connected to DB')
+		app.use(cors())
 		app.use(express.json());
 		app.use('/api/v1', v1AppRouter);
 
