@@ -19,7 +19,9 @@ const getAllTransactions = async (req, res) => {
 const getTransaction = async (req, res) => {
 	const { hash } = req.params;
 	try {
-		const transaction = await Transaction.find({ hash: hash });
+		const transaction = await Transaction.find({
+			$or: [{ hash: hash }, { from: hash }, { to: hash }],
+		});
 		const response = transaction.map((el) => {
 			const currentDate = new Date(el.created_at).toLocaleDateString();
 			const currentTime = new Date(el.created_at).toLocaleTimeString();
