@@ -1,22 +1,23 @@
-import { Table, Alert } from 'flowbite-react';
+import { Table, Alert, Spinner } from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
-import getTransacctionsByAccount from '../../services/getTransactionsByAccount';
+import getTransactions from '../../services/getTransactions';
 import { HiInformationCircle } from '../../components/Icons/HiInformationCircle';
 
 export function LastOrders() {
 	const { account, library: web3, error } = useWeb3React();
 	const [transactions, setTransactions] = useState([]);
+	const [loading, isLoading] = useState(true);
 
 	useEffect(() => {
 		if (web3 !== undefined) {
-			getTransacctionsByAccount(account, web3).then((res) => {
+			getTransactions(account, web3).then((res) => {
 				const lastTenTxs = res.slice(Math.max(res.length - 10, 0));
 				setTransactions(lastTenTxs);
+				isLoading(false);
 			});
 		}
 	}, [web3]);
-
 
 	return (
 		<section className='col-span-7 flex flex-col gap-4 max-sm:col-span-8'>
@@ -30,6 +31,10 @@ export function LastOrders() {
 						<span className='font-medium'>{error.message}</span>
 					</span>
 				</Alert>
+			) : loading ? (
+				<div className='relative m-auto w-max'>
+					<Spinner aria-label='Medium sized spinner example' size='md' />
+				</div>
 			) : (
 				<Table hoverable={true}>
 					<Table.Head className='bg-blue-500 text-gray-50'>

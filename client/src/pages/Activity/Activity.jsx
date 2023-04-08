@@ -9,11 +9,12 @@ import {
 	Label,
 	TextInput,
 	Select,
+	Spinner,
 } from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
-import getTransacctionsByAccount from '../../services/getTransactionsByAccount';
 import Datepicker from 'tailwind-datepicker-react';
+import getTransactions from '../../services/getTransactions';
 
 const datePickerOptions = {
 	autoHide: true,
@@ -50,6 +51,7 @@ function Activity() {
 	const [showPays, setShowPays] = useState(true);
 	const [showInc, setShowInc] = useState(true);
 	const [sortType, setSortType] = useState('dateNew');
+	const [loading, isLoading] = useState(true);
 
 	useAuth();
 	useDocumentTitle('Activity');
@@ -67,7 +69,7 @@ function Activity() {
 	const onChangeSearch = (event) => {
 		const inputValue = event.target.value;
 		setInputSearch(inputValue);
-		getTransacctionsByAccount(account, web3).then((res) => {
+		getTransactions(account, web3).then((res) => {
 			const searchedTxs = res.filter(
 				(tx) =>
 					tx.hash.startsWith(inputValue) ||
@@ -147,7 +149,7 @@ function Activity() {
 	};
 
 	const onApplyFilters = () => {
-		getTransacctionsByAccount(account, web3).then((res) => {
+		getTransactions(account, web3).then((res) => {
 			const filteredTxs = res.filter((tx) => {
 				if (showPays && showInc) {
 					return true;
@@ -172,12 +174,18 @@ function Activity() {
 
 	useEffect(() => {
 		if (web3 !== undefined) {
-			getTransacctionsByAccount(account, web3).then((res) => {
-				setTransactions(res);
-			});
+			getTransactions(account, web3)
+				.then((res) => {
+					setTransactions(res);
+					isLoading(false);
+				})
+				.catch((err) => {
+					console.log(err);
+				});
 		}
 	}, [web3]);
 
+	
 	useEffect(() => {
 		onApplyFilters();
 		filterByDate(transactions);
@@ -189,6 +197,7 @@ function Activity() {
 			<h4 className='text-slate-500'>
 				Visión general de los mercados y últimos pedidos
 			</h4>
+			{/* FILTERS */}
 			<section className='pt-4'>
 				<div className='flex flex-row items-center justify-between gap-2 pb-12 max-sm:flex-col'>
 					<div className='sm:self-end'>
@@ -350,7 +359,12 @@ function Activity() {
 						</div>
 					</div>
 				</div>
-				{transactions.length === 0 ? (
+				{/* TABLE */}
+				{loading ? (
+					<div className='relative m-auto w-max'>
+						<Spinner aria-label='Extra large spinner example' size='xl' />
+					</div>
+				) : transactions.length === 0 ? (
 					<p className='pt-4 text-center font-semibold'>
 						No existen transacciones para esta cuenta
 					</p>

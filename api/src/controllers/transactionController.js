@@ -4,8 +4,8 @@ const getAllTransactions = async (req, res) => {
 	try {
 		const allTransactions = await Transaction.find();
 		const response = allTransactions.map((el) => {
-			const currentDate = new Date(el.created_at).toLocaleDateString();
-			const currentTime = new Date(el.created_at).toLocaleTimeString();
+			const currentDate = new Date(el.created_at || el._id.getTimestamp()).toLocaleDateString();
+			const currentTime = new Date(el.created_at || el._id.getTimestamp()).toLocaleTimeString();
 			return { ...el.toObject(), date: currentDate, time: currentTime };
 		});
 		return res.status(200).json(response);
@@ -23,8 +23,8 @@ const getTransaction = async (req, res) => {
 			$or: [{ hash: hash }, { from: hash }, { to: hash }],
 		});
 		const response = transaction.map((el) => {
-			const currentDate = new Date(el.created_at).toLocaleDateString();
-			const currentTime = new Date(el.created_at).toLocaleTimeString();
+			const currentDate = new Date(el.created_at || el._id.getTimestamp()).toLocaleDateString();
+			const currentTime = new Date(el.created_at || el._id.getTimestamp()).toLocaleTimeString();
 			return { ...el.toObject(), date: currentDate, time: currentTime };
 		});
 		return res.status(200).json(response);
