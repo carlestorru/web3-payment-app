@@ -2,7 +2,7 @@ import { useQuery } from 'react-query';
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import getMarketAssets from '../../services/getMarketAssets';
-import { Aside } from './Aside';
+// import { Aside } from './Aside';
 import { LastOrders } from './LastOrders';
 import { MarketCards } from './MarketCards';
 
@@ -21,7 +21,7 @@ function Panel() {
 				{isLoading ? <p>Cargando</p> : <MarketCards data={data} />}
 				{isError ? <p>Error</p> : ''}
 				<LastOrders />
-				<Aside />
+				{ /* <Aside /> */ }
 			</div>
 		</>
 	);

@@ -20,7 +20,7 @@ export function LastOrders() {
 	}, [web3]);
 
 	return (
-		<section className='col-span-7 flex flex-col gap-4 max-sm:col-span-8'>
+		<section className='col-span-8 flex flex-col gap-4 max-sm:col-span-8'>
 			<h3 className='text-xl font-bold'>Últimas transacciones</h3>
 			{error ? (
 				<Alert
