@@ -3,6 +3,7 @@ import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
 import getTransactions from '../../services/getTransactions';
 import { HiInformationCircle } from '../../components/Icons/HiInformationCircle';
+import { Link } from 'react-router-dom';
 
 export function LastOrders() {
 	const { account, library: web3, error } = useWeb3React();
@@ -20,8 +21,11 @@ export function LastOrders() {
 	}, [web3]);
 
 	return (
-		<section className='col-span-8 flex flex-col gap-4 max-sm:col-span-8'>
+		<section className='col-span-8 flex flex-col gap-2 max-sm:col-span-8'>
 			<h3 className='text-xl font-bold'>Últimas transacciones</h3>
+			<h6 className='text-slate-500 text-sm'>
+				Puedes consultar el historial de transacciones desde el apartado <Link to='/activity'><span className='font-semibold underline text-blue-700'>Actividad</span></Link>.
+			</h6>
 			{error ? (
 				<Alert
 					className='absolute right-2 bottom-2'
@@ -37,7 +41,8 @@ export function LastOrders() {
 				</div>
 			) : (
 				<Table hoverable={true}>
-					<Table.Head className='bg-blue-500 text-gray-50'>
+					<Table.Head className='bg-blue-700 text-gray-50'>
+						<Table.HeadCell className='text-white'>Fecha</Table.HeadCell>
 						<Table.HeadCell className='text-white'>
 							ID. transacción
 						</Table.HeadCell>
@@ -47,14 +52,22 @@ export function LastOrders() {
 					<Table.Body className='divide-y'>
 						{transactions.map((tx) => (
 							<Table.Row key={tx.hash} className='bg-white'>
-								<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
-									{tx.hash}
+								<Table.Cell className='whitespace-nowrap font-medium'>
+									{tx.date + ' ' + tx.time}
+								</Table.Cell>
+								<Table.Cell className='whitespace-nowrap'>
+									{tx.hash
+										.slice(0, 10)
+										.concat(
+											'...',
+											tx.hash.slice(tx.hash.length - 9, tx.hash.length)
+										)}
 								</Table.Cell>
 								<Table.Cell>{tx.to}</Table.Cell>
 								<Table.Cell className='whitespace-nowrap'>
 									<span
 										className={
-											tx.from === account ? `text-red-500` : `text-green-500`
+											tx.from === account ? `text-red-500 font-medium` : `text-green-500 font-medium`
 										}>
 										{' '}
 										- {web3.utils.fromWei(tx.value)} ETH

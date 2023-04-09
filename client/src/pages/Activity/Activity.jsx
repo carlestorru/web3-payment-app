@@ -15,6 +15,7 @@ import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
 import Datepicker from 'tailwind-datepicker-react';
 import getTransactions from '../../services/getTransactions';
+// import { useSettings } from '../../context/SettingsContext';
 
 const datePickerOptions = {
 	autoHide: true,
@@ -52,6 +53,7 @@ function Activity() {
 	const [showInc, setShowInc] = useState(true);
 	const [sortType, setSortType] = useState('dateNew');
 	const [loading, isLoading] = useState(true);
+	// const [filters, ] = useSettings();
 
 	useAuth();
 	useDocumentTitle('Activity');
@@ -185,7 +187,6 @@ function Activity() {
 		}
 	}, [web3]);
 
-	
 	useEffect(() => {
 		onApplyFilters();
 		filterByDate(transactions);
@@ -200,9 +201,10 @@ function Activity() {
 			{/* FILTERS */}
 			<section className='pt-4'>
 				<div className='flex flex-row items-center justify-between gap-2 pb-12 max-sm:flex-col'>
-					<div className='sm:self-end'>
+					{/* SEARCH BAR */}
+					<div className='sm:self-end '>
 						<label htmlFor='table-search' className='sr-only'>
-							Search
+							Buscar
 						</label>
 						<div className='relative mt-1'>
 							<div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
@@ -221,14 +223,15 @@ function Activity() {
 							<input
 								type='text'
 								id='table-search'
-								className='block min-w-[250px] rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-700 focus:ring-blue-700'
-								placeholder='Buscar...'
+								className='block min-w-[300px] overflow-hidden rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-700 focus:ring-blue-700'
+								placeholder='Buscar'
 								value={inputSearch}
 								onChange={onChangeSearch}
 							/>
 						</div>
 					</div>
 					<div className='flow-row flex items-center gap-4 max-sm:flex-col'>
+						{/* DATEPICKER */}
 						<div>
 							<div className='flex flex-row items-center gap-2'>
 								<div>
@@ -273,6 +276,7 @@ function Activity() {
 								''
 							)}
 						</div>
+						{/* FILTERS */}
 						<div className='self-end max-sm:self-center'>
 							<Dropdown
 								dismissOnClick={false}
@@ -384,28 +388,39 @@ function Activity() {
 						<Table.Body className='divide-y'>
 							{transactions.map((tx) => (
 								<Table.Row key={tx.hash} className='bg-white'>
-									<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
-										{tx.date}
+									<Table.Cell className='whitespace-nowrap font-medium'>
+										{tx.date + ' ' + tx.time}
 									</Table.Cell>
-									<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
-										{tx.hash}
+									<Table.Cell className='whitespace-nowrap'>
+										{tx.hash
+											.slice(0, 5)
+											.concat(
+												'...',
+												tx.hash.slice(tx.hash.length - 4, tx.hash.length)
+											)}
 									</Table.Cell>
-									<Table.Cell>{tx.to ? tx.to : 'Creación SmartContract'}</Table.Cell>
+									<Table.Cell>
+										{tx.to ? tx.to.slice(0, 5)
+											.concat(
+												'...',
+												tx.to.slice(tx.to.length - 4, tx.to.length)
+											) : 'Creación SmartContract'}
+									</Table.Cell>
 									<Table.Cell className='whitespace-nowrap'>
 										<span
 											className={
-												tx.from === account ? `text-red-500` : `text-green-500`
+												tx.from === account ? `text-red-500 font-medium` : `text-green-500 font-medium`
 											}>
 											{' '}
 											{tx.from === account ? '-' : '+'}{' '}
 											{web3.utils.fromWei(tx.value)} ETH
 										</span>
 									</Table.Cell>
-									<Table.Cell>
+									<Table.Cell className='text-center'>
 										<button
 											className='font-medium text-blue-600 hover:underline'
 											onClick={() => onOpenModal(tx)}>
-											Ver
+											Ver detalles
 										</button>
 									</Table.Cell>
 								</Table.Row>

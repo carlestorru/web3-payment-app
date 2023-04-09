@@ -34,7 +34,7 @@ export function MarketCards({ data }) {
 							<span className='font-normal text-slate-500'>Precio: </span>
 							{el.price}
 						</p>
-						<button className='rounded-md bg-blue-500 hover:bg-opacity-90 hover:font-medium px-1 py-2 text-white'>
+						<button className='rounded-md bg-blue-700 hover:bg-opacity-90 hover:font-medium px-1 py-2 text-white'>
 							<a href={el.url} target='_blank' rel='noreferrer'>
 								Mercado
 							</a>
