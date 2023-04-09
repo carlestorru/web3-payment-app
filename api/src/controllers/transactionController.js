@@ -38,8 +38,8 @@ const getTransaction = async (req, res) => {
 const saveTransaction = async (req, res) => {
 	try {
 		const newTransaction = new Transaction({ ...req.body });
-		const instertedTransaction = await newTransaction.save();
-		return res.status(201).json(instertedTransaction);
+		const insertedTransaction = await newTransaction.save();
+		return res.status(201).json(insertedTransaction);
 	} catch (error) {
 		return res
 			.status(error?.status || 500)
