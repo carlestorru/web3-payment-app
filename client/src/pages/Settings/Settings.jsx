@@ -2,30 +2,16 @@ import { useWeb3React } from '@web3-react/core';
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { Label, TextInput } from 'flowbite-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import getUsername from '../../services/getUsername';
+import useUsername from '../../hooks/useUsername';
 
 function Settings() {
 	const { account } = useWeb3React();
+	const { username, setUsername, isUsernameAvailable, setIsUsernameAvailable } = useUsername();
 	useAuth();
 	useDocumentTitle('Settings');
-	const [username, setUsername] = useState('');
-	const [isUsernameAvailable, setIsUsernameAvailable] = useState('');
 	const [timer, setTimer] = useState(null);
-
-	const fetchUsername = async (username) => {
-		const response = await fetch(
-			`http://localhost:3001/api/v1/accounts/${username}`
-		);
-		if (response.ok) {
-			const data = await response.json();
-			if (data.length > 0) {
-				setUsername(data[0].username);
-				setIsUsernameAvailable(false);
-			}
-			return data;
-		}
-		return null;
-	};
 
 	const inputChanged = (event) => {
 		const inputUsername = event.target.value;
@@ -34,7 +20,7 @@ function Settings() {
 		clearTimeout(timer);
 
 		const newTimer = setTimeout(async () => {
-			const result = await fetchUsername(inputUsername);
+			const result = await getUsername(inputUsername);
 			const isAvailable = result.length === 0;
 			if (isAvailable) {
 				setIsUsernameAvailable(true);
@@ -53,11 +39,6 @@ function Settings() {
 		setTimer(newTimer);
 	};
 
-	useEffect(() => {
-		setIsUsernameAvailable(true)
-		fetchUsername(account);
-	}, [account]);
-
 	return (
 		<>
 			<h2 className='text-2xl font-bold'>Ajustes</h2>
@@ -73,16 +54,25 @@ function Settings() {
 						value={username}
 						placeholder='Nombre de usuario...'
 						onChange={inputChanged}
-					/>
-					{username.length > 0 ? (
-						isUsernameAvailable ? (
-							<small className='text-green-600'>Disponible</small>
+						color={username.length > 0 ? (
+							isUsernameAvailable ? (
+								'success'
+							) : (
+								'failure'
+							)
 						) : (
-							<small className='text-red-600'>No disponible</small>
-						)
-					) : (
-						''
-					)}
+							''
+						)}
+						helperText={username.length > 0 ? (
+							isUsernameAvailable ? (
+								<span className='font-medium'>Disponible</span>
+							) : (
+								<span className='font-medium'>No disponible</span>
+							)
+						) : (
+							''
+						)}
+					/>
 				</div>
 			</section>
 		</>
