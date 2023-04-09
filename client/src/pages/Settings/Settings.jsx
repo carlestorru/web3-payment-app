@@ -8,7 +8,8 @@ import useUsername from '../../hooks/useUsername';
 
 function Settings() {
 	const { account } = useWeb3React();
-	const { username, setUsername, isUsernameAvailable, setIsUsernameAvailable } = useUsername();
+	const { username, setUsername, isUsernameAvailable, setIsUsernameAvailable } =
+		useUsername();
 	useAuth();
 	useDocumentTitle('Settings');
 	const [timer, setTimer] = useState(null);
@@ -20,19 +21,23 @@ function Settings() {
 		clearTimeout(timer);
 
 		const newTimer = setTimeout(async () => {
-			const result = await getUsername(inputUsername);
-			const isAvailable = result.length === 0;
-			if (isAvailable) {
-				setIsUsernameAvailable(true);
-				fetch(`http://localhost:3001/api/v1/accounts/${account}`, {
-					method: 'PUT',
-					body: JSON.stringify({ username: inputUsername }),
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				});
-			} else {
-				setIsUsernameAvailable(false);
+			try {
+				const result = await getUsername(inputUsername);
+				const isAvailable = result.length === 0;
+				if (isAvailable) {
+					setIsUsernameAvailable(true);
+					fetch(`http://localhost:3001/api/v1/accounts/${account}`, {
+						method: 'PUT',
+						body: JSON.stringify({ username: inputUsername }),
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					});
+				} else {
+					setIsUsernameAvailable(false);
+				}
+			} catch (err) {
+				console.error(`API no disponible: ${err}`);
 			}
 		}, 1000);
 
@@ -54,24 +59,24 @@ function Settings() {
 						value={username}
 						placeholder='Nombre de usuario...'
 						onChange={inputChanged}
-						color={username.length > 0 ? (
-							isUsernameAvailable ? (
-								'success'
+						color={
+							username.length > 0
+								? isUsernameAvailable
+									? 'success'
+									: 'failure'
+								: ''
+						}
+						helperText={
+							username.length > 0 ? (
+								isUsernameAvailable ? (
+									<span className='font-medium'>Disponible</span>
+								) : (
+									<span className='font-medium'>No disponible</span>
+								)
 							) : (
-								'failure'
+								''
 							)
-						) : (
-							''
-						)}
-						helperText={username.length > 0 ? (
-							isUsernameAvailable ? (
-								<span className='font-medium'>Disponible</span>
-							) : (
-								<span className='font-medium'>No disponible</span>
-							)
-						) : (
-							''
-						)}
+						}
 					/>
 				</div>
 			</section>

@@ -1,5 +1,6 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import getUsername from '../../services/getUsername';
 import {
 	Label,
 	TextInput,
@@ -16,6 +17,7 @@ function Transfer() {
 	const { account, library: web3 } = useWeb3React();
 	const [txError, setTxError] = useState('');
 	const [isSendingTx, setIsSendingTx] = useState(false);
+	const [timer, setTimer] = useState(null);
 	useAuth();
 	useDocumentTitle('Transfer');
 
@@ -83,6 +85,21 @@ function Transfer() {
 		setIsSendingTx(false);
 	};
 
+	const findUsernames = (event) => {
+		clearTimeout(timer);
+
+		const newTimer = setTimeout(async () => {
+			try {
+				const result = await getUsername(event.target.value);
+				console.log(result.map(el => el.username))
+			} catch (err) {
+				console.error(`API no disponible: ${err}`)
+			}
+		}, 500);
+
+		setTimer(newTimer);
+	};
+
 	return (
 		<>
 			<h2 className='text-2xl font-bold'>Enviar y solicitar</h2>
@@ -109,6 +126,7 @@ function Transfer() {
 									placeholder='Introduce una dirección wallet...'
 									required={true}
 									addon='0x'
+									onChange={findUsernames}
 								/>
 							</div>
 

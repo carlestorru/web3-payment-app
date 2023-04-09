@@ -10,10 +10,14 @@ export default function useUsername() {
 	useEffect(() => {
 		setIsUsernameAvailable(true);
 		const fetchUsername = async (account) => {
-			const result = await getUsername(account);
-			if (result.length > 0) {
-				setUsername(result[0].username);
-				setIsUsernameAvailable(false);
+			try {
+				const result = await getUsername(account);
+				if (result.length > 0) {
+					setUsername(result[0].username);
+					setIsUsernameAvailable(false);
+				}
+			} catch (err) {
+				console.error(`API no disponible: ${err}`);
 			}
 		};
 
