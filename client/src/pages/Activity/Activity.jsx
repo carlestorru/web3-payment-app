@@ -390,7 +390,7 @@ function Activity() {
 									<Table.Cell className='whitespace-nowrap font-medium text-gray-900'>
 										{tx.hash}
 									</Table.Cell>
-									<Table.Cell>{tx.to}</Table.Cell>
+									<Table.Cell>{tx.to ? tx.to : 'Creación SmartContract'}</Table.Cell>
 									<Table.Cell className='whitespace-nowrap'>
 										<span
 											className={
