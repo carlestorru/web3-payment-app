@@ -15,7 +15,7 @@ const getAccount = async (req, res) => {
 	const { hash } = req.params;
 	try {
 		const account = await Account.find({
-			$or: [{ hash: hash }, { username: hash }],
+			$or: [{ hash: hash }, { username: {$regex: hash }}],
 		});
 		return res.status(200).json(account);
 	} catch (error) {
