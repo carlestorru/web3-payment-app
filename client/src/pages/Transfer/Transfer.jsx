@@ -7,18 +7,30 @@ import {
 	Select,
 	Tabs,
 	Textarea,
+	Spinner
 } from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
+import { useState } from 'react';
 
 function Transfer() {
 	const { account, library: web3 } = useWeb3React();
+	const [txError, setTxError] = useState('');
+	const [isSendingTx, setIsSendingTx] = useState(false);
 	useAuth();
 	useDocumentTitle('Transfer');
 
 	const onSubmit = async (event) => {
 		event.preventDefault();
+		setIsSendingTx(true);
 		const fields = Object.fromEntries(new window.FormData(event.target));
 		const nonce = await web3.eth.getTransactionCount(account, 'latest');
+
+		console.log(fields);
+
+		if (fields.quantity === '0') {
+			setTxError('Quantity must be greater than zero');
+			return;
+		}
 
 		const value = web3.utils.toWei(fields.quantity);
 
@@ -40,6 +52,8 @@ function Transfer() {
 						'Something went wrong while submitting your transaction:',
 						error
 					);
+					setTxError(error.message);
+					setIsSendingTx(false);
 				}
 			}
 		);
@@ -65,6 +79,8 @@ function Transfer() {
 			.then((res) => res.json())
 			.catch((err) => console.error(err))
 			.then((response) => console.log(response));
+
+		setIsSendingTx(false);
 	};
 
 	return (
@@ -127,10 +143,24 @@ function Transfer() {
 									rows={3}
 								/>
 							</div>
-							<Button type='submit' fullSized={true}>
-								Enviar
-							</Button>
+							{isSendingTx ? (
+								<Button>
+									<div className='mr-3'>
+										<Spinner size='sm' light={true} />
+									</div>
+									Enviando ...
+								</Button>
+							) : (
+								<Button type='submit' fullSized={true}>
+									Enviar
+								</Button>
+							)}
 						</form>
+						{txError ? (
+							<div className='mt-4 text-sm text-red-500'>{txError}</div>
+						) : (
+							''
+						)}
 					</Tabs.Item>
 					<Tabs.Item title='Solicitar'>Solicitar</Tabs.Item>
 				</Tabs.Group>
