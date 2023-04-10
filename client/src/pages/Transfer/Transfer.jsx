@@ -8,7 +8,7 @@ import {
 	Select,
 	Tabs,
 	Textarea,
-	Spinner
+	Spinner,
 } from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 import { useState } from 'react';
@@ -18,6 +18,8 @@ function Transfer() {
 	const [txError, setTxError] = useState('');
 	const [isSendingTx, setIsSendingTx] = useState(false);
 	const [timer, setTimer] = useState(null);
+	const [userResults, setUserResults] = useState([]);
+	const [selectedUser, setSelectedUser] = useState(null);
 	useAuth();
 	useDocumentTitle('Transfer');
 
@@ -86,18 +88,28 @@ function Transfer() {
 	};
 
 	const findUsernames = (event) => {
-		clearTimeout(timer);
+		if (event.target.value.length !== 0) {
+			clearTimeout(timer);
 
-		const newTimer = setTimeout(async () => {
-			try {
-				const result = await getUsername(event.target.value);
-				console.log(result.map(el => el.username))
-			} catch (err) {
-				console.error(`API no disponible: ${err}`)
-			}
-		}, 500);
+			const newTimer = setTimeout(async () => {
+				try {
+					const result = await getUsername(event.target.value);
+					setUserResults(result === null ? [] : result);
+					setSelectedUser(null);
+				} catch (err) {
+					console.error(`API no disponible: ${err}`);
+				}
+			}, 500);
 
-		setTimer(newTimer);
+			setTimer(newTimer);
+		} else {
+			setUserResults([]);
+		}
+	};
+
+	const selectUser = (user) => {
+		document.getElementById('address').value = user.hash;
+		setSelectedUser(user);
 	};
 
 	return (
@@ -125,9 +137,30 @@ function Transfer() {
 									shadow={true}
 									placeholder='Introduce una dirección wallet...'
 									required={true}
-									addon='0x'
 									onChange={findUsernames}
 								/>
+								{userResults.length > 0 && selectedUser === null ? (
+									<div>
+										<ul className='max-h-48 w-full overflow-y-auto rounded-b-lg border border-gray-100 bg-white p-1'>
+											{userResults.map((el) => {
+												return (
+													<li
+														className='border-b-[1px] border-b-gray-600 p-1 text-sm hover:cursor-pointer hover:bg-blue-300 hover:bg-opacity-40'
+														key={el.username}
+														onClick={() => selectUser(el)}>
+														<p>
+															Usuario:{' '}
+															<span className='font-medium'>{el.username}</span>
+														</p>
+														<p className='text-xs text-gray-500'>{el.hash}</p>
+													</li>
+												);
+											})}
+										</ul>
+									</div>
+								) : (
+									''
+								)}
 							</div>
 
 							<div className='flex flex-row justify-between'>
