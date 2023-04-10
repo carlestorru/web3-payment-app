@@ -373,7 +373,7 @@ function Activity() {
 						No existen transacciones para esta cuenta
 					</p>
 				) : (
-					<Table hoverable={true} className='w-full overflow-x-auto'>
+					<Table hoverable={true} className='overflow-x-auto'>
 						<Table.Head className='bg-blue-700'>
 							<Table.HeadCell className='text-white'>Fecha</Table.HeadCell>
 							<Table.HeadCell className='text-white'>
@@ -381,6 +381,7 @@ function Activity() {
 							</Table.HeadCell>
 							<Table.HeadCell className='text-white'>De / Para</Table.HeadCell>
 							<Table.HeadCell className='text-white'>Cantidad</Table.HeadCell>
+							<Table.HeadCell className='text-white'>Mensaje</Table.HeadCell>
 							<Table.HeadCell>
 								<span className='sr-only'>Edit</span>
 							</Table.HeadCell>
@@ -415,6 +416,9 @@ function Activity() {
 											{tx.from === account ? '-' : '+'}{' '}
 											{web3.utils.fromWei(tx.value)} ETH
 										</span>
+									</Table.Cell>
+									<Table.Cell className=''>
+										{tx.to ? web3.utils.hexToAscii(tx.input) : ''}
 									</Table.Cell>
 									<Table.Cell className='text-center'>
 										<button
