@@ -40,13 +40,13 @@ export function Wallet() {
 						className='w-full overflow-hidden text-ellipsis whitespace-nowrap'>
 						Account: <strong>{splitedAccount}</strong>
 					</h2>
-				<button className='hover:text-black' onClick={copyToClipboard}>
+				<button className='hover:text-black hover:dark:text-white' onClick={copyToClipboard}>
 					<Clipboard />
 				</button>
 				</div>
 				<h3 className='text-2xl'>{Math.round(balance * 100) / 100} ETH</h3>
 			</div>
-			<p className='text-sm text-slate-500'>Connected to the {chainId} chain</p>
+			<p className='text-sm text-slate-500 dark:text-slate-300'>Connected to the {chainId} chain</p>
 		</div>
 	);
 }

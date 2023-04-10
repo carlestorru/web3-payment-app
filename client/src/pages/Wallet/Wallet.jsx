@@ -76,8 +76,8 @@ function Wallet() {
 
 	return (
 		<>
-			<h2 className='text-2xl font-bold'>Wallet</h2>
-			<h4 className='text-slate-500'>
+			<h2 className='text-2xl font-bold dark:text-white'>Wallet</h2>
+			<h4 className='text-slate-500 dark:text-slate-200'>
 				Consulta y personaliza tu billetera
 			</h4>
 			{error ? (
@@ -143,7 +143,7 @@ function Wallet() {
 						</div>
 					</div>
 					<section className='flex flex-row gap-6 items-center'>
-						<h3 className='font-medium'>Personaliza tu tarjeta: </h3>
+						<h3 className='font-medium text-black dark:text-white'>Personaliza tu tarjeta: </h3>
 						<button id='walletBlue' onClick={onChangeWalletBg}>
 							<img
 								className='h-10 w-10 rounded-full transform transition-transform hover:scale-110'

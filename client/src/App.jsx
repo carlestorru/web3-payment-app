@@ -1,7 +1,12 @@
 import Routes from './routes';
+import { SettingsProvider } from './context/SettingsContext';
 
 function App() {
-	return <Routes />
+	return (
+		<SettingsProvider>
+			<Routes />
+		</SettingsProvider>
+	);
 }
 
 export default App;

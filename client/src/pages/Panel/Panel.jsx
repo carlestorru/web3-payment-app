@@ -13,8 +13,8 @@ function Panel() {
 
 	return (
 		<>
-			<h2 className='text-2xl font-bold'>Panel</h2>
-			<h4 className='text-slate-500'>
+			<h2 className='text-2xl font-bold dark:text-white'>Panel</h2>
+			<h4 className='text-slate-500 dark:text-slate-200'>
 				Visión general de los mercados y últimos pedidos
 			</h4>
 			<div className='grid grid-cols-8 gap-8'>

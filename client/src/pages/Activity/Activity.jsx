@@ -194,8 +194,8 @@ function Activity() {
 
 	return (
 		<>
-			<h2 className='text-2xl font-bold'>Activity</h2>
-			<h4 className='text-slate-500'>
+			<h2 className='text-2xl font-bold dark:text-white'>Activity</h2>
+			<h4 className='text-slate-500 dark:text-slate-200'>
 				Visión general de los mercados y últimos pedidos
 			</h4>
 			{/* FILTERS */}
@@ -223,7 +223,7 @@ function Activity() {
 							<input
 								type='text'
 								id='table-search'
-								className='block min-w-[300px] overflow-hidden rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-700 focus:ring-blue-700'
+								className='block min-w-[300px] overflow-hidden rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-700 p-2 pl-10 text-sm text-gray-900 dark:text-gray-100 focus:border-blue-700 focus:ring-blue-700'
 								placeholder='Buscar'
 								value={inputSearch}
 								onChange={onChangeSearch}
@@ -374,7 +374,7 @@ function Activity() {
 					</p>
 				) : (
 					<Table hoverable={true} className='overflow-x-auto'>
-						<Table.Head className='bg-blue-700'>
+						<Table.Head className='bg-blue-700 dark:bg-blue-700 text-gray-50'>
 							<Table.HeadCell className='text-white'>Fecha</Table.HeadCell>
 							<Table.HeadCell className='text-white'>
 								ID. transacción
@@ -386,9 +386,9 @@ function Activity() {
 								<span className='sr-only'>Edit</span>
 							</Table.HeadCell>
 						</Table.Head>
-						<Table.Body className='divide-y'>
+						<Table.Body className='divide-y dark:text-gray-800'>
 							{transactions.map((tx) => (
-								<Table.Row key={tx.hash} className='bg-white'>
+								<Table.Row key={tx.hash} className='bg-white dark:bg-gray-200 hover:dark:bg-gray-300'>
 									<Table.Cell className='whitespace-nowrap font-medium'>
 										{tx.date + ' ' + tx.time}
 									</Table.Cell>

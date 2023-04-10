@@ -9,7 +9,7 @@ import { useSettings } from '../../context/SettingsContext';
 
 function Settings() {
 	const { account } = useWeb3React();
-	const [settings, setSettings] = useSettings();
+	const [settings, toggleData, toggleDarkMode] = useSettings();
 	const { username, setUsername, isUsernameAvailable, setIsUsernameAvailable } =
 		useUsername();
 	useAuth();
@@ -46,23 +46,17 @@ function Settings() {
 		setTimer(newTimer);
 	};
 
-	const onToggle = () => {
-		setSettings((prev) => {
-			return { ...prev, readDB: !prev.readDB };
-		});
-	};
-
 	return (
 		<>
-			<h2 className='text-2xl font-bold'>Ajustes</h2>
-			<h4 className='text-slate-500'>Configura tu usuario y preferencias</h4>
+			<h2 className='text-2xl font-bold dark:text-white'>Ajustes</h2>
+			<h4 className='text-slate-500 dark:text-slate-200'>Configura tu usuario y preferencias</h4>
 			<section className='mt-8 flex flex-col gap-4 px-4'>
-				<h3 className='text-xl font-bold'>Configuración de usuario</h3>
+				<h3 className='text-xl font-bold text-black dark:text-white'>Configuración de usuario</h3>
 				<div className='px-6'>
 					<div className='mb-2 block'>
 						<Label htmlFor='username' value='Introduce un nombre de usuario:' />
 					</div>
-					<p className='my-2 text-xs text-gray-500'>
+					<p className='my-2 text-xs text-gray-500 dark:text-slate-200'>
 						Se distinguen entre mayúsculas y minúsculas.
 					</p>
 					<TextInput
@@ -93,8 +87,8 @@ function Settings() {
 				</div>
 			</section>
 			<section className='mt-8 flex flex-col gap-4 px-4'>
-				<h3 className='text-xl font-bold'>Configuración general</h3>
-				<div className='px-6'>
+				<h3 className='text-xl font-bold text-black dark:text-white'>Configuración general</h3>
+				<div className='px-6 flex flex-col gap-2'>
 					<div className='mb-2 block'>
 						<Label htmlFor='toggleData' value='Fuente de datos' />
 					</div>
@@ -106,7 +100,20 @@ function Settings() {
 								? 'Priorizar la obtención de datos desde la blockchain'
 								: 'Priorizar la obtención de datos de una fuente centralizada'
 						}
-						onChange={onToggle}
+						onChange={toggleData}
+					/>
+					<div className='mb-2 block'>
+						<Label htmlFor='toggleDark' value='Modo oscuro' />
+					</div>
+					<ToggleSwitch
+						id='toggleDark'
+						checked={settings.darkMode}
+						label={
+							settings.darkMode
+								? 'Modo claro'
+								: 'Modo oscuro'
+						}
+						onChange={toggleDarkMode}
 					/>
 				</div>
 			</section>

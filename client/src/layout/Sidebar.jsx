@@ -26,7 +26,7 @@ export default function SideBar() {
 		<section
 			className={`${
 				isOpen ? '' : '-translate-x-full'
-			} fixed inset-y-0 left-0 z-10 w-64 transform space-y-4 bg-white py-7 px-2 text-slate-600 transition duration-200 ease-in-out md:sticky md:translate-x-0 md:self-start`}>
+			} fixed inset-y-0 left-0 h-screen z-10 w-64 transform space-y-4 bg-white py-7 px-2 text-slate-600 dark:bg-slate-800 dark:text-slate-200 transition duration-200 ease-in-out md:sticky md:bottom-0 md:translate-x-0 md:self-start`}>
 			{/* Header */}
 			<header>
 				<Wallet />
@@ -37,7 +37,7 @@ export default function SideBar() {
 					return (
 						<ul key={item.id} className='block py-2.5 px-2'>
 							<li>
-								<h4 className='mb-3 text-xs font-medium uppercase text-slate-600'>
+								<h4 className='mb-3 text-xs font-medium uppercase text-slate-600 dark:text-slate-300'>
 									{item.title}
 								</h4>
 								<ul>
@@ -63,15 +63,15 @@ export default function SideBar() {
 												<NavLink
 													className={({ isActive }) => {
 														return isActive
-															? 'list-item rounded bg-blue-300 bg-opacity-40 font-medium text-black'
-															: 'list-item rounded transition hover:bg-blue-200 hover:font-medium';
+															? 'list-item rounded bg-blue-300 dark:bg-blue-700 bg-opacity-40 font-medium text-black'
+															: 'list-item rounded transition hover:bg-blue-200 hover:font-medium hover:dark:bg-blue-600';
 													}}
 													to={child.url}>
 													{() =>
 														isLinkActive(child.url) ? (
-															<div className='flex flex-row items-center justify-start gap-4 py-2 px-1 text-blue-500'>
+															<div className='flex flex-row items-center justify-start gap-4 py-2 px-1 text-blue-500 dark:text-blue-300'>
 																{child.activeIcon}
-																<h5 className='text-black'>{child.title}</h5>
+																<h5 className='text-black dark:text-white'>{child.title}</h5>
 															</div>
 														) : (
 															<div className='flex flex-row items-center justify-start gap-4 py-2 px-1'>

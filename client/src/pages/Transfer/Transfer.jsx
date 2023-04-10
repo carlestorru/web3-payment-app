@@ -33,6 +33,7 @@ function Transfer() {
 
 		if (fields.quantity === '0') {
 			setTxError('Quantity must be greater than zero');
+			setIsSendingTx(false);
 			return;
 		}
 
@@ -114,8 +115,8 @@ function Transfer() {
 
 	return (
 		<>
-			<h2 className='text-2xl font-bold'>Enviar y solicitar</h2>
-			<h4 className='text-slate-500'>
+			<h2 className='text-2xl font-bold dark:text-white'>Enviar y solicitar</h2>
+			<h4 className='text-slate-500 dark:text-slate-200'>
 				Recibe y transfiere dinero a otras cuentas
 			</h4>
 			<section className='m-auto w-full pt-4 lg:w-3/5'>
@@ -141,18 +142,18 @@ function Transfer() {
 								/>
 								{userResults.length > 0 && selectedUser === null ? (
 									<div>
-										<ul className='max-h-48 w-full overflow-y-auto rounded-b-lg border border-gray-100 bg-white p-1'>
+										<ul className='max-h-48 w-full overflow-y-auto rounded-b-lg border border-gray-100 bg-white dark:bg-gray-700 p-1'>
 											{userResults.map((el) => {
 												return (
 													<li
-														className='border-b-[1px] border-b-gray-600 p-1 text-sm hover:cursor-pointer hover:bg-blue-300 hover:bg-opacity-40'
+														className='border-b-[1px] text-black dark:text-white border-b-gray-600 dark:border-b-gray-300 p-1 text-sm hover:cursor-pointer hover:bg-blue-300 hover:dark:bg-blue-600 hover:bg-opacity-40'
 														key={el.username}
 														onClick={() => selectUser(el)}>
 														<p>
 															Usuario:{' '}
 															<span className='font-medium'>{el.username}</span>
 														</p>
-														<p className='text-xs text-gray-500'>{el.hash}</p>
+														<p className='text-xs text-gray-500 dark:text-gray-100'>{el.hash}</p>
 													</li>
 												);
 											})}
