@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const TITLE = 'Web3 Payment App';
+const TITLE = '3Pay';
 
 export default function useDocumentTitle(title) {
 	useEffect(() => {
