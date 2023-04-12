@@ -12,18 +12,20 @@ import {
 } from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 import { useState } from 'react';
+import RequestMoneyContract from '../../contracts/RequestMoney.json';
 
 function Transfer() {
 	const { account, library: web3 } = useWeb3React();
 	const [txError, setTxError] = useState('');
 	const [isSendingTx, setIsSendingTx] = useState(false);
+	const [isRequestingTx, setIsRequestingTx] = useState(false);
 	const [timer, setTimer] = useState(null);
 	const [userResults, setUserResults] = useState([]);
 	const [selectedUser, setSelectedUser] = useState(null);
 	useAuth();
 	useDocumentTitle('Transfer');
 
-	const onSubmit = async (event) => {
+	const onSubmitSend = async (event) => {
 		event.preventDefault();
 		setIsSendingTx(true);
 		const fields = Object.fromEntries(new window.FormData(event.target));
@@ -88,6 +90,21 @@ function Transfer() {
 		setIsSendingTx(false);
 	};
 
+	const onSubmitRequest = async (event) => {
+		event.preventDefault();
+		setIsRequestingTx(true);
+		const fields = Object.fromEntries(new window.FormData(event.target));
+		console.log(fields);
+
+		const contract = new web3.eth.Contract(
+			RequestMoneyContract.abi,
+			'0xfEd0ACFB4bD21908bcde020415C536e9952a1da5'
+		);
+		contract.methods.insertRequest(account, fields.address, fields.quantity, fields.message).send({from: account}).then(console.log);
+		setIsRequestingTx(false);
+	}
+
+
 	const findUsernames = (event) => {
 		if (event.target.value.length !== 0) {
 			clearTimeout(timer);
@@ -127,7 +144,7 @@ function Transfer() {
 					<Tabs.Item active={true} title='Enviar'>
 						<form
 							className='flex flex-col content-center justify-center gap-4'
-							onSubmit={onSubmit}>
+							onSubmit={onSubmitSend}>
 							<div>
 								<div className='mb-2 block'>
 									<Label htmlFor='address' value='Wallet' />
@@ -142,18 +159,20 @@ function Transfer() {
 								/>
 								{userResults.length > 0 && selectedUser === null ? (
 									<div>
-										<ul className='max-h-48 w-full overflow-y-auto rounded-b-lg border border-gray-100 bg-white dark:bg-gray-700 p-1'>
+										<ul className='max-h-48 w-full overflow-y-auto rounded-b-lg border border-gray-100 bg-white p-1 dark:bg-gray-700'>
 											{userResults.map((el) => {
 												return (
 													<li
-														className='border-b-[1px] text-black dark:text-white border-b-gray-600 dark:border-b-gray-300 p-1 text-sm hover:cursor-pointer hover:bg-blue-300 hover:dark:bg-blue-600 hover:bg-opacity-40'
+														className='border-b-[1px] border-b-gray-600 p-1 text-sm text-black hover:cursor-pointer hover:bg-blue-300 hover:bg-opacity-40 dark:border-b-gray-300 dark:text-white hover:dark:bg-blue-600'
 														key={el.username}
 														onClick={() => selectUser(el)}>
 														<p>
 															Usuario:{' '}
 															<span className='font-medium'>{el.username}</span>
 														</p>
-														<p className='text-xs text-gray-500 dark:text-gray-100'>{el.hash}</p>
+														<p className='text-xs text-gray-500 dark:text-gray-100'>
+															{el.hash}
+														</p>
 													</li>
 												);
 											})}
@@ -214,7 +233,98 @@ function Transfer() {
 							''
 						)}
 					</Tabs.Item>
-					<Tabs.Item title='Solicitar'>Solicitar</Tabs.Item>
+					<Tabs.Item title='Solicitar'>
+						<form
+							className='flex flex-col content-center justify-center gap-4'
+							onSubmit={onSubmitRequest}>
+							<div>
+								<div className='mb-2 block'>
+									<Label htmlFor='address' value='Wallet' />
+								</div>
+								<TextInput
+									id='address'
+									name='address'
+									shadow={true}
+									placeholder='Introduce una dirección wallet...'
+									required={true}
+									onChange={findUsernames}
+								/>
+								{userResults.length > 0 && selectedUser === null ? (
+									<div>
+										<ul className='max-h-48 w-full overflow-y-auto rounded-b-lg border border-gray-100 bg-white p-1 dark:bg-gray-700'>
+											{userResults.map((el) => {
+												return (
+													<li
+														className='border-b-[1px] border-b-gray-600 p-1 text-sm text-black hover:cursor-pointer hover:bg-blue-300 hover:bg-opacity-40 dark:border-b-gray-300 dark:text-white hover:dark:bg-blue-600'
+														key={el.username}
+														onClick={() => selectUser(el)}>
+														<p>
+															Usuario:{' '}
+															<span className='font-medium'>{el.username}</span>
+														</p>
+														<p className='text-xs text-gray-500 dark:text-gray-100'>
+															{el.hash}
+														</p>
+													</li>
+												);
+											})}
+										</ul>
+									</div>
+								) : (
+									''
+								)}
+							</div>
+
+							<div className='flex flex-row justify-between'>
+								<div>
+									<div className='mb-2 block'>
+										<Label htmlFor='quantity' value='Cantidad' />
+									</div>
+									<div className='flex flex-row'>
+										<TextInput
+											id='quantity'
+											name='quantity'
+											placeholder='Cantidad...'
+											required={true}
+										/>
+										<Select name='currency' id='currencies' required={true}>
+											<option>ETH</option>
+											<option>$</option>
+										</Select>
+									</div>
+								</div>
+							</div>
+
+							<div>
+								<div className='mb-2 block'>
+									<Label htmlFor='message' value='¿Para que es este pago?' />
+								</div>
+								<Textarea
+									id='message'
+									name='message'
+									placeholder='Escribe un mensaje...'
+									rows={3}
+								/>
+							</div>
+							{isRequestingTx ? (
+								<Button>
+									<div className='mr-3'>
+										<Spinner size='sm' light={true} />
+									</div>
+									Solicitando ...
+								</Button>
+							) : (
+								<Button type='submit' fullSized={true}>
+									Solicitar
+								</Button>
+							)}
+						</form>
+						{txError ? (
+							<div className='mt-4 text-sm text-red-500'>{txError}</div>
+						) : (
+							''
+						)}
+					</Tabs.Item>
 				</Tabs.Group>
 			</section>
 		</>
