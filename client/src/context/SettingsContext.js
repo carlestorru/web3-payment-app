@@ -27,13 +27,16 @@ export function SettingsProvider({ children }) {
 	};
 
 	const checkIfDarkMode = () => {
-		if (localStorage.getItem('darkMode')) {
+		const isDarkMode = localStorage.getItem('darkMode') === 'true';
+		if (isDarkMode) {
+			console.log('oscuro')
 			document.documentElement.classList.add('dark');
 		} else {
+			console.log('claro')
 			document.documentElement.classList.remove('dark');
 		}
 		setSettings(prev => {
-			return { ...prev, darkMode: localStorage.getItem('darkMode')}
+			return { ...prev, darkMode: isDarkMode}
 		})
 	};
 
