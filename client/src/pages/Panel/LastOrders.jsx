@@ -49,9 +49,9 @@ export function LastOrders() {
 						<Table.HeadCell className='text-white'>De / Para</Table.HeadCell>
 						<Table.HeadCell className='text-white'>Precio</Table.HeadCell>
 					</Table.Head>
-					<Table.Body className='divide-y dark:text-gray-800'>
+					<Table.Body className='divide-y dark:text-gray-200'>
 						{transactions.map((tx) => (
-							<Table.Row key={tx.hash} className='bg-white dark:bg-gray-200 hover:dark:bg-gray-300'>
+							<Table.Row key={tx.hash} className='bg-white  dark:border-gray-700 dark:bg-gray-800'>
 								<Table.Cell className='whitespace-nowrap font-medium'>
 									{tx.date + ' ' + tx.time}
 								</Table.Cell>

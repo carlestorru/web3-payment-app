@@ -386,9 +386,9 @@ function Activity() {
 								<span className='sr-only'>Edit</span>
 							</Table.HeadCell>
 						</Table.Head>
-						<Table.Body className='divide-y dark:text-gray-800'>
+						<Table.Body className='divide-y dark:text-gray-200'>
 							{transactions.map((tx) => (
-								<Table.Row key={tx.hash} className='bg-white dark:bg-gray-200 hover:dark:bg-gray-300'>
+								<Table.Row key={tx.hash} className='bg-white dark:border-gray-700 dark:bg-gray-800'>
 									<Table.Cell className='whitespace-nowrap font-medium'>
 										{tx.date + ' ' + tx.time}
 									</Table.Cell>
@@ -436,7 +436,7 @@ function Activity() {
 			{detailedTx !== null ? (
 				<Modal show={isModalVisible} onClose={onCloseModal}>
 					<Modal.Header>Detalles de la transacción</Modal.Header>
-					<Modal.Body className='space-x-0 text-sm'>
+					<Modal.Body className='space-x-0 text-sm dark:text-white'>
 						<div className='space-y-1 whitespace-pre-wrap'>
 							{Object.keys(detailedTx).map((key) => (
 								<p key={key} className='b m-0 break-all'>
