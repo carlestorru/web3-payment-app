@@ -63,7 +63,7 @@ function Wallet() {
 
 			const contract = new web3.eth.Contract(
 				HelloWorldAbi.abi,
-				'0x6F1d229ecC5f8A7F5B2b326485cDd17d127EB60b'
+				'0xb209e64D946cfF2fEdacfaB737eBf2DA447e2006'
 			);
 			console.log(contract);
 			console.log(await contract.methods.hi().call());
