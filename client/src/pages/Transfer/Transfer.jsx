@@ -98,12 +98,29 @@ function Transfer() {
 
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
-			'0xfEd0ACFB4bD21908bcde020415C536e9952a1da5'
+			'0xefC2363545d81f497F0484C14705b91AFdf6c84F'
 		);
-		contract.methods.insertRequest(account, fields.address, fields.quantity, fields.message).send({from: account}).then(console.log);
-		setIsRequestingTx(false);
-	}
+		contract.methods
+			.insertRequest(account, fields.address, fields.quantity, fields.message)
+			.estimateGas({ from: account })
+			.then(async (amount) => {
+				const gasPrice = await web3.eth.getGasPrice();
+				console.log(gasPrice);
+				const price = amount * gasPrice;
 
+				console.log(web3.utils.fromWei(price.toString()));
+				contract.methods
+					.insertRequest(
+						account,
+						fields.address,
+						fields.quantity,
+						fields.message
+					)
+					.send({ from: account, gasPrice: '1' })
+					.then(console.log);
+			});
+		setIsRequestingTx(false);
+	};
 
 	const findUsernames = (event) => {
 		if (event.target.value.length !== 0) {
@@ -125,8 +142,12 @@ function Transfer() {
 		}
 	};
 
-	const selectUser = (user) => {
-		document.getElementById('address').value = user.hash;
+	const selectUser = (user, action) => {
+		if (action === 'send') {
+			document.getElementById('addressSend').value = user.hash;
+		} else if (action === 'request') {
+			document.getElementById('addressRequest').value = user.hash;
+		}
 		setSelectedUser(user);
 	};
 
@@ -150,7 +171,7 @@ function Transfer() {
 									<Label htmlFor='address' value='Wallet' />
 								</div>
 								<TextInput
-									id='address'
+									id='addressSend'
 									name='address'
 									shadow={true}
 									placeholder='Introduce una dirección wallet...'
@@ -165,7 +186,7 @@ function Transfer() {
 													<li
 														className='border-b-[1px] border-b-gray-600 p-1 text-sm text-black hover:cursor-pointer hover:bg-blue-300 hover:bg-opacity-40 dark:border-b-gray-300 dark:text-white hover:dark:bg-blue-600'
 														key={el.username}
-														onClick={() => selectUser(el)}>
+														onClick={() => selectUser(el, 'send')}>
 														<p>
 															Usuario:{' '}
 															<span className='font-medium'>{el.username}</span>
@@ -242,7 +263,7 @@ function Transfer() {
 									<Label htmlFor='address' value='Wallet' />
 								</div>
 								<TextInput
-									id='address'
+									id='addressRequest'
 									name='address'
 									shadow={true}
 									placeholder='Introduce una dirección wallet...'
@@ -257,7 +278,7 @@ function Transfer() {
 													<li
 														className='border-b-[1px] border-b-gray-600 p-1 text-sm text-black hover:cursor-pointer hover:bg-blue-300 hover:bg-opacity-40 dark:border-b-gray-300 dark:text-white hover:dark:bg-blue-600'
 														key={el.username}
-														onClick={() => selectUser(el)}>
+														onClick={() => selectUser(el, 'request')}>
 														<p>
 															Usuario:{' '}
 															<span className='font-medium'>{el.username}</span>

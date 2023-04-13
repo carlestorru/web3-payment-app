@@ -29,5 +29,13 @@ contract RequestMoney {
         }
         return (addresses, amounts, concepts);
     }
+
+    function deleteUserRequest(address _payAddress, uint _index) public {
+        uint arrayLen = requests[_payAddress].length;
+        for (uint i = _index; i < arrayLen - 1; i++) {
+            requests[_payAddress][i] = requests[_payAddress][i + 1];
+        }
+        requests[_payAddress].pop();
+    }
 }
 

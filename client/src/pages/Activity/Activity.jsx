@@ -369,7 +369,7 @@ function Activity() {
 						<Spinner aria-label='Extra large spinner example' size='xl' />
 					</div>
 				) : transactions.length === 0 ? (
-					<p className='pt-4 text-center font-semibold'>
+					<p className='pt-4 text-center font-semibold dark:text-white'>
 						No existen transacciones para esta cuenta
 					</p>
 				) : (
