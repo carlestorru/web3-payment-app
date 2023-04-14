@@ -6,6 +6,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Card, Button } from 'flowbite-react';
 import { CheckIcon } from '../../components/Icons/Check';
 import { Xmark } from '../../components/Icons/Xmark';
+import smartcontracts from '../../config/smartcontracts';
 
 function Notifications() {
 	useAuth();
@@ -73,7 +74,7 @@ function Notifications() {
 	const deleteRequest = (index) => {
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
-			'0xefC2363545d81f497F0484C14705b91AFdf6c84F'
+			smartcontracts.RequestMoney
 		);
 		contract.methods
 			.deleteUserRequest(account, index)
@@ -86,7 +87,7 @@ function Notifications() {
 			const getMoneyRequests = async () => {
 				const contract = new web3.eth.Contract(
 					RequestMoneyContract.abi,
-					'0xefC2363545d81f497F0484C14705b91AFdf6c84F'
+					smartcontracts.RequestMoney
 				);
 				const result = await contract.methods.getUserRequests(account).call();
 				const requests = [];

@@ -14,6 +14,7 @@ import WalletBackgroundBlue from '../../assets/walletcard_bg_blue.png';
 import WalletBackgroundOrange from '../../assets/walletcard_bg_orange.png';
 import WalletBackgroundMetamask from '../../assets/walletcard_bg_metamask.png';
 import WalletBackgroundEth from '../../assets/walletcard_bg_eth.png';
+import smartcontracts from '../../config/smartcontracts';
 
 const walletColors = {
 	walletBlue: WalletBackgroundBlue,
@@ -63,7 +64,7 @@ function Wallet() {
 
 			const contract = new web3.eth.Contract(
 				HelloWorldAbi.abi,
-				'0xb209e64D946cfF2fEdacfaB737eBf2DA447e2006'
+				smartcontracts.HelloWorld
 			);
 			console.log(contract);
 			console.log(await contract.methods.hi().call());

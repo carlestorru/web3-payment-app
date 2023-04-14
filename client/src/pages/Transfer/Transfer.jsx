@@ -13,6 +13,7 @@ import {
 import { useWeb3React } from '@web3-react/core';
 import { useState } from 'react';
 import RequestMoneyContract from '../../contracts/RequestMoney.json';
+import smartcontracts from '../../config/smartcontracts';
 
 function Transfer() {
 	const { account, library: web3 } = useWeb3React();
@@ -98,7 +99,7 @@ function Transfer() {
 
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
-			'0xefC2363545d81f497F0484C14705b91AFdf6c84F'
+			smartcontracts.RequestMoney
 		);
 		contract.methods
 			.insertRequest(account, fields.address, fields.quantity, fields.message)
