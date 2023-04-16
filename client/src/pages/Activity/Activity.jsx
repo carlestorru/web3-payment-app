@@ -15,6 +15,9 @@ import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
 import Datepicker from 'tailwind-datepicker-react';
 import getTransactions from '../../services/getTransactions';
+import getSymbolPrice from '../../services/getSymbolPrice';
+import smartcontracts from '../../config/smartcontracts';
+// import BigNumber from 'bignumber.js';
 // import { useSettings } from '../../context/SettingsContext';
 
 const datePickerOptions = {
@@ -53,6 +56,7 @@ function Activity() {
 	const [showInc, setShowInc] = useState(true);
 	const [sortType, setSortType] = useState('dateNew');
 	const [loading, isLoading] = useState(true);
+	const [ethPrice, setEthPrice] = useState(1);
 	// const [filters, ] = useSettings();
 
 	useAuth();
@@ -187,7 +191,21 @@ function Activity() {
 		}
 	}, [web3]);
 
+	const decodeInput = (input) => {
+		/*
+		const types = ['address', 'address', 'string', 'string'];
+		console.log(input)
+		const decodedParameters = web3.eth.abi.decodeParameters(types, input);
+
+		const value = new BigNumber(decodedParameters[2]);
+		return value.toString();
+		*/
+
+		return web3.utils.hexToAscii(input);
+	};
+
 	useEffect(() => {
+		getSymbolPrice('ETH', 'USD').then((res) => setEthPrice(res.USD));
 		onApplyFilters();
 		filterByDate(transactions);
 	}, [dateRange]);
@@ -223,7 +241,7 @@ function Activity() {
 							<input
 								type='text'
 								id='table-search'
-								className='block min-w-[300px] overflow-hidden rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-700 p-2 pl-10 text-sm text-gray-900 dark:text-gray-100 focus:border-blue-700 focus:ring-blue-700'
+								className='block min-w-[300px] overflow-hidden rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-700 focus:ring-blue-700 dark:bg-gray-700 dark:text-gray-100'
 								placeholder='Buscar'
 								value={inputSearch}
 								onChange={onChangeSearch}
@@ -374,7 +392,7 @@ function Activity() {
 					</p>
 				) : (
 					<Table hoverable={true} className='overflow-x-auto'>
-						<Table.Head className='bg-blue-700 dark:bg-blue-700 text-gray-50'>
+						<Table.Head className='bg-blue-700 text-gray-50 dark:bg-blue-700'>
 							<Table.HeadCell className='text-white'>Fecha</Table.HeadCell>
 							<Table.HeadCell className='text-white'>
 								ID. transacción
@@ -388,7 +406,9 @@ function Activity() {
 						</Table.Head>
 						<Table.Body className='divide-y dark:text-gray-200'>
 							{transactions.map((tx) => (
-								<Table.Row key={tx.hash} className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+								<Table.Row
+									key={tx.hash}
+									className='bg-white dark:border-gray-700 dark:bg-gray-800'>
 									<Table.Cell className='whitespace-nowrap font-medium'>
 										{tx.date + ' ' + tx.time}
 									</Table.Cell>
@@ -401,24 +421,39 @@ function Activity() {
 											)}
 									</Table.Cell>
 									<Table.Cell>
-										{tx.to ? tx.to.slice(0, 5)
-											.concat(
-												'...',
-												tx.to.slice(tx.to.length - 4, tx.to.length)
-											) : 'Creación SmartContract'}
+										{tx.to
+											? tx.to
+													.slice(0, 5)
+													.concat(
+														'...',
+														tx.to.slice(tx.to.length - 4, tx.to.length)
+													)
+											: 'Creación SmartContract'}
 									</Table.Cell>
 									<Table.Cell className='whitespace-nowrap'>
 										<span
 											className={
-												tx.from === account ? `text-red-500 font-medium` : `text-green-500 font-medium`
+												tx.from === account
+													? `font-medium text-red-500`
+													: `font-medium text-green-500`
 											}>
 											{' '}
-											{tx.from === account ? '-' : '+'}{' '}
-											{web3.utils.fromWei(tx.value)} ETH
+											{tx.from === account ? '-' : '+'} ${' '}
+											{Math.round(
+												ethPrice * web3.utils.fromWei(tx.value) * 100
+											) / 100}
+										</span>
+										<span className='text-xs'>
+											{' '}
+											({web3.utils.fromWei(tx.value)} ETH)
 										</span>
 									</Table.Cell>
 									<Table.Cell className=''>
-										{tx.to ? web3.utils.hexToAscii(tx.input) : ''}
+										{tx.to
+											? tx.to === smartcontracts.RequestMoney
+												? decodeInput(tx.input)
+												: web3.utils.hexToAscii(tx.input)
+											: ''}
 									</Table.Cell>
 									<Table.Cell className='text-center'>
 										<button

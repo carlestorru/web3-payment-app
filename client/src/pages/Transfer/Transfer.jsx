@@ -14,11 +14,13 @@ import { useWeb3React } from '@web3-react/core';
 import { useState } from 'react';
 import RequestMoneyContract from '../../contracts/RequestMoney.json';
 import smartcontracts from '../../config/smartcontracts';
+import getSymbolPrice from '../../services/getSymbolPrice';
 
 function Transfer() {
 	const { account, library: web3 } = useWeb3React();
 	const [txError, setTxError] = useState('');
 	const [isSendingTx, setIsSendingTx] = useState(false);
+	const [reqError, setReqError] = useState('');
 	const [isRequestingTx, setIsRequestingTx] = useState(false);
 	const [timer, setTimer] = useState(null);
 	const [userResults, setUserResults] = useState([]);
@@ -40,7 +42,14 @@ function Transfer() {
 			return;
 		}
 
-		const value = web3.utils.toWei(fields.quantity);
+		let value;
+		if (fields.currency === '$') {
+			const symConversion = await getSymbolPrice('USD', 'ETH');
+			const dolarsToEth = fields.quantity * symConversion.ETH;
+			value = web3.utils.toWei(dolarsToEth.toString());
+		} else {
+			value = web3.utils.toWei(fields.quantity);
+		}
 
 		const transaction = {
 			from: account,
@@ -52,7 +61,7 @@ function Transfer() {
 
 		const signedTx = await web3.eth.sendTransaction(
 			transaction,
-			async function (error, hash) {
+			function (error, hash) {
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
 				} else {
@@ -101,6 +110,7 @@ function Transfer() {
 			RequestMoneyContract.abi,
 			smartcontracts.RequestMoney
 		);
+		/*
 		contract.methods
 			.insertRequest(account, fields.address, fields.quantity, fields.message)
 			.estimateGas({ from: account })
@@ -110,16 +120,34 @@ function Transfer() {
 				const price = amount * gasPrice;
 
 				console.log(web3.utils.fromWei(price.toString()));
-				contract.methods
-					.insertRequest(
-						account,
-						fields.address,
-						fields.quantity,
-						fields.message
-					)
-					.send({ from: account, gasPrice: '1' })
-					.then(console.log);
+
+				*/
+
+		let value;
+		if (fields.currency === '$') {
+			const symConversion = await getSymbolPrice('USD', 'ETH');
+			const dolarsToEth = fields.quantity * symConversion.ETH;
+			value = web3.utils.toWei(dolarsToEth.toString());
+		} else {
+			value = web3.utils.toWei(fields.quantity);
+		}
+
+		contract.methods
+			.insertRequest(account, fields.address, value, fields.message)
+			.send({ from: account, gasPrice: '1' }, function (error, hash) {
+				if (!error) {
+					console.log('The hash of your transaction is: ', hash);
+				} else {
+					console.log(
+						'Something went wrong while submitting your transaction:',
+						error
+					);
+					setReqError(error.message);
+					setIsRequestingTx(false);
+				}
 			});
+
+		// });
 		setIsRequestingTx(false);
 	};
 
@@ -341,8 +369,8 @@ function Transfer() {
 								</Button>
 							)}
 						</form>
-						{txError ? (
-							<div className='mt-4 text-sm text-red-500'>{txError}</div>
+						{reqError ? (
+							<div className='mt-4 text-sm text-red-500'>{reqError}</div>
 						) : (
 							''
 						)}

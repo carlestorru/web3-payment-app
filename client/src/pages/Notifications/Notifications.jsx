@@ -7,6 +7,7 @@ import { Card, Button } from 'flowbite-react';
 import { CheckIcon } from '../../components/Icons/Check';
 import { Xmark } from '../../components/Icons/Xmark';
 import smartcontracts from '../../config/smartcontracts';
+import getSymbolPrice from '../../services/getSymbolPrice';
 
 function Notifications() {
 	useAuth();
@@ -92,9 +93,13 @@ function Notifications() {
 				const result = await contract.methods.getUserRequests(account).call();
 				const requests = [];
 				for (let i = 0; i < result['0'].length; i++) {
+					const symbolPrice = await getSymbolPrice('ETH','USD');
+					const priceInUSD = (result['1'][i] * symbolPrice.USD).toString();
+					const amountToUSD = web3.utils.fromWei(priceInUSD)
 					requests.push({
 						address: result['0'][i],
-						amount: result['1'][i],
+						amountUSD: amountToUSD,
+						amountETH: web3.utils.fromWei(result['1'][i]),
 						concept: result['2'][i],
 					});
 				}
@@ -131,7 +136,10 @@ function Notifications() {
 												</p>
 											</div>
 											<div className='inline-flex items-center text-base font-semibold text-gray-900 dark:text-white'>
-												{el.amount} ETH
+											$ {Math.round(el.amountUSD * 100) / 100} 
+											<span className='ml-2 text-xs'>
+											{el.amountETH} ETH
+												</span>
 											</div>
 											<div className='flex flex-row gap-2'>
 												<Button
@@ -141,7 +149,7 @@ function Notifications() {
 														onAcceptRequest(
 															{
 																address: el.address,
-																amount: el.amount,
+																amount: el.amountETH,
 																concept: el.concept,
 															},
 															index
