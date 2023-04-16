@@ -77,10 +77,14 @@ function Activity() {
 		setInputSearch(inputValue);
 		getTransactions(account, web3).then((res) => {
 			const searchedTxs = res.filter(
-				(tx) =>
-					tx.hash.startsWith(inputValue) ||
+				(tx) => {
+					const message = tx.input !== '' ? String(web3.utils.hexToAscii(tx.input)) : '';
+					return tx.hash.startsWith(inputValue) ||
 					tx.from.startsWith(inputValue) ||
-					tx.to.startsWith(inputValue)
+					tx.to.startsWith(inputValue) ||
+					message.includes(inputValue)
+				}
+					
 			);
 
 			setTransactions(searchedTxs);
