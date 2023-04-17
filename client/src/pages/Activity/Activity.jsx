@@ -43,6 +43,7 @@ const datePickerOptions = {
 function Activity() {
 	const { account, library: web3 } = useWeb3React();
 	const [transactions, setTransactions] = useState([]);
+	const [filteredTransactions, setFilteredTransactions] = useState([]);
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedTx, setDetailedTx] = useState(null);
 	const [inputSearch, setInputSearch] = useState('');
@@ -74,20 +75,18 @@ function Activity() {
 	const onChangeSearch = (event) => {
 		const inputValue = event.target.value;
 		setInputSearch(inputValue);
-		getTransactions(account, web3).then((res) => {
-			const searchedTxs = res.filter((tx) => {
-				const message =
-					tx.input !== '' ? String(web3.utils.hexToAscii(tx.input)) : '';
-				return (
-					tx.hash.startsWith(inputValue) ||
-					tx.from.startsWith(inputValue) ||
-					tx.to.startsWith(inputValue) ||
-					message.includes(inputValue)
-				);
-			});
-
-			setTransactions(searchedTxs);
+		const searchedTxs = filteredTransactions.filter((tx) => {
+			const message =
+				tx.input !== '' ? String(web3.utils.hexToAscii(tx.input)) : '';
+			return (
+				tx.hash.startsWith(inputValue) ||
+				tx.from.startsWith(inputValue) ||
+				tx.to.startsWith(inputValue) ||
+				message.includes(inputValue)
+			);
 		});
+
+		setTransactions(searchedTxs);
 	};
 
 	const onCheckPayments = () => {
@@ -142,19 +141,15 @@ function Activity() {
 			sortedTxs = filteredTxs
 				.sort((a, b) => a.timestamp - b.timestamp)
 				.reverse();
-			setTransactions(sortedTxs);
 		} else if (sortType === 'dateOld') {
 			sortedTxs = filteredTxs.sort((a, b) => a.timestamp - b.timestamp);
-			setTransactions(sortedTxs);
 		} else if (sortType === 'priceLow') {
-			sortedTxs = filteredTxs
-				.sort((a, b) => a.value - b.value)
-				.reverse();
-			setTransactions(sortedTxs);
+			sortedTxs = filteredTxs.sort((a, b) => a.value - b.value).reverse();
 		} else if (sortType === 'priceHigh') {
 			sortedTxs = filteredTxs.sort((a, b) => a.value - b.value);
-			setTransactions(sortedTxs);
 		}
+		setFilteredTransactions(sortedTxs);
+		setTransactions(sortedTxs);
 	};
 
 	const filterByDate = (transactions) => {
