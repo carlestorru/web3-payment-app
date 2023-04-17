@@ -17,8 +17,6 @@ import Datepicker from 'tailwind-datepicker-react';
 import getTransactions from '../../services/getTransactions';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import smartcontracts from '../../config/smartcontracts';
-// import BigNumber from 'bignumber.js';
-// import { useSettings } from '../../context/SettingsContext';
 
 const datePickerOptions = {
 	autoHide: true,
@@ -55,12 +53,13 @@ function Activity() {
 	const [showPays, setShowPays] = useState(true);
 	const [showInc, setShowInc] = useState(true);
 	const [sortType, setSortType] = useState('dateNew');
+	const [priceFrom, setPriceFrom] = useState(null);
+	const [priceTo, setPriceTo] = useState(null);
 	const [loading, isLoading] = useState(true);
 	const [ethPrice, setEthPrice] = useState(1);
-	// const [filters, ] = useSettings();
 
 	useAuth();
-	useDocumentTitle('Activity');
+	useDocumentTitle('Actividad');
 
 	const onOpenModal = (el) => {
 		setDetailedTx(el);
@@ -76,16 +75,16 @@ function Activity() {
 		const inputValue = event.target.value;
 		setInputSearch(inputValue);
 		getTransactions(account, web3).then((res) => {
-			const searchedTxs = res.filter(
-				(tx) => {
-					const message = tx.input !== '' ? String(web3.utils.hexToAscii(tx.input)) : '';
-					return tx.hash.startsWith(inputValue) ||
+			const searchedTxs = res.filter((tx) => {
+				const message =
+					tx.input !== '' ? String(web3.utils.hexToAscii(tx.input)) : '';
+				return (
+					tx.hash.startsWith(inputValue) ||
 					tx.from.startsWith(inputValue) ||
 					tx.to.startsWith(inputValue) ||
 					message.includes(inputValue)
-				}
-					
-			);
+				);
+			});
 
 			setTransactions(searchedTxs);
 		});
@@ -101,6 +100,22 @@ function Activity() {
 
 	const onChangeSort = (event) => {
 		setSortType(event.target.value);
+	};
+
+	const onChangePriceFrom = (event) => {
+		if (event.target.value === '') {
+			setPriceFrom(null);
+		} else {
+			setPriceFrom(Number(event.target.value));
+		}
+	};
+
+	const onChangePriceTo = (event) => {
+		if (event.target.value === '') {
+			setPriceTo(null);
+		} else {
+			setPriceTo(Number(event.target.value));
+		}
 	};
 
 	const handleChangeDateFrom = (selectedDate) => {
@@ -133,11 +148,11 @@ function Activity() {
 			setTransactions(sortedTxs);
 		} else if (sortType === 'priceLow') {
 			sortedTxs = filteredTxs
-				.sort((a, b) => a.value.localeCompare(b.value))
+				.sort((a, b) => a.value - b.value)
 				.reverse();
 			setTransactions(sortedTxs);
 		} else if (sortType === 'priceHigh') {
-			sortedTxs = filteredTxs.sort((a, b) => a.value.localeCompare(b.value));
+			sortedTxs = filteredTxs.sort((a, b) => a.value - b.value);
 			setTransactions(sortedTxs);
 		}
 	};
@@ -159,27 +174,47 @@ function Activity() {
 	};
 
 	const onApplyFilters = () => {
-		getTransactions(account, web3).then((res) => {
-			const filteredTxs = res.filter((tx) => {
-				if (showPays && showInc) {
-					return true;
-				}
-				if (showPays) {
-					return tx.from === account;
-				}
-				if (showInc) {
-					return tx.to === account;
-				}
-				return null;
-			});
+		getTransactions(account, web3)
+			.then((res) => {
+				const filteredTxs = res.filter((tx) => {
+					if (priceFrom !== null && priceTo !== null) {
+						const txPrice =
+							Math.round(ethPrice * web3.utils.fromWei(tx.value) * 100) / 100;
+						if (txPrice >= priceFrom && txPrice <= priceTo) {
+							if (showPays && showInc) {
+								return true;
+							}
+							if (showPays) {
+								return tx.from === account;
+							}
+							if (showInc) {
+								return tx.to === account;
+							}
+						}
+						return false;
+					} else {
+						if (showPays && showInc) {
+							return true;
+						}
+						if (showPays) {
+							return tx.from === account;
+						}
+						if (showInc) {
+							return tx.to === account;
+						}
+					}
 
-			if (!isInvalidDateRange) {
-				filterByDate(filteredTxs);
-				return;
-			}
+					return null;
+				});
 
-			sortTransactions(filteredTxs);
-		});
+				if (!isInvalidDateRange) {
+					filterByDate(filteredTxs);
+					return;
+				}
+
+				sortTransactions(filteredTxs);
+			})
+			.catch((err) => console.error(err));
 	};
 
 	useEffect(() => {
@@ -216,7 +251,7 @@ function Activity() {
 
 	return (
 		<>
-			<h2 className='text-2xl font-bold dark:text-white'>Activity</h2>
+			<h2 className='text-2xl font-bold dark:text-white'>Actividad</h2>
 			<h4 className='text-slate-500 dark:text-slate-200'>
 				Visión general de los mercados y últimos pedidos
 			</h4>
@@ -355,6 +390,7 @@ function Activity() {
 												type='text'
 												sizing='sm'
 												placeholder='ex.: 0'
+												onChange={onChangePriceFrom}
 											/>
 										</div>
 										<div className='mt-5'>
@@ -373,6 +409,7 @@ function Activity() {
 												type='text'
 												sizing='sm'
 												placeholder='ex.:100'
+												onChange={onChangePriceTo}
 											/>
 										</div>
 									</div>
