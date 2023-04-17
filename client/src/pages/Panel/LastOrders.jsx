@@ -5,6 +5,7 @@ import getTransactions from '../../services/getTransactions';
 import { HiInformationCircle } from '../../components/Icons/HiInformationCircle';
 import { Link } from 'react-router-dom';
 import getSymbolPrice from '../../services/getSymbolPrice';
+import smartcontracts from '../../config/smartcontracts';
 
 export function LastOrders() {
 	const { account, library: web3, error } = useWeb3React();
@@ -15,12 +16,25 @@ export function LastOrders() {
 	useEffect(() => {
 		if (web3 !== undefined) {
 			getTransactions(account, web3).then((res) => {
-				const lastTenTxs = res.slice(Math.max(res.length - 10, 0));
+				const lastTenTxs = res.slice(0,9);
 				setTransactions(lastTenTxs);
 				isLoading(false);
 			});
 		}
 	}, [web3]);
+
+	const decodeInput = (input) => {
+		/*
+		const types = ['address', 'address', 'string', 'string'];
+		console.log(input)
+		const decodedParameters = web3.eth.abi.decodeParameters(types, input);
+
+		const value = new BigNumber(decodedParameters[2]);
+		return value.toString();
+		*/
+
+		return web3.utils.hexToAscii(input);
+	};
 
 	useEffect(() => {
 		getSymbolPrice('ETH', 'USD').then((res) => setEthPrice(res.USD));
@@ -62,6 +76,7 @@ export function LastOrders() {
 						</Table.HeadCell>
 						<Table.HeadCell className='text-white'>De / Para</Table.HeadCell>
 						<Table.HeadCell className='text-white'>Precio</Table.HeadCell>
+						<Table.HeadCell className='text-white'>Mensaje</Table.HeadCell>
 					</Table.Head>
 					<Table.Body className='divide-y dark:text-gray-200'>
 						{transactions.map((tx) => (
@@ -96,6 +111,13 @@ export function LastOrders() {
 										({web3.utils.fromWei(tx.value)} ETH)
 									</span>
 								</Table.Cell>
+								<Table.Cell className=''>
+										{tx.to
+											? tx.to === smartcontracts.RequestMoney
+												? decodeInput(tx.input)
+												: web3.utils.hexToAscii(tx.input)
+											: ''}
+									</Table.Cell>
 							</Table.Row>
 						))}
 					</Table.Body>
