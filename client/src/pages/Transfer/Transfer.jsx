@@ -37,7 +37,13 @@ function Transfer() {
 		console.log(fields);
 
 		if (fields.quantity === '0') {
-			setTxError('Quantity must be greater than zero');
+			setTxError('La cantidad a enviar debe ser mayor de 0');
+			setIsSendingTx(false);
+			return;
+		}
+		
+		if (fields.quantity.includes(',')) {
+			setTxError('Los decimales deben separarse con . Ej: 10.99');
 			setIsSendingTx(false);
 			return;
 		}
@@ -105,6 +111,18 @@ function Transfer() {
 		setIsRequestingTx(true);
 		const fields = Object.fromEntries(new window.FormData(event.target));
 		console.log(fields);
+
+		if (fields.quantity === '0') {
+			setReqError('La cantidad a enviar debe ser mayor de 0');
+			setIsRequestingTx(false);
+			return;
+		}
+		
+		if (fields.quantity.includes(',')) {
+			setReqError('Los decimales deben separarse con . Ej: 10.99');
+			setIsRequestingTx(false);
+			return;
+		}
 
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
