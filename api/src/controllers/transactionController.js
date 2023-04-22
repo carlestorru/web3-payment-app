@@ -1,14 +1,9 @@
-const { Transaction } = require('../models/Transaction');
+const transactionService = require('../services/transactionService');
 
 const getAllTransactions = async (req, res) => {
 	try {
-		const allTransactions = await Transaction.find();
-		const response = allTransactions.map((el) => {
-			const currentDate = new Date(el.created_at || el._id.getTimestamp()).toLocaleDateString();
-			const currentTime = new Date(el.created_at || el._id.getTimestamp()).toLocaleTimeString();
-			return { ...el.toObject(), date: currentDate, time: currentTime };
-		});
-		return res.status(200).json(response);
+		const allTransactions = await transactionService.getAllTransactions();
+		return res.status(200).json(allTransactions);
 	} catch (error) {
 		return res
 			.status(error?.status || 500)
@@ -19,15 +14,8 @@ const getAllTransactions = async (req, res) => {
 const getTransaction = async (req, res) => {
 	const { hash } = req.params;
 	try {
-		const transaction = await Transaction.find({
-			$or: [{ hash: hash }, { from: hash }, { to: hash }],
-		});
-		const response = transaction.map((el) => {
-			const currentDate = new Date(el.created_at || el._id.getTimestamp()).toLocaleDateString();
-			const currentTime = new Date(el.created_at || el._id.getTimestamp()).toLocaleTimeString();
-			return { ...el.toObject(), date: currentDate, time: currentTime };
-		});
-		return res.status(200).json(response);
+		const transaction = await transactionService.getTransaction(hash);
+		return res.status(200).json(transaction);
 	} catch (error) {
 		return res
 			.status(error?.status || 500)
@@ -37,9 +25,8 @@ const getTransaction = async (req, res) => {
 
 const saveTransaction = async (req, res) => {
 	try {
-		const newTransaction = new Transaction({ ...req.body });
-		const insertedTransaction = await newTransaction.save();
-		return res.status(201).json(insertedTransaction);
+		const newTransaction = await transactionService.saveTransaction(req.body);
+		return res.status(201).json(newTransaction);
 	} catch (error) {
 		return res
 			.status(error?.status || 500)

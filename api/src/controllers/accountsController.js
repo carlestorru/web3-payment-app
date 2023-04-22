@@ -1,8 +1,8 @@
-const { Account } = require('../models/Account');
+const accountService = require('../services/accountsService');
 
 const getAllAccounts = async (req, res) => {
 	try {
-		const allAccounts = await Account.find();
+		const allAccounts = await accountService.getAllAccounts()
 		return res.status(200).json(allAccounts);
 	} catch (error) {
 		return res
@@ -14,9 +14,7 @@ const getAllAccounts = async (req, res) => {
 const getAccount = async (req, res) => {
 	const { hash } = req.params;
 	try {
-		const account = await Account.find({
-			$or: [{ hash: hash }, { username: {$regex: hash }}],
-		});
+		const account = await accountService.getAccount(hash);
 		return res.status(200).json(account);
 	} catch (error) {
 		return res
@@ -28,8 +26,7 @@ const getAccount = async (req, res) => {
 const saveAccount = async (req, res) => {
 	const { hash } = req.params;
 	try {
-		const newAccount = { hash, ...req.body };
-		const insertedAccount = await Account.findOneAndUpdate({ hash: hash }, newAccount, { upsert: true });
+		const newAccount = await accountService.saveAccount(hash, req.body)
 		return res.status(201).json(newAccount);
 	} catch (error) {
 		return res
