@@ -1,4 +1,10 @@
+import useAuth from '../../hooks/useAuth';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
+
 function Invoices() {
+	useAuth();
+	useDocumentTitle('Facturas');
+
 	return (
 		<>
 			<h2 className='text-2xl font-bold dark:text-white'>Facturas</h2>

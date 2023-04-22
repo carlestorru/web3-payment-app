@@ -13,7 +13,7 @@ function Settings() {
 	const { username, setUsername, isUsernameAvailable, setIsUsernameAvailable } =
 		useUsername();
 	useAuth();
-	useDocumentTitle('Settings');
+	useDocumentTitle('Ajustes');
 	const [timer, setTimer] = useState(null);
 
 	const inputChanged = (event) => {

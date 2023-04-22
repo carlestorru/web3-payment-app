@@ -26,7 +26,7 @@ function Transfer() {
 	const [userResults, setUserResults] = useState([]);
 	const [selectedUser, setSelectedUser] = useState(null);
 	useAuth();
-	useDocumentTitle('Transfer');
+	useDocumentTitle('Enviar y solicitar');
 
 	const onSubmitSend = async (event) => {
 		event.preventDefault();
