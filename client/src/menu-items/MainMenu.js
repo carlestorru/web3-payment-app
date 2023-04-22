@@ -6,6 +6,9 @@ import CreditCard from '../components/Icons/Outlined/CreditCard';
 import { CreditCard as CreditCardSolid } from '../components/Icons/Solid/CreditCard';
 import { ShoppingBag } from '../components/Icons/Outlined/ShoppingBag';
 import { ShoppingBag as ShoppingBagSolid } from '../components/Icons/Solid/ShoppingBag';
+import { Bill } from '../components/Icons/Outlined/Bill';
+import { Bill as BillSolid } from '../components/Icons/Solid/Bill';
+
 
 const MainMenu = {
 	id: 'main-menu',
@@ -43,6 +46,14 @@ const MainMenu = {
 			url: '/activity',
 			icon: <ShoppingBag />,
 			activeIcon: <ShoppingBagSolid />,
+		},
+		{
+			id: 'invoices',
+			title: 'Facturas',
+			type: 'item',
+			url: '/invoices',
+			icon: <Bill />,
+			activeIcon: <BillSolid />,
 		},
 	],
 };
