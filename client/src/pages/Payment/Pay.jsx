@@ -84,6 +84,7 @@ function Pay() {
 			.catch((err) => console.error(err))
 			.then((response) => console.log(response));
 
+		window.opener.postMessage(insertedTx.hash, '*');
 		navigate('/activity');
 	};
 
@@ -126,7 +127,7 @@ function Pay() {
 	return (
 		<main className='min-h-screen flex-1 overflow-auto bg-slate-100 p-10'>
 			<Link to='/'>
-				<img className='h-16 m-auto w-34' src={Logo} alt='3pay logo' />
+				<img className='w-34 m-auto h-16' src={Logo} alt='3pay logo' />
 			</Link>
 			<section>
 				<div className='mx-auto max-w-screen-xl px-4 py-8'>
