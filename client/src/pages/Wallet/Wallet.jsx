@@ -5,7 +5,6 @@ import { useWeb3React } from '@web3-react/core';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import html2canvas from 'html2canvas';
 import JsPDF from 'jspdf';
-import HelloWorldAbi from '../../contracts/HelloWorld.json';
 import { ArrowDownTray } from '../../components/Icons/Outlined/Arrow';
 import { Button } from 'flowbite-react';
 
@@ -14,7 +13,6 @@ import WalletBackgroundBlue from '../../assets/walletcard_bg_blue.png';
 import WalletBackgroundOrange from '../../assets/walletcard_bg_orange.png';
 import WalletBackgroundMetamask from '../../assets/walletcard_bg_metamask.png';
 import WalletBackgroundEth from '../../assets/walletcard_bg_eth.png';
-import smartcontracts from '../../config/smartcontracts';
 
 const walletColors = {
 	walletBlue: WalletBackgroundBlue,
@@ -61,13 +59,6 @@ function Wallet() {
 			setGasPrice(web3.utils.fromWei(gasPrice));
 			setNodeInfo(nodeInfo);
 			setBalance(balance.USD * balanceEther);
-
-			const contract = new web3.eth.Contract(
-				HelloWorldAbi.abi,
-				smartcontracts.HelloWorld
-			);
-			console.log(contract);
-			console.log(await contract.methods.hi().call());
 		}
 
 		if (web3 !== undefined) {
