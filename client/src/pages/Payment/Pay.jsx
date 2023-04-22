@@ -1,140 +1,207 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Button } from 'flowbite-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Button, Checkbox, Label } from 'flowbite-react';
 import Logo from '../../assets/3pay_logo/4x/3pay_logo_blue@4x.png';
 import { useWeb3React } from '@web3-react/core';
+import { useState, useEffect } from 'react';
+import getUsername from '../../services/getUsername';
+import getSymbolPrice from '../../services/getSymbolPrice';
+import ecommerces from '../../config/ecommerces.js';
 
 function Pay() {
-	const { library: web3 } = useWeb3React();
-	const [product, setProduct] = useState([]);
-	const [gasPrice, setGasPrice] = useState(0);
-
 	useAuth();
 	useDocumentTitle('Pay');
 
+	const navigate = useNavigate();
+	const { account, library: web3 } = useWeb3React();
+	const [username, setUsername] = useState(null);
+	const [balanceEth, setBalanceEth] = useState(0);
+	const [balance, setBalance] = useState(0);
+	const [ethPrice, setEthPrice] = useState(1);
+	const [payGas, setPayGas] = useState(false);
+
 	const params = useParams();
 
-	useEffect(() => {
-		if (web3 !== undefined) {
-			web3.eth.getGasPrice().then((result) => {
-				setGasPrice(web3.utils.fromWei(result, 'ether'));
-			});
-		}
+	const onAcceptPayment = async () => {
+		const nonce = await web3.eth.getTransactionCount(account, 'latest');
+		const symConversion = await getSymbolPrice('USD', 'ETH');
+		const dolarsToEth = (params.price * symConversion.ETH).toFixed(6);
+		const value = web3.utils.toWei(dolarsToEth.toString(), 'ether');
 
-		const getProduct = async () => {
-			const response = await fetch(
-				`https://fakestoreapi.com/products/${params.productId}`
-			);
-			const data = await response.json();
-			setProduct(data);
-			console.log(product);
+		const gasPrice = await web3.eth.getGasPrice();
+
+		const transaction = {
+			from: account,
+			to: ecommerces[params.ecommerce].address,
+			value: value,
+			nonce: nonce,
+			gasPrice: gasPrice,
+			data: web3.utils.toHex(ecommerces[params.ecommerce].name),
 		};
 
-		getProduct();
+		if (!payGas) {
+			const gasLimit = await web3.eth.estimateGas(transaction);
+			const transactionFee = gasPrice * gasLimit;
+			transaction.gas = gasLimit;
+			transaction.value = value - transactionFee;
+			// console.log(web3.utils.fromWei(transactionFee.toString(), 'ether'));
+		}
+
+		const signedTx = await web3.eth.sendTransaction(
+			transaction,
+			function (error, hash) {
+				if (!error) {
+					console.log('The hash of your transaction is: ', hash);
+				} else {
+					console.log(
+						'Something went wrong while submitting your transaction:',
+						error
+					);
+				}
+			}
+		);
+
+		const transactionMined = await web3.eth.getTransaction(
+			signedTx.transactionHash
+		);
+
+		const insertedTx = {
+			...transactionMined,
+			blockHash: signedTx.blockHash,
+			blockNumber: signedTx.blockNumber,
+			transactionIndex: signedTx.transactionIndex,
+		};
+
+		fetch('http://localhost:3001/api/v1/transactions', {
+			method: 'POST',
+			body: JSON.stringify(insertedTx),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
+			.then((res) => res.json())
+			.catch((err) => console.error(err))
+			.then((response) => console.log(response));
+
+		navigate('/activity');
+	};
+
+	const onCancelPayment = () => {
+		navigate('/activity');
+	};
+
+	const onCheckGasPay = async () => {
+		setPayGas((prev) => !prev);
+	};
+
+	useEffect(() => {
+		if (account !== undefined) {
+			getUsername(account)
+				.then((res) => {
+					setUsername(res[0].username);
+				})
+				.catch((err) => {
+					console.error(`API no disponible: ${err}`);
+				});
+		}
+	}, [account]);
+
+	useEffect(() => {
+		async function loadWalletInfo() {
+			const balanceWei = await web3.eth.getBalance(account);
+			const balanceEther = web3.utils.fromWei(balanceWei, 'ether');
+			const balance = await getSymbolPrice('ETH', 'USD');
+			setEthPrice(balance.USD);
+			// const gasPrice = await web3.eth.getGasPrice();
+			setBalanceEth(Math.round(balanceEther * 100) / 100);
+			setBalance(Math.round(balance.USD * balanceEther * 100) / 100);
+		}
+
+		if (web3 !== undefined) {
+			loadWalletInfo();
+		}
 	}, [web3]);
 
 	return (
 		<main className='min-h-screen flex-1 overflow-auto bg-slate-100 p-10'>
-			<img className='h-18 m-auto w-36' src={Logo} alt='3pay logo' />
-			<h2 className='text-2xl font-bold'>Pago</h2>
-			<div>{JSON.stringify(params)}</div>
-
+			<Link to='/'>
+				<img className='h-16 m-auto w-34' src={Logo} alt='3pay logo' />
+			</Link>
 			<section>
-				<div className='mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8'>
+				<div className='mx-auto max-w-screen-xl px-4 py-8'>
 					<div className='mx-auto max-w-3xl'>
 						<header className='text-center'>
-							<h1 className='text-xl font-bold text-gray-900 sm:text-3xl'>
-								Tu compra
-							</h1>
+							<h2 className='text-2xl font-bold text-gray-900 sm:text-2xl'>
+								Pago: Tu compra
+							</h2>
 						</header>
-
 						<div className='mt-8'>
-							<ul className='space-y-4'>
-								<li className='flex items-center gap-4'>
-									<img
-										src={product.image}
-										alt={product.title}
-										className='h-16 w-16 rounded'
-									/>
-
-									<div>
-										<h3 className='text-base text-gray-900'>{product.title}</h3>
-
-										<dl className='mt-0.5 space-y-px text-sm text-gray-600'>
-											<div>
-												<dt className='inline'>Price:</dt>
-												<dd className='inline font-medium'>
-													{' '}
-													$ {product.price}
-												</dd>
-											</div>
-										</dl>
+							<div className='m-auto flex flex-col rounded-xl bg-white p-8 shadow-md'>
+								<img
+									className='relative h-7 w-12 self-end'
+									src={Logo}
+									alt='3pay logo'
+								/>
+								Hola, {username !== null ? `${username}` : ''}
+								<p className='mt-3'>Confirma tu compra en, </p>
+								<h5 className='font-medium'>
+									{ecommerces[params.ecommerce].name}
+								</h5>
+								<p className='mt-3 break-all'>
+									Cuenta: <span className='font-light italic'>{account}</span>
+								</p>
+								<p className=''>
+									Saldo:{' '}
+									<span className='font-light italic'>
+										$ {balance} <small>( {balanceEth} ETH )</small>{' '}
+									</span>
+								</p>
+								<p className='mt-3 break-all'>
+									Destinatario:{' '}
+									<span className='font-light italic'>
+										{ecommerces[params.ecommerce].address}
+									</span>
+								</p>
+								<div className='mt-4 flex gap-2'>
+									<div className='flex h-5 items-center'>
+										<Checkbox
+											id='gaspay'
+											onChange={onCheckGasPay}
+											defaultChecked={payGas}
+										/>
 									</div>
-
-									<div className='flex flex-1 items-center justify-end gap-2'>
-										<form>
-											<label htmlFor='Line1Qty' className='sr-only'>
-												{' '}
-												Quantity{' '}
-											</label>
-
-											<input
-												type='number'
-												min='1'
-												value='1'
-												id='Line1Qty'
-												className='h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none'
-											/>
-										</form>
-
-										<button className='text-gray-600 transition hover:text-red-600'>
-											<span className='sr-only'>Remove item</span>
-
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												fill='none'
-												viewBox='0 0 24 24'
-												strokeWidth='1.5'
-												stroke='currentColor'
-												className='h-4 w-4'>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													d='M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0'
-												/>
-											</svg>
-										</button>
+									<div className='flex flex-col'>
+										<Label htmlFor='gaspay'>Pagar tarifa de gas</Label>
+										<div className='text-gray-500 dark:text-gray-300'>
+											<span className='text-xs font-normal'>
+												Si marcas esta casilla, confirmas que quieres asumir los
+												costes de la transacion. Por el contrario corren a cargo
+												del destinatario.
+											</span>
+										</div>
 									</div>
-								</li>
-							</ul>
-
-							<div className='mt-8 flex justify-center border-t border-gray-100 pt-8'>
-								<div className='w-screen max-w-lg space-y-8'>
-									<dl className='space-y-0.5 text-sm text-gray-700'>
-										<div className='flex justify-between'>
-											<dt>Subtotal</dt>
-											<dd>£250</dd>
-										</div>
-
-										<div className='flex justify-between'>
-											<dt>Gas Fee</dt>
-											<dd>{gasPrice} ETH</dd>
-										</div>
-
-										<div className='flex justify-between !text-base font-medium'>
-											<dt>Total</dt>
-											<dd>£200</dd>
-										</div>
-									</dl>
-
-									<div className='flex justify-center gap-6'>
-										<Button className='w-32'>Aceptar</Button>
-										<Button className='w-32' color='failure' outline={true}>
-											Cancelar
-										</Button>
-									</div>
+								</div>
+								<p className=' mt-6 text-right text-xl'>
+									Total:{' '}
+									<span className='text-2xl font-bold'>
+										$ {params.price}{' '}
+										<small className='text-sm'>
+											( {params.price / ethPrice} ETH )
+										</small>
+									</span>
+								</p>
+								<div className='mt-8 flex flex-row justify-center gap-4'>
+									<Button className='w-32' onClick={onAcceptPayment}>
+										Aceptar
+									</Button>
+									<Button
+										className='w-32'
+										color='failure'
+										outline={true}
+										onClick={onCancelPayment}>
+										Cancelar
+									</Button>
 								</div>
 							</div>
 						</div>
