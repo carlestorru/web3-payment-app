@@ -41,7 +41,7 @@ function Transfer() {
 			setIsSendingTx(false);
 			return;
 		}
-		
+
 		if (fields.quantity.includes(',')) {
 			setTxError('Los decimales deben separarse con . Ej: 10.99');
 			setIsSendingTx(false);
@@ -117,7 +117,7 @@ function Transfer() {
 			setIsRequestingTx(false);
 			return;
 		}
-		
+
 		if (fields.quantity.includes(',')) {
 			setReqError('Los decimales deben separarse con . Ej: 10.99');
 			setIsRequestingTx(false);
@@ -261,6 +261,8 @@ function Transfer() {
 											id='quantity'
 											name='quantity'
 											placeholder='Cantidad...'
+											type='number'
+											step='any'
 											required={true}
 										/>
 										<Select name='currency' id='currencies' required={true}>
