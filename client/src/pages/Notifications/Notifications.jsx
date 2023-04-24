@@ -65,6 +65,8 @@ function Notifications() {
 			.then((res) => res.json())
 			.catch((err) => console.error(err))
 			.then((response) => console.log(response));
+
+		deleteRequest(index);
 	};
 
 	const onDenyRequest = async (index) => {
@@ -72,15 +74,19 @@ function Notifications() {
 		deleteRequest(index);
 	};
 
-	const deleteRequest = (index) => {
+	const deleteRequest = async (index) => {
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
 			smartcontracts.RequestMoney
 		);
-		contract.methods
+		await contract.methods
 			.deleteUserRequest(account, index)
 			.send({ from: account, gasPrice: '1' })
 			.then(console.log);
+
+		setRequests((prev) => {
+			return [...prev.slice(0, index), ...prev.slice(index + 1)];
+		});
 	};
 
 	useEffect(() => {
@@ -93,9 +99,9 @@ function Notifications() {
 				const result = await contract.methods.getUserRequests(account).call();
 				const requests = [];
 				for (let i = 0; i < result['0'].length; i++) {
-					const symbolPrice = await getSymbolPrice('ETH','USD');
+					const symbolPrice = await getSymbolPrice('ETH', 'USD');
 					const priceInUSD = (result['1'][i] * symbolPrice.USD).toString();
-					const amountToUSD = web3.utils.fromWei(priceInUSD)
+					const amountToUSD = web3.utils.fromWei(priceInUSD);
 					requests.push({
 						address: result['0'][i],
 						amountUSD: amountToUSD,
@@ -136,10 +142,8 @@ function Notifications() {
 												</p>
 											</div>
 											<div className='inline-flex items-center text-base font-semibold text-gray-900 dark:text-white'>
-											$ {Math.round(el.amountUSD * 100) / 100} 
-											<span className='ml-2 text-xs'>
-											{el.amountETH} ETH
-												</span>
+												$ {Math.round(el.amountUSD * 100) / 100}
+												<span className='ml-2 text-xs'>{el.amountETH} ETH</span>
 											</div>
 											<div className='flex flex-row gap-2'>
 												<Button
