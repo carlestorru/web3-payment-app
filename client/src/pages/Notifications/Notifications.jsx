@@ -114,7 +114,7 @@ function Notifications() {
 
 			getMoneyRequests();
 		}
-	}, [web3]);
+	}, [web3, account]);
 
 	return (
 		<>

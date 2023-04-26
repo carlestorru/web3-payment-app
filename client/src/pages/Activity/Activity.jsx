@@ -223,7 +223,7 @@ function Activity() {
 					console.log(err);
 				});
 		}
-	}, [web3]);
+	}, [web3, account]);
 
 	const decodeInput = (input) => {
 		/*
@@ -235,7 +235,9 @@ function Activity() {
 		return value.toString();
 		*/
 
-		return web3.utils.hexToAscii(input);
+		return 'Interacción con Smartcontract'
+
+		// return web3.utils.hexToAscii(input);
 	};
 
 	useEffect(() => {

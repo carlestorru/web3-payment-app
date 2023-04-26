@@ -64,7 +64,7 @@ function Wallet() {
 		if (web3 !== undefined) {
 			loadWalletInfo();
 		}
-	}, [web3]);
+	}, [web3, account]);
 
 	return (
 		<>

@@ -21,7 +21,7 @@ export function LastOrders() {
 				isLoading(false);
 			});
 		}
-	}, [web3]);
+	}, [web3, account]);
 
 	const decodeInput = (input) => {
 		/*

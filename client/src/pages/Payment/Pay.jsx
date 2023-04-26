@@ -122,7 +122,7 @@ function Pay() {
 		if (web3 !== undefined) {
 			loadWalletInfo();
 		}
-	}, [web3]);
+	}, [web3, account]);
 
 	return (
 		<main className='min-h-screen flex-1 overflow-auto bg-slate-100 p-10'>
