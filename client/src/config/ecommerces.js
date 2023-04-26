@@ -6,6 +6,10 @@ const ecommerces = {
     yasyt: {
         name: 'Yasyt Robotics SL',
         address: '0xF392eb4c77A7d43ab774968F92A7f33B67F7EBd5',
+    },
+    reactshop: {
+        name: 'React Shop',
+        address: '0xF392eb4c77A7d43ab774968F92A7f33B67F7EBd5',
     }
 
 }
