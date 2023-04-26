@@ -4,11 +4,11 @@ pragma solidity ^0.8.0;
 contract Factura {
     address payable public contratista;
     address public cliente;
-    uint public montoTotal;
+    uint256 public montoTotal;
     uint public fechaVencimiento;
     bool public pagada;
     
-    constructor(address _cliente, uint _montoTotal, uint _fechaVencimiento) {
+    constructor(address _cliente, uint256 _montoTotal, uint _fechaVencimiento) {
         contratista = payable(msg.sender);
         cliente = _cliente;
         montoTotal = _montoTotal;

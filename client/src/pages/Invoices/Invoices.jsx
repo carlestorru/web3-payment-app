@@ -1,10 +1,16 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Label, TextInput, Button, Textarea } from 'flowbite-react';
-import { useState } from 'react';
+import { Label, TextInput, Button, Textarea, Card } from 'flowbite-react';
+import { useEffect, useState } from 'react';
 import getUsername from '../../services/getUsername';
-import { Xmark } from '../../components/Icons/Xmark';
 import Datepicker from 'tailwind-datepicker-react';
+import { useWeb3React } from '@web3-react/core';
+import InvoiceContract from '../../contracts/Invoice.json';
+import InvoicesContract from '../../contracts/Invoices.json';
+import getSymbolPrice from '../../services/getSymbolPrice';
+import smartcontracts from '../../config/smartcontracts';
+import { CheckIcon } from '../../components/Icons/Check';
+import { Xmark } from '../../components/Icons/Xmark';
 
 const datePickerOptions = {
 	autoHide: true,
@@ -29,6 +35,7 @@ const datePickerOptions = {
 };
 
 function Invoices() {
+	const { account, library: web3 } = useWeb3React();
 	useAuth();
 	useDocumentTitle('Facturas');
 	const [invoice, setInvoice] = useState({
@@ -47,10 +54,44 @@ function Invoices() {
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [haveDiscount, setHaveDiscount] = useState(false);
 	const [haveOtherImport, setHaveOtherImport] = useState(false);
+	const [pendingInvoices, setPendingInvoices] = useState([]);
 
-	const onSubmit = (event) => {
+	const onSubmit = async (event) => {
 		event.preventDefault();
 		console.log(invoice);
+		/*
+		const contract = new web3.eth.Contract(InvoiceContract.abi, '0x9a19aD5DA0C77bD450D287F9F9ddb17aB0831364');
+
+		console.log(await contract.methods.esAtrasada().call())
+
+		const value = await contract.methods.montoTotal().call();
+
+		contract.methods.pagar().send({from: account, gasPrice: '1', value}).then(console.log)
+*/
+
+		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi);
+		const symConversion = await getSymbolPrice('USD', 'ETH');
+		const dolarsToEth = invoice.total * symConversion.ETH;
+		console.log(dolarsToEth);
+		const value = web3.utils.toWei(dolarsToEth.toString());
+		console.log(value);
+		invoiceSC
+			.deploy({
+				data: InvoiceContract.bytecode,
+				arguments: [invoice.address, value, invoice.dueDate],
+			})
+			.send({ from: account, gasPrice: '1' })
+			.then(function (newContractInstance) {
+				console.log(newContractInstance.options.address);
+				const invoicesSC = new web3.eth.Contract(
+					InvoicesContract.abi,
+					smartcontracts.Invoices
+				);
+				invoicesSC.methods
+					.insertInvoice(invoice.address, newContractInstance.options.address)
+					.send({ from: account, gasPrice: '1' })
+					.then(console.log);
+			});
 	};
 
 	const findUsernames = (event) => {
@@ -168,6 +209,28 @@ function Invoices() {
 		});
 	};
 
+	useEffect(() => {
+		if (web3 !== undefined) {
+			const getPendingInvoices = async () => {
+				const invoicesSC = new web3.eth.Contract(
+					InvoicesContract.abi,
+					smartcontracts.Invoices
+				);
+				const result = await invoicesSC.methods.getUserInvoices(account).call();
+				console.log(result);
+				const invoices = [];
+				for (let i = 0; i < result['0'].length; i++) {
+					invoices.push({
+						contract: result['0'][i],
+						isPaid: result['1'][i],
+					});
+				}
+				setPendingInvoices(invoices);
+			};
+			getPendingInvoices();
+		}
+	}, [web3, account]);
+
 	return (
 		<>
 			<h2 className='text-2xl font-bold dark:text-white'>Facturas</h2>
@@ -180,9 +243,51 @@ function Invoices() {
 					<h6 className='text-xl font-semibold dark:text-slate-200'>
 						Facturas pendientes
 					</h6>
-					<p className='mt-4 rounded-lg border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-500 p-4 text-center font-semibold shadow-sm dark:text-white'>
-						No existen facturas pendientes
-					</p>
+					{pendingInvoices.length === 0 ? (
+						<p className='mt-4 rounded-lg border border-gray-300 bg-white p-4 text-center font-semibold shadow-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white'>
+							No existen facturas pendientes
+						</p>
+					) : (
+						<Card className='mt-2'>
+							<div className='flow-root'>
+								<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
+									{pendingInvoices.map((el, index) => (
+										<li key={index} className='py-3 sm:py-4'>
+											<div className='flex items-center gap-2 space-x-4 max-sm:flex-col'>
+												<div className='min-w-0 flex-1'>
+													<p className='break-all text-sm font-medium text-gray-900 dark:text-white'>
+														Contract: {el.contract}
+													</p>
+													<p className='break-all text-sm text-gray-500 dark:text-gray-400'>
+														Pagada: {el.isPaid.toString()}
+													</p>
+												</div>
+												{/*
+										<div className='inline-flex items-center text-base font-semibold text-gray-900 dark:text-white'>
+											$ {Math.round(el.amountUSD * 100) / 100}
+											<span className='ml-2 text-xs'>{el.amountETH} ETH</span>
+										</div> */}
+												<div className='flex flex-row gap-2'>
+													<Button
+														size='sm'
+														color='success'
+														onClick={() => console.log(el.contract)}>
+														<CheckIcon stroke='2.5' size='h-5 w-5' />
+													</Button>
+													<Button
+														size='sm'
+														color='failure'
+														onClick={() => console.log(el.contract)}>
+														<Xmark stroke='2.5' size='h-5 w-5' />
+													</Button>
+												</div>
+											</div>
+										</li>
+									))}
+								</ul>
+							</div>
+						</Card>
+					)}
 				</div>
 				<div>
 					<div className='flex flex-col gap-4'>
@@ -193,7 +298,7 @@ function Invoices() {
 							<Button onClick={onSubmit}>Enviar</Button>
 						</article>
 						<div className='flex flex-col gap-8 lg:grid lg:grid-cols-4'>
-							<article className='col-span-3 flex flex-col content-center justify-center gap-8 rounded-lg border border-gray-300 dark:border-gray-500 bg-white p-4 shadow-sm dark:bg-gray-800'>
+							<article className='col-span-3 flex flex-col content-center justify-center gap-8 rounded-lg border border-gray-300 bg-white p-4 shadow-sm dark:border-gray-500 dark:bg-gray-800'>
 								<div>
 									<div className='mb-2 block'>
 										<Label
@@ -288,7 +393,7 @@ function Invoices() {
 										  ))
 										: ''}
 									<form onSubmit={addArticle}>
-										<div className='rounded-lg border border-gray-300 dark:border-gray-500 p-4'>
+										<div className='rounded-lg border border-gray-300 p-4 dark:border-gray-500'>
 											<div className='flex flex-row gap-2 max-md:flex-col'>
 												<TextInput
 													id='invArticleName'
@@ -354,8 +459,8 @@ function Invoices() {
 									/>
 								</div>
 							</article>
-							<article className='col-span-1 flex h-fit flex-col content-center justify-start gap-4 rounded-lg border border-gray-300 dark:border-gray-500  bg-white p-4 shadow-sm dark:bg-gray-800'>
-								<div className='border-b border-b-slate-300 dark:border-b-slate-500 pb-4'>
+							<article className='col-span-1 flex h-fit flex-col content-center justify-start gap-4 rounded-lg border border-gray-300 bg-white  p-4 shadow-sm dark:border-gray-500 dark:bg-gray-800'>
+								<div className='border-b border-b-slate-300 pb-4 dark:border-b-slate-500'>
 									<div className='mb-2 block'>
 										<Label htmlFor='duedate' value='Fecha de vencimiento' />
 									</div>
@@ -368,7 +473,7 @@ function Invoices() {
 										/>
 									</div>
 								</div>
-								<div className='flex flex-col gap-4 border-b border-b-slate-300 dark:border-b-slate-500  pb-4'>
+								<div className='flex flex-col gap-4 border-b border-b-slate-300 pb-4  dark:border-b-slate-500'>
 									<div className='flex flex-row justify-between'>
 										<Label
 											className='text-gray-500'
