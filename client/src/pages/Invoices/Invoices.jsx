@@ -7,7 +7,7 @@ import Datepicker from 'tailwind-datepicker-react';
 import { useWeb3React } from '@web3-react/core';
 import InvoiceContract from '../../contracts/Invoice.json';
 import InvoicesContract from '../../contracts/Invoices.json';
-import getSymbolPrice from '../../services/getSymbolPrice';
+// import getSymbolPrice from '../../services/getSymbolPrice';
 import smartcontracts from '../../config/smartcontracts';
 import { CheckIcon } from '../../components/Icons/Check';
 import { Xmark } from '../../components/Icons/Xmark';
@@ -59,28 +59,51 @@ function Invoices() {
 	const onSubmit = async (event) => {
 		event.preventDefault();
 		console.log(invoice);
-		/*
-		const contract = new web3.eth.Contract(InvoiceContract.abi, '0x9a19aD5DA0C77bD450D287F9F9ddb17aB0831364');
+		console.log(JSON.stringify(invoice.articles));
+		
+		const contract = new web3.eth.Contract(InvoiceContract.abi, '0x762BA00Cb6255026ac65F4C9fc339b6a358660B4');
 
-		console.log(await contract.methods.esAtrasada().call())
+		console.log(await contract.methods.isOverdue().call())
 
-		const value = await contract.methods.montoTotal().call();
+		const result = await contract.methods.getInfo().call();
 
-		contract.methods.pagar().send({from: account, gasPrice: '1', value}).then(console.log)
-*/
+		const encodedArticles = web3.eth.abi.decodeParameter(
+			'string',
+			result['2']
+		);
 
+		console.log(JSON.parse(encodedArticles))
+
+		// contract.methods.pagar().send({from: account, gasPrice: '1', value}).then(console.log)
+
+/*
 		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi);
 		const symConversion = await getSymbolPrice('USD', 'ETH');
 		const dolarsToEth = invoice.total * symConversion.ETH;
 		console.log(dolarsToEth);
 		const value = web3.utils.toWei(dolarsToEth.toString());
-		console.log(value);
+		console.log(value); // eslint-disable-next-line no-sequences
+
+		const encodedArticles = web3.eth.abi.encodeParameter(
+			'string',
+			JSON.stringify(invoice.articles)
+		);
+		console.log(invoice.articles);
+		console.log(encodedArticles);
 		invoiceSC
 			.deploy({
 				data: InvoiceContract.bytecode,
-				arguments: [invoice.address, value, invoice.dueDate],
+				arguments: [
+					invoice.address,
+					encodedArticles,
+					value,
+					invoice.dueDate,
+					invoice.message,
+					invoice.discount,
+					invoice.otherImport,
+				],
 			})
-			.send({ from: account, gasPrice: '1' })
+			.send({ from: account })
 			.then(function (newContractInstance) {
 				console.log(newContractInstance.options.address);
 				const invoicesSC = new web3.eth.Contract(
@@ -92,6 +115,7 @@ function Invoices() {
 					.send({ from: account, gasPrice: '1' })
 					.then(console.log);
 			});
+			*/
 	};
 
 	const findUsernames = (event) => {
@@ -130,10 +154,11 @@ function Invoices() {
 		const fields = Object.fromEntries(new window.FormData(event.target));
 		const subtotal =
 			invoice.subtotal + Math.round(fields.price * fields.quantity * 100) / 100;
+		const newArticlesArray = invoice.articles.concat(fields);
 		setInvoice((prev) => {
 			return {
 				...prev,
-				articles: [...prev.articles].concat(fields),
+				articles: newArticlesArray,
 				subtotal,
 				total: subtotal - invoice.discount + invoice.otherImport,
 			};
@@ -349,13 +374,13 @@ function Invoices() {
 									</div>
 									{invoice.articles.length !== 0
 										? invoice.articles.map((el, index) => (
-												<div key={el.article} className='flex flex-row gap-1'>
+												<div key={el.name} className='flex flex-row gap-1'>
 													<div className='flex-1 rounded-lg border border-gray-300 p-4'>
 														<div className='flex flex-row gap-2 max-md:flex-col'>
 															<TextInput
 																className='flex-auto'
-																name='article'
-																defaultValue={el.article}
+																name='name'
+																defaultValue={el.name}
 																readOnly={true}
 															/>
 															<div className='flex flex-1 flex-row gap-2'>
@@ -399,7 +424,7 @@ function Invoices() {
 													id='invArticleName'
 													className='flex-auto'
 													type='text'
-													name='article'
+													name='name'
 													placeholder='Nombre del artículo'
 													required={true}
 												/>
