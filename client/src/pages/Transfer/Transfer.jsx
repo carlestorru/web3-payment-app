@@ -9,12 +9,14 @@ import {
 	Tabs,
 	Textarea,
 	Spinner,
+	Alert,
 } from 'flowbite-react';
 import { useWeb3React } from '@web3-react/core';
 import { useState } from 'react';
 import RequestMoneyContract from '../../contracts/RequestMoney.json';
 import smartcontracts from '../../config/smartcontracts';
 import getSymbolPrice from '../../services/getSymbolPrice';
+import { HiInformationCircle } from '../../components/Icons/HiInformationCircle';
 
 function Transfer() {
 	const { account, library: web3 } = useWeb3React();
@@ -25,8 +27,14 @@ function Transfer() {
 	const [timer, setTimer] = useState(null);
 	const [userResults, setUserResults] = useState([]);
 	const [selectedUser, setSelectedUser] = useState(null);
+	const [alertMsg, setAlertMsg] = useState('');
+	const [showAlert, setShowAlert] = useState(false);
 	useAuth();
 	useDocumentTitle('Enviar y solicitar');
+
+	const onCloseAlert = () => {
+		setShowAlert(false);
+	};
 
 	const onSubmitSend = async (event) => {
 		event.preventDefault();
@@ -70,6 +78,11 @@ function Transfer() {
 			function (error, hash) {
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
+					setAlertMsg(`Transacción realizada correctamente: ${hash}`);
+					setShowAlert(true);
+					setTimeout(() => {
+						setShowAlert(false);
+					}, 5000);
 				} else {
 					console.log(
 						'Something went wrong while submitting your transaction:',
@@ -155,6 +168,11 @@ function Transfer() {
 			.send({ from: account, gasPrice: '1' }, function (error, hash) {
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
+					setAlertMsg(`Transacción realizada correctamente: ${hash}`);
+					setShowAlert(true);
+					setTimeout(() => {
+						setShowAlert(false);
+					}, 5000);
 				} else {
 					console.log(
 						'Something went wrong while submitting your transaction:',
@@ -397,6 +415,19 @@ function Transfer() {
 					</Tabs.Item>
 				</Tabs.Group>
 			</section>
+			{showAlert ? (
+				<Alert
+					onDismiss={onCloseAlert}
+					className='absolute right-2 bottom-2'
+					color='success'
+					icon={HiInformationCircle}>
+					<span>
+						<span className='font-medium'>{alertMsg}</span>
+					</span>
+				</Alert>
+			) : (
+				''
+			)}
 		</>
 	);
 }

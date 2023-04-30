@@ -2,7 +2,7 @@ export function HiInformationCircle() {
 	return (
 		<svg
 			aria-hidden='true'
-			className='mr-3 inline h-5 w-5 flex-shrink-0 text-red-800'
+			className='mr-3 inline h-5 w-5 flex-shrink-0'
 			fill='currentColor'
 			viewBox='0 0 20 20'
 			xmlns='http://www.w3.org/2000/svg'>
