@@ -99,12 +99,12 @@ function Notifications() {
 				const requests = [];
 				for (let i = 0; i < result['0'].length; i++) {
 					const symbolPrice = await getSymbolPrice('ETH', 'USD');
-					const priceInUSD = (result['1'][i] * symbolPrice.USD).toString();
-					const amountToUSD = web3.utils.fromWei(priceInUSD);
+					const value = web3.utils.fromWei(result['1'][i]);
+					const priceInUSD = (value * symbolPrice.USD).toString();
 					requests.push({
 						address: result['0'][i],
-						amountUSD: amountToUSD,
-						amountETH: web3.utils.fromWei(result['1'][i]),
+						amountUSD: priceInUSD,
+						amountETH: value,
 						concept: result['2'][i],
 					});
 				}
@@ -126,11 +126,11 @@ function Notifications() {
 					Solicitudes de cuentas:
 				</h5>
 				{requests.length !== 0 ? (
-					<Card className='mt-2'>
-						<div className='flow-root'>
-							<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
-								{requests.map((el, index) => (
-									<li key={index} className='py-3 sm:py-4'>
+					<div className='flow-root'>
+						<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
+							{requests.map((el, index) => (
+								<Card key={index} className='mt-2'>
+									<li key={index} className='py-1'>
 										<div className='flex items-center gap-2 space-x-4 max-sm:flex-col'>
 											<div className='min-w-0 flex-1'>
 												<p className='break-all text-sm font-medium text-gray-900 dark:text-white'>
@@ -169,10 +169,10 @@ function Notifications() {
 											</div>
 										</div>
 									</li>
-								))}
-							</ul>
-						</div>
-					</Card>
+								</Card>
+							))}
+						</ul>
+					</div>
 				) : (
 					<p className='pt-4 text-center font-semibold dark:text-white'>
 						No existen solicitudes de usuarios
