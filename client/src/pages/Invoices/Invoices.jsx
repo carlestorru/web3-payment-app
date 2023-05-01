@@ -49,7 +49,7 @@ function Invoices() {
 		address: '',
 		articles: [],
 		message: '',
-		dueDate: '',
+		dueDate: new Date(Date.now() / 1000).getTime(),
 		subtotal: 0,
 		discount: 0,
 		otherImport: 0,
@@ -87,8 +87,8 @@ function Invoices() {
 					value,
 					invoice.dueDate,
 					invoice.message,
-					invoice.discount,
-					invoice.otherImport,
+					invoice.discount.toString(),
+					invoice.otherImport.toString(),
 				],
 			})
 			.send({ from: account })
@@ -221,22 +221,27 @@ function Invoices() {
 		});
 	};
 
-	const payInvoice = async (contractAddr, index) => {
-		const contract = new web3.eth.Contract(InvoiceContract.abi, contractAddr);
+	const onPayInvoice = async (contractAddr, index) => {
+		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi, contractAddr);
 
-		const result = await contract.methods.getInfo().call();
+		const result = await invoiceSC.methods.getInfo().call();
 		const value = result[3];
 
-		contract.methods
+		invoiceSC.methods
 			.pay()
 			.send({ from: account, gasPrice: '1', value })
 			.then(console.log);
 
-		deleteInvoice(index);
+		const newInvoicesArray = [...invoices];
+		newInvoicesArray[index].isPaid = true;
+
+		setInvoices([...newInvoicesArray]);
+
+		// deleteInvoice(index)
 	};
 
-	const denyInvoice = async (contractAddr, index) => {
-		deleteInvoice(contractAddr, index);
+	const onDenyInvoice = async (contractAddr, index) => {
+		deleteInvoice(index);
 	};
 
 	const deleteInvoice = async (index) => {
@@ -245,7 +250,7 @@ function Invoices() {
 			smartcontracts.Invoices
 		);
 		await contract.methods
-			.deleteUserInvoice(account, index)
+			.setDeniedInvoice(account, index)
 			.send({ from: account, gasPrice: '1' })
 			.then(console.log);
 
@@ -275,32 +280,41 @@ function Invoices() {
 					.getUserInvoices(account)
 					.call();
 				const invoicesArray = [];
-				for (let i = 0; i < pendingInvoices.length; i++) {
+				for (let i = 0; i < pendingInvoices[0].length; i++) {
+					if (pendingInvoices[1][i]) {
+						continue;
+					} 
 					const contract = new web3.eth.Contract(
 						InvoiceContract.abi,
-						pendingInvoices[i]
+						pendingInvoices[0][i]
 					);
-					const invoiceInfo = await contract.methods.getInfo().call();
-					const symbolPrice = await getSymbolPrice('ETH', 'USD');
-					const value = web3.utils.fromWei(invoiceInfo[3]);
-					const total = (value * symbolPrice.USD).toString();
-					const encodedArticles = web3.eth.abi.decodeParameter(
-						'string',
-						invoiceInfo['2']
-					);
-					const isOverdue = await contract.methods.isOverdue().call();
-					invoicesArray.push({
-						contract: pendingInvoices[i],
-						contractor: invoiceInfo[0],
-						client: invoiceInfo[1],
-						total,
-						articles: encodedArticles,
-						message: invoiceInfo[4],
-						dueDate: new Date(invoiceInfo[5] * 1000).toLocaleDateString(),
-						discount: invoiceInfo[6],
-						otherImport: invoiceInfo[7],
-						isOverdue,
-					});
+
+					const isPaid = await contract.methods.isPaid().call();
+
+					if (!isPaid) {
+						const invoiceInfo = await contract.methods.getInfo().call();
+						const symbolPrice = await getSymbolPrice('ETH', 'USD');
+						const value = web3.utils.fromWei(invoiceInfo[3]);
+						const total = (value * symbolPrice.USD).toString();
+						const encodedArticles = web3.eth.abi.decodeParameter(
+							'string',
+							invoiceInfo['2']
+						);
+						const isOverdue = await contract.methods.isOverdue().call();
+						invoicesArray.push({
+							contract: pendingInvoices[0][i],
+							contractor: invoiceInfo[0],
+							client: invoiceInfo[1],
+							total,
+							articles: encodedArticles,
+							message: invoiceInfo[4],
+							dueDate: new Date(invoiceInfo[5] * 1000).toLocaleDateString(),
+							discount: invoiceInfo[6],
+							otherImport: invoiceInfo[7],
+							isOverdue,
+							isPaid,
+						});
+					}
 				}
 				setInvoices(invoicesArray);
 			};
@@ -352,13 +366,13 @@ function Invoices() {
 													<Button
 														size='sm'
 														color='success'
-														onClick={() => payInvoice(el.contract, index)}>
+														onClick={() => onPayInvoice(el.contract, index)}>
 														<CheckIcon stroke='2.5' size='h-5 w-5' />
 													</Button>
 													<Button
 														size='sm'
 														color='failure'
-														onClick={() => denyInvoice(el.contract, index)}>
+														onClick={() => onDenyInvoice(el.contract, index)}>
 														<Xmark stroke='2.5' size='h-5 w-5' />
 													</Button>
 												</div>
@@ -648,7 +662,9 @@ function Invoices() {
 							{Object.keys(detailedInvoice).map((key) => (
 								<p key={key} className='b m-0 break-all'>
 									<span className='font-semibold'>{key}:</span>{' '}
-									{key === 'isOverdue' ? detailedInvoice[key].toString() : ''}
+									{key === 'isOverdue' || key === 'isPaid'
+										? detailedInvoice[key].toString()
+										: ''}
 									{detailedInvoice[key]}
 								</p>
 							))}
