@@ -1,13 +1,20 @@
 import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Label, TextInput, Button, Textarea, Card } from 'flowbite-react';
+import {
+	Label,
+	TextInput,
+	Button,
+	Textarea,
+	Card,
+	Modal,
+} from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import getUsername from '../../services/getUsername';
 import Datepicker from 'tailwind-datepicker-react';
 import { useWeb3React } from '@web3-react/core';
 import InvoiceContract from '../../contracts/Invoice.json';
 import InvoicesContract from '../../contracts/Invoices.json';
-// import getSymbolPrice from '../../services/getSymbolPrice';
+import getSymbolPrice from '../../services/getSymbolPrice';
 import smartcontracts from '../../config/smartcontracts';
 import { CheckIcon } from '../../components/Icons/Check';
 import { Xmark } from '../../components/Icons/Xmark';
@@ -54,42 +61,23 @@ function Invoices() {
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [haveDiscount, setHaveDiscount] = useState(false);
 	const [haveOtherImport, setHaveOtherImport] = useState(false);
-	const [pendingInvoices, setPendingInvoices] = useState([]);
+	const [invoices, setInvoices] = useState([]);
+	const [isModalVisible, setIsModalVisible] = useState(false);
+	const [detailedInvoice, setDetailedInvoice] = useState(null);
 
 	const onSubmit = async (event) => {
 		event.preventDefault();
 		console.log(invoice);
-		console.log(JSON.stringify(invoice.articles));
-		
-		const contract = new web3.eth.Contract(InvoiceContract.abi, '0x762BA00Cb6255026ac65F4C9fc339b6a358660B4');
 
-		console.log(await contract.methods.isOverdue().call())
-
-		const result = await contract.methods.getInfo().call();
-
-		const encodedArticles = web3.eth.abi.decodeParameter(
-			'string',
-			result['2']
-		);
-
-		console.log(JSON.parse(encodedArticles))
-
-		// contract.methods.pagar().send({from: account, gasPrice: '1', value}).then(console.log)
-
-/*
 		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi);
 		const symConversion = await getSymbolPrice('USD', 'ETH');
 		const dolarsToEth = invoice.total * symConversion.ETH;
-		console.log(dolarsToEth);
 		const value = web3.utils.toWei(dolarsToEth.toString());
-		console.log(value); // eslint-disable-next-line no-sequences
-
 		const encodedArticles = web3.eth.abi.encodeParameter(
 			'string',
 			JSON.stringify(invoice.articles)
 		);
-		console.log(invoice.articles);
-		console.log(encodedArticles);
+
 		invoiceSC
 			.deploy({
 				data: InvoiceContract.bytecode,
@@ -115,7 +103,6 @@ function Invoices() {
 					.send({ from: account, gasPrice: '1' })
 					.then(console.log);
 			});
-			*/
 	};
 
 	const findUsernames = (event) => {
@@ -234,6 +221,49 @@ function Invoices() {
 		});
 	};
 
+	const payInvoice = async (contractAddr, index) => {
+		const contract = new web3.eth.Contract(InvoiceContract.abi, contractAddr);
+
+		const result = await contract.methods.getInfo().call();
+		const value = result[3];
+
+		contract.methods
+			.pay()
+			.send({ from: account, gasPrice: '1', value })
+			.then(console.log);
+
+		deleteInvoice(index);
+	};
+
+	const denyInvoice = async (contractAddr, index) => {
+		deleteInvoice(contractAddr, index);
+	};
+
+	const deleteInvoice = async (index) => {
+		const contract = new web3.eth.Contract(
+			InvoicesContract.abi,
+			smartcontracts.Invoices
+		);
+		await contract.methods
+			.deleteUserInvoice(account, index)
+			.send({ from: account, gasPrice: '1' })
+			.then(console.log);
+
+		setInvoices((prev) => {
+			return [...prev.slice(0, index), ...prev.slice(index + 1)];
+		});
+	};
+
+	const onOpenModal = (el) => {
+		setDetailedInvoice(el);
+		setIsModalVisible(!isModalVisible);
+	};
+
+	const onCloseModal = () => {
+		setDetailedInvoice(null);
+		setIsModalVisible(!isModalVisible);
+	};
+
 	useEffect(() => {
 		if (web3 !== undefined) {
 			const getPendingInvoices = async () => {
@@ -241,17 +271,40 @@ function Invoices() {
 					InvoicesContract.abi,
 					smartcontracts.Invoices
 				);
-				const result = await invoicesSC.methods.getUserInvoices(account).call();
-				console.log(result);
-				const invoices = [];
-				for (let i = 0; i < result['0'].length; i++) {
-					invoices.push({
-						contract: result['0'][i],
-						isPaid: result['1'][i],
+				const pendingInvoices = await invoicesSC.methods
+					.getUserInvoices(account)
+					.call();
+				const invoicesArray = [];
+				for (let i = 0; i < pendingInvoices.length; i++) {
+					const contract = new web3.eth.Contract(
+						InvoiceContract.abi,
+						pendingInvoices[i]
+					);
+					const invoiceInfo = await contract.methods.getInfo().call();
+					const symbolPrice = await getSymbolPrice('ETH', 'USD');
+					const value = web3.utils.fromWei(invoiceInfo[3]);
+					const total = (value * symbolPrice.USD).toString();
+					const encodedArticles = web3.eth.abi.decodeParameter(
+						'string',
+						invoiceInfo['2']
+					);
+					const isOverdue = await contract.methods.isOverdue().call();
+					invoicesArray.push({
+						contract: pendingInvoices[i],
+						contractor: invoiceInfo[0],
+						client: invoiceInfo[1],
+						total,
+						articles: encodedArticles,
+						message: invoiceInfo[4],
+						dueDate: new Date(invoiceInfo[5] * 1000).toLocaleDateString(),
+						discount: invoiceInfo[6],
+						otherImport: invoiceInfo[7],
+						isOverdue,
 					});
 				}
-				setPendingInvoices(invoices);
+				setInvoices(invoicesArray);
 			};
+
 			getPendingInvoices();
 		}
 	}, [web3, account]);
@@ -268,50 +321,58 @@ function Invoices() {
 					<h6 className='text-xl font-semibold dark:text-slate-200'>
 						Facturas pendientes
 					</h6>
-					{pendingInvoices.length === 0 ? (
+					{invoices.length === 0 ? (
 						<p className='mt-4 rounded-lg border border-gray-300 bg-white p-4 text-center font-semibold shadow-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white'>
 							No existen facturas pendientes
 						</p>
 					) : (
-						<Card className='mt-2'>
-							<div className='flow-root'>
-								<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
-									{pendingInvoices.map((el, index) => (
-										<li key={index} className='py-3 sm:py-4'>
+						<div className='flow-root'>
+							<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
+								{invoices.map((el, index) => (
+									<Card
+										key={el.contract}
+										className={`mt-2 ${el.isOverdue ? 'bg-red-400' : ''}`}>
+										<li key={el.ontract} className='py-1'>
 											<div className='flex items-center gap-2 space-x-4 max-sm:flex-col'>
 												<div className='min-w-0 flex-1'>
 													<p className='break-all text-sm font-medium text-gray-900 dark:text-white'>
-														Contract: {el.contract}
+														Factura: {el.contract}
 													</p>
-													<p className='break-all text-sm text-gray-500 dark:text-gray-400'>
-														Pagada: {el.isPaid.toString()}
+													<p className='break-all text-sm font-normal text-gray-700 dark:text-white'>
+														De: {el.contractor}
 													</p>
 												</div>
-												{/*
-										<div className='inline-flex items-center text-base font-semibold text-gray-900 dark:text-white'>
-											$ {Math.round(el.amountUSD * 100) / 100}
-											<span className='ml-2 text-xs'>{el.amountETH} ETH</span>
-										</div> */}
+
+												<div className='inline-flex items-center text-base font-semibold text-gray-900 dark:text-white'>
+													$ {Math.round(el.total * 100) / 100}
+													<span className='ml-2 text-xs'>{el.amountETH}</span>
+												</div>
+
 												<div className='flex flex-row gap-2'>
 													<Button
 														size='sm'
 														color='success'
-														onClick={() => console.log(el.contract)}>
+														onClick={() => payInvoice(el.contract, index)}>
 														<CheckIcon stroke='2.5' size='h-5 w-5' />
 													</Button>
 													<Button
 														size='sm'
 														color='failure'
-														onClick={() => console.log(el.contract)}>
+														onClick={() => denyInvoice(el.contract, index)}>
 														<Xmark stroke='2.5' size='h-5 w-5' />
 													</Button>
 												</div>
+												<button
+													className='font-medium text-blue-600 hover:underline'
+													onClick={() => onOpenModal(el)}>
+													Ver detalles
+												</button>
 											</div>
 										</li>
-									))}
-								</ul>
-							</div>
-						</Card>
+									</Card>
+								))}
+							</ul>
+						</div>
 					)}
 				</div>
 				<div>
@@ -579,6 +640,27 @@ function Invoices() {
 					</div>
 				</div>
 			</section>
+			{detailedInvoice !== null ? (
+				<Modal show={isModalVisible} onClose={onCloseModal}>
+					<Modal.Header>Detalles de la factura</Modal.Header>
+					<Modal.Body className='space-x-0 text-sm dark:text-white'>
+						<div className='space-y-1 whitespace-pre-wrap'>
+							{Object.keys(detailedInvoice).map((key) => (
+								<p key={key} className='b m-0 break-all'>
+									<span className='font-semibold'>{key}:</span>{' '}
+									{key === 'isOverdue' ? detailedInvoice[key].toString() : ''}
+									{detailedInvoice[key]}
+								</p>
+							))}
+						</div>
+					</Modal.Body>
+					<Modal.Footer className='flex justify-end'>
+						<Button onClick={onCloseModal}>Cerrar</Button>
+					</Modal.Footer>
+				</Modal>
+			) : (
+				''
+			)}
 		</>
 	);
 }

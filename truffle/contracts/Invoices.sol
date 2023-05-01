@@ -2,31 +2,21 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 contract Invoices {
-    struct Invoice {
-        string contractAddress;
-        bool isPaid;
-    }
-
-    mapping(address => Invoice[]) public invoices;
+    mapping(address => string[]) public invoices;
 
     function insertInvoice(address _payAddress, string memory _contractAddress) public {
-        Invoice memory newInvoice = Invoice( _contractAddress, false);
-        invoices[_payAddress].push(newInvoice);
+        invoices[_payAddress].push(_contractAddress);
     }
 
-    function getUserInvoices(address _payAddress) public view returns (string[] memory, bool[] memory) {
+    function getUserInvoices(address _payAddress) public view returns (string[] memory) {
+        return invoices[_payAddress];
+    }
+
+    function deleteUserInvoice(address _payAddress, uint _index) public {
         uint arrayLen = invoices[_payAddress].length;
-        string[] memory contractAddresses = new string[](arrayLen);
-        bool[] memory arePaids = new bool[](arrayLen);
-        for (uint i = 0; i < arrayLen; i++) {
-            Invoice storage invoice = invoices[_payAddress][i];
-            contractAddresses[i] = invoice.contractAddress;
-            arePaids[i] = invoice.isPaid;
+        for (uint i = _index; i < arrayLen - 1; i++) {
+            invoices[_payAddress][i] = invoices[_payAddress][i + 1];
         }
-        return (contractAddresses, arePaids);
-    }
-
-    function setPaidInvoice(address _payAddress, uint _index) public {
-        invoices[_payAddress][_index].isPaid = true;
+        invoices[_payAddress].pop();
     }
 }

@@ -1,5 +1,5 @@
 // var HelloWorld = artifacts.require('./HelloWorld.sol');
-var Invoice = artifacts.require('./Invoice.sol');
+var Invoices = artifacts.require('./Invoices.sol');
 module.exports = function (deployer) {
-	deployer.deploy(Invoice);
+	deployer.deploy(Invoices);
 };
