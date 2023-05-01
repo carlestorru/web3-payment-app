@@ -5,8 +5,10 @@ const tsym = 'USD';
 const API_URL = `https://min-api.cryptocompare.com/data/top/mktcapfull?${API_KEY}&limit=${limit}&tsym=${tsym}`;
 
 export default async function getMarketAssets() {
+	// Make a request to the API endpoint and retrieve the data.
 	const response = await fetch(API_URL);
 	const data = await response.json();
+	// Map the data to a new array of objects with desired properties.
 	return data.Data?.map((el) => ({
 		id: el.CoinInfo.Id,
 		name: el.CoinInfo.FullName,
@@ -15,6 +17,6 @@ export default async function getMarketAssets() {
 		marketCapUsd: el.DISPLAY.USD.MKTCAP || '$ -',
 		changePercent24Hr: el.DISPLAY.USD.CHANGEPCT24HOUR || '0',
 		url: `https://www.cryptocompare.com${el.CoinInfo.Url}`,
-		price: el.DISPLAY.USD.PRICE || '$ -'
+		price: el.DISPLAY.USD.PRICE || '$ -',
 	}));
 }
