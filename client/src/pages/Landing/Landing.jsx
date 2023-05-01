@@ -4,6 +4,7 @@ import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { useCallback } from 'react';
 import { loadFull } from 'tsparticles';
 import Logo from '../../assets/3pay_logo/4x/3pay_logo_blue@4x.png';
+import DashboardImg from '../../assets/dashboard.png';
 
 import './Landing.css';
 
@@ -153,12 +154,12 @@ const Landing = () => {
 							<WalletConnector />
 						</div>
 					</article>
-					<article className='landing-image w-[40%] bg-white'>
+					<article className='landing-image bg-white'>
 						<img
-							src='https://cdn.dribbble.com/users/2886970/screenshots/15990765/downloads/light%20dasj.png'
+							src={DashboardImg}
 							alt='dashboard'
-							width='450'
-							height='550'
+							width='600'
+							height='700'
 						/>
 					</article>
 				</section>
