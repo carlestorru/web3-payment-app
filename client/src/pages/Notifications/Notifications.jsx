@@ -70,7 +70,6 @@ function Notifications() {
 	};
 
 	const onDenyRequest = async (index) => {
-		console.log({ account, index });
 		deleteRequest(index);
 	};
 
