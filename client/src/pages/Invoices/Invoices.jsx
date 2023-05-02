@@ -7,6 +7,7 @@ import {
 	Textarea,
 	Modal,
 	Table,
+	Alert,
 } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import getUsername from '../../services/getUsername';
@@ -17,6 +18,7 @@ import InvoicesContract from '../../contracts/Invoices.json';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import smartcontracts from '../../config/smartcontracts';
 import { Xmark } from '../../components/Icons/Xmark';
+import { HiInformationCircle } from '../../components/Icons/HiInformationCircle';
 
 const datePickerOptions = {
 	autoHide: true,
@@ -63,10 +65,24 @@ function Invoices() {
 	const [invoices, setInvoices] = useState([]);
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedInvoice, setDetailedInvoice] = useState(null);
+	const [showAlert, setShowAlert] = useState(null);
+	const [alertMsg, setAlertMsg] = useState('');
+	const [alertType, setAlertType] = useState('info');
+
+	const onCloseAlert = () => {
+		setShowAlert(false);
+	};
 
 	const onSubmit = async (event) => {
 		event.preventDefault();
 		console.log(invoice);
+
+		if (invoice.address === '' || invoice.articles.length === 0) {
+			setShowAlert(true)
+			setAlertType('failure');
+			setAlertMsg('Error: Debe completar los campos obligatorios para desplegar la factura.');
+			return;
+		}
 
 		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi);
 		const symConversion = await getSymbolPrice('USD', 'ETH');
@@ -77,6 +93,9 @@ function Invoices() {
 			JSON.stringify(invoice.articles)
 		);
 
+		setShowAlert(true);
+		setAlertType('info');
+		setAlertMsg('Firma para desplegar el smartcontract de la factura.');
 		invoiceSC
 			.deploy({
 				data: InvoiceContract.bytecode,
@@ -91,16 +110,36 @@ function Invoices() {
 				],
 			})
 			.send({ from: account })
+			.on('error', function (error) {
+				setAlertType('failure');
+				setAlertMsg(`Error:, ${error.message}`);
+			})
 			.then(function (newContractInstance) {
 				console.log(newContractInstance.options.address);
+				setAlertType('info');
+				setShowAlert(true);
+				setAlertMsg(
+					`Dirección del smartcontract: ${newContractInstance.options.address}. Firma para almacenarlo en las facturas pendientes del cliente.`
+				);
 				const invoicesSC = new web3.eth.Contract(
 					InvoicesContract.abi,
 					smartcontracts.Invoices
 				);
 				invoicesSC.methods
 					.insertInvoice(invoice.address, newContractInstance.options.address)
-					.send({ from: account, gasPrice: '1' })
-					.then(console.log);
+					.send({ from: account, gasPrice: '1' }, function (error, hash) {
+						if (!error) {
+							setAlertType('success');
+							setAlertMsg('Factura emitida correctamente');
+							setTimeout(() => {
+								setShowAlert(false);
+							}, 5000);
+						} else {
+							console.log('Error:', error);
+							setAlertType('failure');
+							setAlertMsg(`Error: ${error.message}`);
+						}
+					});
 			});
 	};
 
@@ -607,6 +646,19 @@ function Invoices() {
 					)}
 				</div>
 			</section>
+			{showAlert ? (
+				<Alert
+					onDismiss={onCloseAlert}
+					className='fixed right-2 bottom-2 w-[50%] break-all'
+					color={alertType}
+					icon={HiInformationCircle}>
+					<span>
+						<span className='font-medium'>{alertMsg}</span>
+					</span>
+				</Alert>
+			) : (
+				''
+			)}
 			{detailedInvoice !== null ? (
 				<Modal show={isModalVisible} onClose={onCloseModal}>
 					<Modal.Header>Detalles de la factura</Modal.Header>
