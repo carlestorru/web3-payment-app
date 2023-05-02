@@ -73,7 +73,7 @@ export function LastOrders() {
 			</h6>
 			{error ? (
 				<Alert
-					className='absolute right-2 bottom-2'
+					className='fixed right-2 bottom-2 w-[50%] break-all'
 					color='failure'
 					icon={HiInformationCircle}>
 					<span>

@@ -62,6 +62,7 @@ function Activity() {
 	const [priceTo, setPriceTo] = useState(null);
 	const [loading, isLoading] = useState(true);
 	const [ethPrice, setEthPrice] = useState(1);
+	const [invoices, setInvoices] = useState([]);
 
 	useAuth();
 	useDocumentTitle('Actividad');
@@ -217,7 +218,18 @@ function Activity() {
 	};
 
 	useEffect(() => {
+		
 		if (web3 !== undefined) {
+			const invoicesSC = new web3.eth.Contract(
+				InvoicesContract.abi,
+				smartcontracts.Invoices
+			);
+			invoicesSC.methods
+				.getUserInvoices(account)
+				.call().then(res => {
+					setInvoices(res[0])
+				});
+
 			getTransactions(account, web3)
 				.then((res) => {
 					setTransactions(res);
@@ -238,7 +250,7 @@ function Activity() {
 		} else if (contractAddr === smartcontracts.Invoices) {
 			abi = InvoicesContract.abi;
 			contractName = 'Invoices';
-		} else if (contractAddr === null ){
+		} else if (contractAddr === null || invoices.includes(contractAddr)){
 			abi = InvoiceContract.abi;
 			contractName = 'Invoice';
 		}
@@ -248,9 +260,6 @@ function Activity() {
 		} else {
 			const decoder = new InputDataDecoder(abi);
 			const result = decoder.decodeData(input);
-			console.log(result);
-			// eslint-disable-next-line no-debugger
-			debugger
 			return `${contractName} - method: ${result.method || 'deploy'}`;
 		}
 	};

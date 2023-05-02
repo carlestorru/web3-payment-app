@@ -418,7 +418,7 @@ function Transfer() {
 			{showAlert ? (
 				<Alert
 					onDismiss={onCloseAlert}
-					className='absolute right-2 bottom-2'
+					className='fixed right-2 bottom-2 w-[50%] break-all'
 					color='success'
 					icon={HiInformationCircle}>
 					<span>
