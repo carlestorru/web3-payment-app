@@ -6,6 +6,10 @@ import { HiInformationCircle } from '../../components/Icons/HiInformationCircle'
 import { Link } from 'react-router-dom';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import smartcontracts from '../../config/smartcontracts';
+import RequestMoney from '../../contracts/RequestMoney.json';
+import InvoicesContract from '../../contracts/Invoices.json';
+import InvoiceContract from '../../contracts/Invoice.json';
+import InputDataDecoder from 'ethereum-input-data-decoder';
 
 export function LastOrders() {
 	const { account, library: web3, error } = useWeb3React();
@@ -16,24 +20,37 @@ export function LastOrders() {
 	useEffect(() => {
 		if (web3 !== undefined) {
 			getTransactions(account, web3).then((res) => {
-				const lastTenTxs = res.slice(0,9);
+				const lastTenTxs = res.slice(0, 9);
 				setTransactions(lastTenTxs);
 				isLoading(false);
 			});
 		}
 	}, [web3, account]);
 
-	const decodeInput = (input) => {
-		/*
-		const types = ['address', 'address', 'string', 'string'];
-		console.log(input)
-		const decodedParameters = web3.eth.abi.decodeParameters(types, input);
+	const decodeInput = (input, contractAddr) => {
+		let abi = null;
+		let contractName = '';
+		if (contractAddr === smartcontracts.RequestMoney) {
+			abi = RequestMoney.abi;
+			contractName = 'RequestMoney';
+		} else if (contractAddr === smartcontracts.Invoices) {
+			abi = InvoicesContract.abi;
+			contractName = 'Invoices';
+		} else if (contractAddr === null) {
+			abi = InvoiceContract.abi;
+			contractName = 'Invoice';
+		}
 
-		const value = new BigNumber(decodedParameters[2]);
-		return value.toString();
-		*/
-
-		return web3.utils.hexToAscii(input);
+		if (abi === null) {
+			return web3.utils.hexToAscii(input);
+		} else {
+			const decoder = new InputDataDecoder(abi);
+			const result = decoder.decodeData(input);
+			console.log(result);
+			// eslint-disable-next-line no-debugger
+			debugger;
+			return `${contractName} - method: ${result.method || 'deploy'}`;
+		}
 	};
 
 	useEffect(() => {
@@ -104,7 +121,8 @@ export function LastOrders() {
 										}>
 										{' '}
 										{tx.from === account ? '-' : '+'} ${' '}
-										{Math.round((ethPrice * web3.utils.fromWei(tx.value)) * 100) / 100 }
+										{Math.round(ethPrice * web3.utils.fromWei(tx.value) * 100) /
+											100}
 									</span>
 									<span className='text-xs'>
 										{' '}
@@ -112,12 +130,8 @@ export function LastOrders() {
 									</span>
 								</Table.Cell>
 								<Table.Cell className=''>
-										{tx.to
-											? tx.to === smartcontracts.RequestMoney
-												? decodeInput(tx.input)
-												: web3.utils.hexToAscii(tx.input)
-											: ''}
-									</Table.Cell>
+									{decodeInput(tx.input, tx.to)}
+								</Table.Cell>
 							</Table.Row>
 						))}
 					</Table.Body>
