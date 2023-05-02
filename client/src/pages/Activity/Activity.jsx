@@ -17,6 +17,9 @@ import Datepicker from 'tailwind-datepicker-react';
 import getTransactions from '../../services/getTransactions';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import smartcontracts from '../../config/smartcontracts';
+import RequestMoney from '../../contracts/RequestMoney.json';
+import InvoicesContract from '../../contracts/Invoices.json';
+import InputDataDecoder from 'ethereum-input-data-decoder';
 
 const datePickerOptions = {
 	autoHide: true,
@@ -225,19 +228,21 @@ function Activity() {
 		}
 	}, [web3, account]);
 
-	const decodeInput = (input) => {
-		/*
-		const types = ['address', 'address', 'string', 'string'];
-		console.log(input)
-		const decodedParameters = web3.eth.abi.decodeParameters(types, input);
+	const decodeInput = (input, contractAddr) => {
+		let abi = null;
+		if (contractAddr === smartcontracts.RequestMoney) {
+			abi = RequestMoney.abi;
+		} else if (contractAddr === smartcontracts.Invoices) {
+			abi = InvoicesContract.abi;
+		}
 
-		const value = new BigNumber(decodedParameters[2]);
-		return value.toString();
-		*/
-
-		return 'Interacción con Smartcontract'
-
-		// return web3.utils.hexToAscii(input);
+		if (abi === null) {
+			return web3.utils.hexToAscii(input);
+		} else {
+			const decoder = new InputDataDecoder(abi);
+			const result = decoder.decodeData(input);
+			return result.method;
+		}
 	};
 
 	useEffect(() => {
@@ -487,11 +492,7 @@ function Activity() {
 										</span>
 									</Table.Cell>
 									<Table.Cell className=''>
-										{tx.to
-											? tx.to === smartcontracts.RequestMoney
-												? decodeInput(tx.input)
-												: web3.utils.hexToAscii(tx.input)
-											: ''}
+										{tx.to ? decodeInput(tx.input, tx.to) : ''}
 									</Table.Cell>
 									<Table.Cell className='text-center'>
 										<button
@@ -512,7 +513,7 @@ function Activity() {
 					<Modal.Body className='space-x-0 text-sm dark:text-white'>
 						<div className='space-y-1 whitespace-pre-wrap'>
 							{Object.keys(detailedTx).map((key) => (
-								<p key={key} className='b m-0 break-all'>
+								<p key={key} className={`${key === 'input' ? 'line-clamp-3' : ''} b m-0 break-all`}>
 									<span className='font-semibold'>{key}:</span>{' '}
 									{detailedTx[key]}
 								</p>
