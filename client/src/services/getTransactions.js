@@ -1,6 +1,6 @@
 export default async function getTransactions(account, web3) {
 	// Makes an HTTP request to a local server to get the transactions associated with the specified account.
-	const response = fetch(
+	const response = await fetch(
 		`http://localhost:3001/api/v1/transactions/${account}`
 	);
 
@@ -11,6 +11,7 @@ export default async function getTransactions(account, web3) {
 		// Returns the obtained data.
 		return data;
 	} else {
+		console.log('from blockchain')
 		// If the response is not successful, gets the transactions from the blockchain using the Web3 library.
 		const data = await getTransactionsFromBlockchain(account, web3);
 		// Returns the obtained data.
@@ -38,7 +39,7 @@ async function getTransactionsFromBlockchain(account, web3) {
 				// Get the information for the current transaction.
 				const tx = await web3.eth.getTransaction(txHash);
 				// Check if the transaction is related to the given account.
-				if (tx.to !== null && (account === tx.from || account === tx.to)) {
+				if ( /* tx.to !== null && */ (account === tx.from || account === tx.to)) {
 					// Add the transaction information to the transactions array.
 					transactions.push({
 						...tx,
