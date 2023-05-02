@@ -99,15 +99,48 @@ function Notifications() {
 		const result = await invoiceSC.methods.getInfo().call();
 		const value = result[3];
 
-		invoiceSC.methods
+		const signedTx = await invoiceSC.methods
 			.pay()
-			.send({ from: account, gasPrice: '1', value })
-			.then(console.log);
+			.send({ from: account, gasPrice: '1', value }, function (error, hash) {
+				if (!error) {
+					console.log('The hash of your transaction is: ', hash);
+					const newInvoicesArray = [...invoices];
+					console.log(newInvoicesArray)
+					newInvoicesArray[index].isPaid = true;
 
-		const newInvoicesArray = [...invoices];
-		newInvoicesArray[index].isPaid = true;
+					setInvoices([...newInvoicesArray]);
+				} else {
+					console.log(
+						'Something went wrong while submitting your transaction:',
+						error
+					);
+				}
+			});
 
-		setInvoices([...newInvoicesArray]);
+
+			console.log(signedTx)
+
+		const transactionMined = await web3.eth.getTransaction(
+			signedTx.transactionHash
+		);
+
+		const insertedTx = {
+			...transactionMined,
+			blockHash: signedTx.blockHash,
+			blockNumber: signedTx.blockNumber,
+			transactionIndex: signedTx.transactionIndex,
+		};
+
+		fetch('http://localhost:3001/api/v1/transactions', {
+			method: 'POST',
+			body: JSON.stringify(insertedTx),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
+			.then((res) => res.json())
+			.catch((err) => console.error(err))
+			.then((response) => console.log(response));
 
 		// deleteInvoice(index)
 	};
@@ -173,11 +206,11 @@ function Notifications() {
 					.getUserInvoices(account)
 					.call();
 				const invoicesArray = [];
-				console.log(pendingInvoices)
+				console.log(pendingInvoices);
 				for (let i = 0; i < pendingInvoices[0].length; i++) {
 					if (pendingInvoices[1][i]) {
 						continue;
-					} 
+					}
 					const contract = new web3.eth.Contract(
 						InvoiceContract.abi,
 						pendingInvoices[0][i]
@@ -206,6 +239,7 @@ function Notifications() {
 							discount: invoiceInfo[6],
 							otherImport: invoiceInfo[7],
 							isOverdue,
+							isPaid,
 							index: i,
 						});
 					}
@@ -296,7 +330,7 @@ function Notifications() {
 					) : (
 						<div className='flow-root'>
 							<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
-								{invoices.map((el) => (
+								{invoices.map((el, index) => (
 									<Card
 										key={el.contract}
 										className={`mt-2 ${el.isOverdue ? 'bg-red-400' : ''}`}>
@@ -320,13 +354,15 @@ function Notifications() {
 													<Button
 														size='sm'
 														color='success'
-														onClick={() => onPayInvoice(el.contract, el.index)}>
+														onClick={() => onPayInvoice(el.contract, index)}>
 														<CheckIcon stroke='2.5' size='h-5 w-5' />
 													</Button>
 													<Button
 														size='sm'
 														color='failure'
-														onClick={() => onDenyInvoice(el.contract, el.index)}>
+														onClick={() =>
+															onDenyInvoice(el.contract, el.index)
+														}>
 														<Xmark stroke='2.5' size='h-5 w-5' />
 													</Button>
 												</div>
