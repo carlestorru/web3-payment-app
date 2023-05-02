@@ -230,10 +230,13 @@ function Activity() {
 
 	const decodeInput = (input, contractAddr) => {
 		let abi = null;
+		let contractName = ''
 		if (contractAddr === smartcontracts.RequestMoney) {
 			abi = RequestMoney.abi;
+			contractName = 'RequestMoney'
 		} else if (contractAddr === smartcontracts.Invoices) {
 			abi = InvoicesContract.abi;
+			contractName = 'Invoices'
 		}
 
 		if (abi === null) {
@@ -241,7 +244,7 @@ function Activity() {
 		} else {
 			const decoder = new InputDataDecoder(abi);
 			const result = decoder.decodeData(input);
-			return result.method;
+			return `${contractName} - method: ${result.method}`;
 		}
 	};
 
