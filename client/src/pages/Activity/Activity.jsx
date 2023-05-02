@@ -19,6 +19,7 @@ import getSymbolPrice from '../../services/getSymbolPrice';
 import smartcontracts from '../../config/smartcontracts';
 import RequestMoney from '../../contracts/RequestMoney.json';
 import InvoicesContract from '../../contracts/Invoices.json';
+import InvoiceContract from '../../contracts/Invoice.json';
 import InputDataDecoder from 'ethereum-input-data-decoder';
 
 const datePickerOptions = {
@@ -230,13 +231,16 @@ function Activity() {
 
 	const decodeInput = (input, contractAddr) => {
 		let abi = null;
-		let contractName = ''
+		let contractName = '';
 		if (contractAddr === smartcontracts.RequestMoney) {
 			abi = RequestMoney.abi;
-			contractName = 'RequestMoney'
+			contractName = 'RequestMoney';
 		} else if (contractAddr === smartcontracts.Invoices) {
 			abi = InvoicesContract.abi;
-			contractName = 'Invoices'
+			contractName = 'Invoices';
+		} else if (contractAddr === null ){
+			abi = InvoiceContract.abi;
+			contractName = 'Invoice';
 		}
 
 		if (abi === null) {
@@ -244,7 +248,10 @@ function Activity() {
 		} else {
 			const decoder = new InputDataDecoder(abi);
 			const result = decoder.decodeData(input);
-			return `${contractName} - method: ${result.method}`;
+			console.log(result);
+			// eslint-disable-next-line no-debugger
+			debugger
+			return `${contractName} - method: ${result.method || 'deploy'}`;
 		}
 	};
 
@@ -495,7 +502,7 @@ function Activity() {
 										</span>
 									</Table.Cell>
 									<Table.Cell className=''>
-										{tx.to ? decodeInput(tx.input, tx.to) : ''}
+										{decodeInput(tx.input, tx.to)}
 									</Table.Cell>
 									<Table.Cell className='text-center'>
 										<button
@@ -516,7 +523,11 @@ function Activity() {
 					<Modal.Body className='space-x-0 text-sm dark:text-white'>
 						<div className='space-y-1 whitespace-pre-wrap'>
 							{Object.keys(detailedTx).map((key) => (
-								<p key={key} className={`${key === 'input' ? 'line-clamp-3' : ''} b m-0 break-all`}>
+								<p
+									key={key}
+									className={`${
+										key === 'input' ? 'line-clamp-3' : ''
+									} b m-0 break-all`}>
 									<span className='font-semibold'>{key}:</span>{' '}
 									{detailedTx[key]}
 								</p>
