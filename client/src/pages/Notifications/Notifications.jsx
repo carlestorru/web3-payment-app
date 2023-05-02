@@ -3,17 +3,22 @@ import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import RequestMoneyContract from '../../contracts/RequestMoney.json';
 import { useWeb3React } from '@web3-react/core';
-import { Card, Button } from 'flowbite-react';
+import { Card, Button, Modal } from 'flowbite-react';
 import { CheckIcon } from '../../components/Icons/Check';
 import { Xmark } from '../../components/Icons/Xmark';
 import smartcontracts from '../../config/smartcontracts';
 import getSymbolPrice from '../../services/getSymbolPrice';
+import InvoiceContract from '../../contracts/Invoice.json';
+import InvoicesContract from '../../contracts/Invoices.json';
 
 function Notifications() {
 	useAuth();
 	useDocumentTitle('Notifications');
 	const { account, library: web3 } = useWeb3React();
 	const [requests, setRequests] = useState([]);
+	const [invoices, setInvoices] = useState([]);
+	const [isModalVisible, setIsModalVisible] = useState(false);
+	const [detailedInvoice, setDetailedInvoice] = useState(null);
 
 	const onAcceptRequest = async ({ address, amount, concept }, index) => {
 		console.log({ address, amount, concept, index });
@@ -88,6 +93,54 @@ function Notifications() {
 		});
 	};
 
+	const onPayInvoice = async (contractAddr, index) => {
+		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi, contractAddr);
+
+		const result = await invoiceSC.methods.getInfo().call();
+		const value = result[3];
+
+		invoiceSC.methods
+			.pay()
+			.send({ from: account, gasPrice: '1', value })
+			.then(console.log);
+
+		const newInvoicesArray = [...invoices];
+		newInvoicesArray[index].isPaid = true;
+
+		setInvoices([...newInvoicesArray]);
+
+		// deleteInvoice(index)
+	};
+
+	const onDenyInvoice = async (contractAddr, index) => {
+		deleteInvoice(index);
+	};
+
+	const deleteInvoice = async (index) => {
+		const contract = new web3.eth.Contract(
+			InvoicesContract.abi,
+			smartcontracts.Invoices
+		);
+		await contract.methods
+			.setDeniedInvoice(account, index)
+			.send({ from: account, gasPrice: '1' })
+			.then(console.log);
+
+		setInvoices((prev) => {
+			return [...prev.slice(0, index), ...prev.slice(index + 1)];
+		});
+	};
+
+	const onOpenModal = (el) => {
+		setDetailedInvoice(el);
+		setIsModalVisible(!isModalVisible);
+	};
+
+	const onCloseModal = () => {
+		setDetailedInvoice(null);
+		setIsModalVisible(!isModalVisible);
+	};
+
 	useEffect(() => {
 		if (web3 !== undefined) {
 			const getMoneyRequests = async () => {
@@ -111,7 +164,57 @@ function Notifications() {
 				setRequests(requests);
 			};
 
+			const getPendingInvoices = async () => {
+				const invoicesSC = new web3.eth.Contract(
+					InvoicesContract.abi,
+					smartcontracts.Invoices
+				);
+				const pendingInvoices = await invoicesSC.methods
+					.getUserInvoices(account)
+					.call();
+				const invoicesArray = [];
+				console.log(pendingInvoices)
+				for (let i = 0; i < pendingInvoices[0].length; i++) {
+					if (pendingInvoices[1][i]) {
+						continue;
+					} 
+					const contract = new web3.eth.Contract(
+						InvoiceContract.abi,
+						pendingInvoices[0][i]
+					);
+
+					const isPaid = await contract.methods.isPaid().call();
+
+					if (!isPaid) {
+						const invoiceInfo = await contract.methods.getInfo().call();
+						const symbolPrice = await getSymbolPrice('ETH', 'USD');
+						const value = web3.utils.fromWei(invoiceInfo[3]);
+						const total = (value * symbolPrice.USD).toString();
+						const encodedArticles = web3.eth.abi.decodeParameter(
+							'string',
+							invoiceInfo['2']
+						);
+						const isOverdue = await contract.methods.isOverdue().call();
+						invoicesArray.push({
+							contract: pendingInvoices[0][i],
+							contractor: invoiceInfo[0],
+							client: invoiceInfo[1],
+							total,
+							articles: encodedArticles,
+							message: invoiceInfo[4],
+							dueDate: new Date(invoiceInfo[5] * 1000).toLocaleDateString(),
+							discount: invoiceInfo[6],
+							otherImport: invoiceInfo[7],
+							isOverdue,
+							index: i,
+						});
+					}
+				}
+				setInvoices(invoicesArray);
+			};
+
 			getMoneyRequests();
+			getPendingInvoices();
 		}
 	}, [web3, account]);
 
@@ -121,64 +224,149 @@ function Notifications() {
 			<h4 className='text-slate-500 dark:text-slate-200'>
 				Aqui se muestran todas las acciones que tienes pendientes
 			</h4>
-			<section className='min-w-sm mt-4'>
-				<h5 className='text-xl font-medium text-black dark:text-white'>
-					Solicitudes de cuentas:
-				</h5>
-				{requests.length !== 0 ? (
-					<div className='flow-root'>
-						<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
-							{requests.map((el, index) => (
-								<Card key={index} className='mt-2'>
-									<li key={index} className='py-1'>
-										<div className='flex items-center gap-2 space-x-4 max-sm:flex-col'>
-											<div className='min-w-0 flex-1'>
-												<p className='break-all text-sm font-medium text-gray-900 dark:text-white'>
-													Concepto: {el.concept}
-												</p>
-												<p className='break-all text-sm text-gray-500 dark:text-gray-400'>
-													Solicitante: {el.address}
-												</p>
+			<section className='min-w-sm mt-4 flex flex-col gap-4'>
+				<article>
+					<h5 className='text-xl font-medium text-black dark:text-white'>
+						Solicitudes de cuentas:
+					</h5>
+					{requests.length !== 0 ? (
+						<div className='flow-root'>
+							<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
+								{requests.map((el, index) => (
+									<Card key={index} className='mt-2'>
+										<li key={index} className='py-1'>
+											<div className='flex items-center gap-2 space-x-4 max-sm:flex-col'>
+												<div className='min-w-0 flex-1'>
+													<p className='break-all text-sm font-medium text-gray-900 dark:text-white'>
+														Concepto: {el.concept}
+													</p>
+													<p className='break-all text-sm text-gray-500 dark:text-gray-400'>
+														Solicitante: {el.address}
+													</p>
+												</div>
+												<div className='inline-flex items-center text-base font-semibold text-gray-900 dark:text-white'>
+													$ {Math.round(el.amountUSD * 100) / 100}
+													<span className='ml-2 text-xs'>
+														{el.amountETH} ETH
+													</span>
+												</div>
+												<div className='flex flex-row gap-2'>
+													<Button
+														size='sm'
+														color='success'
+														onClick={() =>
+															onAcceptRequest(
+																{
+																	address: el.address,
+																	amount: el.amountETH,
+																	concept: el.concept,
+																},
+																index
+															)
+														}>
+														<CheckIcon stroke='2.5' size='h-5 w-5' />
+													</Button>
+													<Button
+														size='sm'
+														color='failure'
+														onClick={() => onDenyRequest(index)}>
+														<Xmark stroke='2.5' size='h-5 w-5' />
+													</Button>
+												</div>
 											</div>
-											<div className='inline-flex items-center text-base font-semibold text-gray-900 dark:text-white'>
-												$ {Math.round(el.amountUSD * 100) / 100}
-												<span className='ml-2 text-xs'>{el.amountETH} ETH</span>
+										</li>
+									</Card>
+								))}
+							</ul>
+						</div>
+					) : (
+						<p className='pt-4 text-center font-semibold dark:text-white'>
+							No existen solicitudes de usuarios
+						</p>
+					)}
+				</article>
+				<article>
+					<h5 className='text-xl font-medium text-black dark:text-white'>
+						Facturas pendientes
+					</h5>
+					{invoices.length === 0 ? (
+						<p className='mt-4 rounded-lg border border-gray-300 bg-white p-4 text-center font-semibold shadow-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white'>
+							No existen facturas pendientes
+						</p>
+					) : (
+						<div className='flow-root'>
+							<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
+								{invoices.map((el) => (
+									<Card
+										key={el.contract}
+										className={`mt-2 ${el.isOverdue ? 'bg-red-400' : ''}`}>
+										<li key={el.ontract} className='py-1'>
+											<div className='flex items-center gap-2 space-x-4 max-sm:flex-col'>
+												<div className='min-w-0 flex-1'>
+													<p className='break-all text-sm font-medium text-gray-900 dark:text-white'>
+														Factura: {el.contract}
+													</p>
+													<p className='break-all text-sm font-normal text-gray-700 dark:text-white'>
+														De: {el.contractor}
+													</p>
+												</div>
+
+												<div className='inline-flex items-center text-base font-semibold text-gray-900 dark:text-white'>
+													$ {Math.round(el.total * 100) / 100}
+													<span className='ml-2 text-xs'>{el.amountETH}</span>
+												</div>
+
+												<div className='flex flex-row gap-2'>
+													<Button
+														size='sm'
+														color='success'
+														onClick={() => onPayInvoice(el.contract, el.index)}>
+														<CheckIcon stroke='2.5' size='h-5 w-5' />
+													</Button>
+													<Button
+														size='sm'
+														color='failure'
+														onClick={() => onDenyInvoice(el.contract, el.index)}>
+														<Xmark stroke='2.5' size='h-5 w-5' />
+													</Button>
+												</div>
+												<button
+													className='font-medium text-blue-600 hover:underline'
+													onClick={() => onOpenModal(el)}>
+													Ver detalles
+												</button>
 											</div>
-											<div className='flex flex-row gap-2'>
-												<Button
-													size='sm'
-													color='success'
-													onClick={() =>
-														onAcceptRequest(
-															{
-																address: el.address,
-																amount: el.amountETH,
-																concept: el.concept,
-															},
-															index
-														)
-													}>
-													<CheckIcon stroke='2.5' size='h-5 w-5' />
-												</Button>
-												<Button
-													size='sm'
-													color='failure'
-													onClick={() => onDenyRequest(index)}>
-													<Xmark stroke='2.5' size='h-5 w-5' />
-												</Button>
-											</div>
-										</div>
-									</li>
-								</Card>
-							))}
-						</ul>
-					</div>
-				) : (
-					<p className='pt-4 text-center font-semibold dark:text-white'>
-						No existen solicitudes de usuarios
-					</p>
-				)}
+										</li>
+									</Card>
+								))}
+							</ul>
+						</div>
+					)}
+				</article>
 			</section>
+			{detailedInvoice !== null ? (
+				<Modal show={isModalVisible} onClose={onCloseModal}>
+					<Modal.Header>Detalles de la factura</Modal.Header>
+					<Modal.Body className='space-x-0 text-sm dark:text-white'>
+						<div className='space-y-1 whitespace-pre-wrap'>
+							{Object.keys(detailedInvoice).map((key) => (
+								<p key={key} className='b m-0 break-all'>
+									<span className='font-semibold'>{key}:</span>{' '}
+									{key === 'isOverdue' || key === 'isPaid'
+										? detailedInvoice[key].toString()
+										: ''}
+									{detailedInvoice[key]}
+								</p>
+							))}
+						</div>
+					</Modal.Body>
+					<Modal.Footer className='flex justify-end'>
+						<Button onClick={onCloseModal}>Cerrar</Button>
+					</Modal.Footer>
+				</Modal>
+			) : (
+				''
+			)}
 		</>
 	);
 }
