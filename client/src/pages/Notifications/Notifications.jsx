@@ -3,7 +3,7 @@ import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import RequestMoneyContract from '../../contracts/RequestMoney.json';
 import { useWeb3React } from '@web3-react/core';
-import { Card, Button, Modal } from 'flowbite-react';
+import { Card, Button, Modal, Spinner } from 'flowbite-react';
 import { CheckIcon } from '../../components/Icons/Check';
 import { Xmark } from '../../components/Icons/Xmark';
 import smartcontracts from '../../config/smartcontracts';
@@ -17,6 +17,8 @@ function Notifications() {
 	const { account, library: web3 } = useWeb3React();
 	const [requests, setRequests] = useState([]);
 	const [invoices, setInvoices] = useState([]);
+	const [loadingRequests, setLoadingRequests] = useState(true);
+	const [loadingInvoices, setLoadingInvoices] = useState(true);
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedInvoice, setDetailedInvoice] = useState(null);
 
@@ -79,7 +81,6 @@ function Notifications() {
 	};
 
 	const deleteRequest = async (index) => {
-		
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
 			smartcontracts.RequestMoney
@@ -105,11 +106,9 @@ function Notifications() {
 			.send({ from: account, gasPrice: '1', value }, function (error, hash) {
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
-					const newInvoicesArray = [...invoices];
-					console.log(newInvoicesArray)
-					newInvoicesArray[index].isPaid = true;
-
-					setInvoices([...newInvoicesArray]);
+					setInvoices((prev) => {
+						return [...prev.slice(0, index), ...prev.slice(index + 1)];
+					});
 				} else {
 					console.log(
 						'Something went wrong while submitting your transaction:',
@@ -118,8 +117,7 @@ function Notifications() {
 				}
 			});
 
-
-			console.log(signedTx)
+		console.log(signedTx);
 
 		const transactionMined = await web3.eth.getTransaction(
 			signedTx.transactionHash
@@ -151,8 +149,8 @@ function Notifications() {
 	};
 
 	const deleteInvoice = async (invoiceIndex, index) => {
-		console.log(invoiceIndex, index)
-		
+		console.log(invoiceIndex, index);
+
 		const contract = new web3.eth.Contract(
 			InvoicesContract.abi,
 			smartcontracts.Invoices
@@ -198,10 +196,10 @@ function Notifications() {
 					});
 				}
 				setRequests(requests);
+				setLoadingRequests(false);
 			};
 
 			const getPendingInvoices = async () => {
-				console.log('fetching invoices')
 				const invoicesSC = new web3.eth.Contract(
 					InvoicesContract.abi,
 					smartcontracts.Invoices
@@ -210,7 +208,6 @@ function Notifications() {
 					.getUserInvoices(account)
 					.call();
 				const invoicesArray = [];
-				console.log(pendingInvoices);
 				for (let i = 0; i < pendingInvoices[0].length; i++) {
 					if (pendingInvoices[1][i]) {
 						continue;
@@ -249,6 +246,7 @@ function Notifications() {
 					}
 				}
 				setInvoices(invoicesArray);
+				setLoadingInvoices(false);
 			};
 
 			getMoneyRequests();
@@ -267,7 +265,11 @@ function Notifications() {
 					<h5 className='text-xl font-medium text-black dark:text-white'>
 						Solicitudes de cuentas:
 					</h5>
-					{requests.length !== 0 ? (
+					{loadingRequests ? (
+						<div className='relative m-auto w-max'>
+							<Spinner aria-label='Medium sized spinner example' size='md' />
+						</div>
+					) : requests.length !== 0 ? (
 						<div className='flow-root'>
 							<ul className='divide-y divide-gray-200 dark:divide-gray-700'>
 								{requests.map((el, index) => (
@@ -327,7 +329,11 @@ function Notifications() {
 					<h5 className='text-xl font-medium text-black dark:text-white'>
 						Facturas pendientes
 					</h5>
-					{invoices.length === 0 ? (
+					{loadingInvoices ? (
+						<div className='relative m-auto w-max'>
+							<Spinner aria-label='Medium sized spinner example' size='md' />
+						</div>
+					) : invoices.length === 0 ? (
 						<p className='mt-4 rounded-lg border border-gray-300 bg-white p-4 text-center font-semibold shadow-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white'>
 							No existen facturas pendientes
 						</p>
