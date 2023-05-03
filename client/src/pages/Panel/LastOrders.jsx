@@ -16,11 +16,22 @@ export function LastOrders() {
 	const [transactions, setTransactions] = useState([]);
 	const [loading, isLoading] = useState(true);
 	const [ethPrice, setEthPrice] = useState(1);
+	const [invoices, setInvoices] = useState([]);
 
 	useEffect(() => {
 		if (web3 !== undefined) {
+			const invoicesSC = new web3.eth.Contract(
+				InvoicesContract.abi,
+				smartcontracts.Invoices
+			);
+			invoicesSC.methods
+				.getUserInvoices(account)
+				.call().then(res => {
+					setInvoices(res[0])
+				});
+
 			getTransactions(account, web3).then((res) => {
-				const lastTenTxs = res.slice(0, 9);
+				const lastTenTxs = res.reverse().slice(0, 9);
 				setTransactions(lastTenTxs);
 				isLoading(false);
 			});
@@ -36,7 +47,7 @@ export function LastOrders() {
 		} else if (contractAddr === smartcontracts.Invoices) {
 			abi = InvoicesContract.abi;
 			contractName = 'Invoices';
-		} else if (contractAddr === null) {
+		} else if (contractAddr === null || invoices.includes(contractAddr)) {
 			abi = InvoiceContract.abi;
 			contractName = 'Invoice';
 		}
@@ -46,9 +57,6 @@ export function LastOrders() {
 		} else {
 			const decoder = new InputDataDecoder(abi);
 			const result = decoder.decodeData(input);
-			console.log(result);
-			// eslint-disable-next-line no-debugger
-			debugger;
 			return `${contractName} - method: ${result.method || 'deploy'}`;
 		}
 	};

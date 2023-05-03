@@ -218,7 +218,6 @@ function Activity() {
 	};
 
 	useEffect(() => {
-		
 		if (web3 !== undefined) {
 			const invoicesSC = new web3.eth.Contract(
 				InvoicesContract.abi,
@@ -232,7 +231,7 @@ function Activity() {
 
 			getTransactions(account, web3)
 				.then((res) => {
-					setTransactions(res);
+					setTransactions(res.reverse());
 					isLoading(false);
 				})
 				.catch((err) => {
