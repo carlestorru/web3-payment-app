@@ -10,11 +10,13 @@ import smartcontracts from '../../config/smartcontracts';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import InvoiceContract from '../../contracts/Invoice.json';
 import InvoicesContract from '../../contracts/Invoices.json';
+import { useBalance } from '../../context/BalanceContext';
 
 function Notifications() {
 	useAuth();
 	useDocumentTitle('Notifications');
 	const { account, library: web3 } = useWeb3React();
+	const [, updateUserBalance] = useBalance();
 	const [requests, setRequests] = useState([]);
 	const [invoices, setInvoices] = useState([]);
 	const [loadingRequests, setLoadingRequests] = useState(true);
@@ -73,7 +75,8 @@ function Notifications() {
 			.catch((err) => console.error(err))
 			.then((response) => console.log(response));
 
-		deleteRequest(index);
+		// deleteRequest(index);
+		updateUserBalance(account, web3);
 	};
 
 	const onDenyRequest = async (index) => {
@@ -141,7 +144,7 @@ function Notifications() {
 			.catch((err) => console.error(err))
 			.then((response) => console.log(response));
 
-		// deleteInvoice(index)
+		updateUserBalance(account, web3);
 	};
 
 	const onDenyInvoice = async (contractAddr, invoiceIndex, index) => {

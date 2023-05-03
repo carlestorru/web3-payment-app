@@ -17,9 +17,11 @@ import RequestMoneyContract from '../../contracts/RequestMoney.json';
 import smartcontracts from '../../config/smartcontracts';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import { HiInformationCircle } from '../../components/Icons/HiInformationCircle';
+import { useBalance } from '../../context/BalanceContext';
 
 function Transfer() {
 	const { account, library: web3 } = useWeb3React();
+	const [, updateUserBalance] = useBalance();
 	const [txError, setTxError] = useState('');
 	const [isSendingTx, setIsSendingTx] = useState(false);
 	const [reqError, setReqError] = useState('');
@@ -117,6 +119,7 @@ function Transfer() {
 			.then((response) => console.log(response));
 
 		setIsSendingTx(false);
+		updateUserBalance(account, web3);
 	};
 
 	const onSubmitRequest = async (event) => {
