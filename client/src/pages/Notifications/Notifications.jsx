@@ -79,6 +79,7 @@ function Notifications() {
 	};
 
 	const deleteRequest = async (index) => {
+		
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
 			smartcontracts.RequestMoney
@@ -145,17 +146,19 @@ function Notifications() {
 		// deleteInvoice(index)
 	};
 
-	const onDenyInvoice = async (contractAddr, index) => {
-		deleteInvoice(index);
+	const onDenyInvoice = async (contractAddr, invoiceIndex, index) => {
+		deleteInvoice(invoiceIndex, index);
 	};
 
-	const deleteInvoice = async (index) => {
+	const deleteInvoice = async (invoiceIndex, index) => {
+		console.log(invoiceIndex, index)
+		
 		const contract = new web3.eth.Contract(
 			InvoicesContract.abi,
 			smartcontracts.Invoices
 		);
 		await contract.methods
-			.setDeniedInvoice(account, index)
+			.setDeniedInvoice(account, invoiceIndex)
 			.send({ from: account, gasPrice: '1' })
 			.then(console.log);
 
@@ -198,6 +201,7 @@ function Notifications() {
 			};
 
 			const getPendingInvoices = async () => {
+				console.log('fetching invoices')
 				const invoicesSC = new web3.eth.Contract(
 					InvoicesContract.abi,
 					smartcontracts.Invoices
@@ -361,7 +365,7 @@ function Notifications() {
 														size='sm'
 														color='failure'
 														onClick={() =>
-															onDenyInvoice(el.contract, el.index)
+															onDenyInvoice(el.contract, el.index, index)
 														}>
 														<Xmark stroke='2.5' size='h-5 w-5' />
 													</Button>
