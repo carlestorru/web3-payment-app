@@ -6,6 +6,7 @@ export default async function getTransactions(account, web3) {
 		);
 		// Checks if the response is successful (status code 200).
 		if (response.ok) {
+			console.log('from db');
 			// If the response is successful, gets the data from the response in JSON format.
 			const data = await response.json();
 			// Returns the obtained data.
