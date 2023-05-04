@@ -1,17 +1,20 @@
-# Enunciado
+# React Shopping Cart
 
-1. Ecommerce
+This project simulates an ecommerce in order to see the integration of the 3Pay application (client folder in the root of the repository).
 
-- Muestra una lista de productos que vienen de un JSON
-- Añade un filtro por categoría
-- Añade un filtro por precio
+## Getting started
 
-Haz uso de useContext para evitar pasar props innecesarias.
+The first command that you need to execute the project is:
+### `npm install`
 
-2. Shopping Cart
+This will install all the necessary dependencies to be able to start the project correctly.
 
-- Haz que se puedan añadir los productos a un carrito.
-- Haz que se puedan eliminar los productos del carrito.
-- Haz que se puedan modificar la cantidad de productos del carrito.
-- Sincroniza los cambios del carrito con la lista de productos.
-- Guarda en un localStorage el carrito para que se recupere al recargar la página. (da puntos)
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm run dev`
+
+Runs the ecommerce in the development mode in [http://localhost:5173](http://localhost:5173)
+
+
