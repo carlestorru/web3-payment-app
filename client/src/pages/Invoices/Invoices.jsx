@@ -74,9 +74,11 @@ function Invoices() {
 	};
 
 	const onSubmit = async (event) => {
+		// Prevents the default behavior of the form submission
 		event.preventDefault();
 		console.log(invoice);
 
+		// Checks if the required fields are filled, if not, sets the alert message and returns
 		if (invoice.address === '' || invoice.articles.length === 0) {
 			setShowAlert(true)
 			setAlertType('failure');
@@ -85,17 +87,25 @@ function Invoices() {
 		}
 
 		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi);
+
+		// Converts the invoice total amount to Ether using the USD-ETH exchange rate
 		const symConversion = await getSymbolPrice('USD', 'ETH');
+		// Calculate the total value of the invoice in ETH
 		const dolarsToEth = invoice.total * symConversion.ETH;
+		// Convert invoice ether value to wei
 		const value = web3.utils.toWei(dolarsToEth.toString());
+		// Encode the articles in the invoice
 		const encodedArticles = web3.eth.abi.encodeParameter(
 			'string',
 			JSON.stringify(invoice.articles)
 		);
 
+		// Shows a message informing the user to sign the smart contract before deploying it
 		setShowAlert(true);
 		setAlertType('info');
 		setAlertMsg('Firma para desplegar el smartcontract de la factura.');
+		
+		// Deploys the smart contract with the invoice data as arguments
 		invoiceSC
 			.deploy({
 				data: InvoiceContract.bytecode,
@@ -109,11 +119,14 @@ function Invoices() {
 					invoice.otherImport.toString(),
 				],
 			})
+			// Sends the transaction with the user account
 			.send({ from: account })
+			// Handles the errors while sending the transaction
 			.on('error', function (error) {
 				setAlertType('failure');
 				setAlertMsg(`Error:, ${error.message}`);
 			})
+			// Handles the successful deployment of the contract
 			.then(function (newContractInstance) {
 				console.log(newContractInstance.options.address);
 				setAlertType('info');
@@ -121,6 +134,8 @@ function Invoices() {
 				setAlertMsg(
 					`Dirección del smartcontract: ${newContractInstance.options.address}. Firma para almacenarlo en las facturas pendientes del cliente.`
 				);
+
+				// Adds the new invoice to the customer's pending invoices
 				const invoicesSC = new web3.eth.Contract(
 					InvoicesContract.abi,
 					smartcontracts.Invoices
@@ -129,12 +144,14 @@ function Invoices() {
 					.insertInvoice(invoice.address, newContractInstance.options.address)
 					.send({ from: account, gasPrice: '1' }, function (error, hash) {
 						if (!error) {
+							// Handles the successful addition of the invoice
 							setAlertType('success');
 							setAlertMsg('Factura emitida correctamente');
 							setTimeout(() => {
 								setShowAlert(false);
 							}, 5000);
 						} else {
+							// Handles the errors while adding the invoice
 							console.log('Error:', error);
 							setAlertType('failure');
 							setAlertMsg(`Error: ${error.message}`);
@@ -144,24 +161,32 @@ function Invoices() {
 	};
 
 	const findUsernames = (event) => {
+		// Check if input field is not empty
 		if (event.target.value.length !== 0) {
+			// Clear previous timeout, if any
 			clearTimeout(timer);
 
+			// Set a new timeout to call API after 500ms of user inactivity
 			const newTimer = setTimeout(async () => {
 				try {
+					// Call API to get user results
 					const result = await getUsername(event.target.value);
+					// Set user results state, or an empty array if no results are found
 					setUserResults(result === null ? [] : result);
+					// Reset selected user state
 					setSelectedUser(null);
 				} catch (err) {
 					console.error(`API no disponible: ${err}`);
 				}
 			}, 500);
 
+			// Set new timer and update invoice address state
 			setTimer(newTimer);
 			setInvoice((invoice) => {
 				return { ...invoice, address: event.target.value };
 			});
 		} else {
+			// If input field is empty, reset user results state
 			setUserResults([]);
 		}
 	};
@@ -174,12 +199,16 @@ function Invoices() {
 		});
 	};
 
+	/* This function adds an article to invoice object */
 	const addArticle = (event) => {
 		event.preventDefault();
 		const fields = Object.fromEntries(new window.FormData(event.target));
+		// Calculate the new subtotal of the invoice after adding the article at the given index
 		const subtotal =
 			invoice.subtotal + Math.round(fields.price * fields.quantity * 100) / 100;
-		const newArticlesArray = invoice.articles.concat(fields);
+		// Concat new article to articles into invoice
+ 		const newArticlesArray = invoice.articles.concat(fields);
+		// Update the invoice state with the new subtotal and total values, and add the new article
 		setInvoice((prev) => {
 			return {
 				...prev,
@@ -189,16 +218,20 @@ function Invoices() {
 			};
 		});
 
+		// Clear form input values
 		document.getElementById('invArticleName').value = '';
 		document.getElementById('invArticleQty').value = '';
 		document.getElementById('invArticlePrice').value = '';
 		document.getElementById('invArticleDesc').value = '';
 	};
 
+	/* This function deletes an article from invoice object */
 	const deleteArticle = (index) => {
+		// Calculate the new subtotal of the invoice after deleting the article at the given index
 		const subtotal =
 			invoice.subtotal -
 			invoice.articles[index].price * invoice.articles[index].quantity;
+		// Update the invoice state with the new subtotal and total values, and remove the article at the given index
 		setInvoice((prev) => {
 			return {
 				...prev,
@@ -270,39 +303,54 @@ function Invoices() {
 	};
 
 	useEffect(() => {
+		// Check if web3 is defined
 		if (web3 !== undefined) {
 			const getPendingInvoices = async () => {
+				// Create a new instance of the InvoicesContract with the smart contract ABI and address
 				const invoicesSC = new web3.eth.Contract(
 					InvoicesContract.abi,
 					smartcontracts.Invoices
 				);
+				// Get the user invoices by calling the getUserInvoices function of the smart contract
 				const userInvoices = await invoicesSC.methods
 					.getUserInvoices(account)
 					.call();
+				// Initializes an empty array to store the invoices
 				const invoicesArray = [];
 				for (let i = 0; i < userInvoices[0].length; i++) {
+					// Create a new instance of the InvoiceContract with the smart contract ABI and the user invoice contract address
 					const contract = new web3.eth.Contract(
 						InvoiceContract.abi,
 						userInvoices[0][i]
 					);
 
+					// Get the payment status of the invoice
 					const isPaid = await contract.methods.isPaid().call();
-
+					
+					// Get the information of the invoice
 					const invoiceInfo = await contract.methods.getInfo().call();
+					// Get the symbol price of ETH to USD
 					const symbolPrice = await getSymbolPrice('ETH', 'USD');
+					// Convert the invoice value from wei to ether
 					const value = web3.utils.fromWei(invoiceInfo[3]);
+					// Calculate the total value of the invoice in USD
 					const total = (value * symbolPrice.USD).toString();
-					const encodedArticles = web3.eth.abi.decodeParameter(
+					
+					// Decode the articles encoded in the invoice
+					const decodedArticles = web3.eth.abi.decodeParameter(
 						'string',
 						invoiceInfo['2']
 					);
+					
+					// Get if invoice is overdue
 					const isOverdue = await contract.methods.isOverdue().call();
+					// Add the invoice information to the invoicesArray
 					invoicesArray.push({
 						contract: userInvoices[0][i],
 						contractor: invoiceInfo[0],
 						client: invoiceInfo[1],
 						total,
-						articles: encodedArticles,
+						articles: decodedArticles,
 						message: invoiceInfo[4],
 						dueDate: new Date(invoiceInfo[5] * 1000).toLocaleDateString(),
 						discount: invoiceInfo[6],
@@ -311,6 +359,7 @@ function Invoices() {
 						isPaid,
 					});
 				}
+				// Update the statr with the invoicesArray
 				setInvoices(invoicesArray);
 			};
 
