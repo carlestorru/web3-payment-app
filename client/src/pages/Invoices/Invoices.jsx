@@ -73,6 +73,7 @@ function Invoices() {
 		setShowAlert(false);
 	};
 
+	/* This function handle onSubmit invoice  */
 	const onSubmit = async (event) => {
 		// Prevents the default behavior of the form submission
 		event.preventDefault();
@@ -160,6 +161,7 @@ function Invoices() {
 			});
 	};
 
+	/* This function find account address due username */
 	const findUsernames = (event) => {
 		// Check if input field is not empty
 		if (event.target.value.length !== 0) {
