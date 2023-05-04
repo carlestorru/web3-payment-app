@@ -323,7 +323,7 @@ function Notifications() {
 							</ul>
 						</div>
 					) : (
-						<p className='pt-4 text-center font-semibold dark:text-white'>
+						<p className='mt-4 rounded-lg border border-gray-300 bg-white p-4 text-center font-semibold shadow-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white'>
 							No existen solicitudes de usuarios
 						</p>
 					)}
