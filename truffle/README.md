@@ -18,7 +18,7 @@ The project structure have the following items:
 In order to use the available Truffle commands you need to install it locally.
 ### `npm install -g truffle`
 
-## Init 
+### Init 
 ### `truffle init`
 This command create a bare project with no smart contracts included. Optionaly you can use `--force ` to initialize the project in the current directory regardless of its state.
 
