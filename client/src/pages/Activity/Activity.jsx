@@ -77,12 +77,18 @@ function Activity() {
 		setIsModalVisible(!isModalVisible);
 	};
 
+	/* This function is called when the search input value changes */
 	const onChangeSearch = (event) => {
+		// Get the new input value from the event
 		const inputValue = event.target.value;
+		// Set the new input value to the state variable "inputSearch"
 		setInputSearch(inputValue);
+		// Filter the transactions using the new input value
 		const searchedTxs = filteredTransactions.filter((tx) => {
+			// Decode the transaction input data from hex format to string format using web3 utility function
 			const message =
 				tx.input !== '' ? String(web3.utils.hexToAscii(tx.input)) : '';
+			// Check if the transaction hash, sender address, receiver address, or decoded input data includes the new input value
 			return (
 				tx.hash.startsWith(inputValue) ||
 				tx.from.startsWith(inputValue) ||
@@ -140,59 +146,85 @@ function Activity() {
 		setShowDatePickerTo(state);
 	};
 
+	/* This function sorts the filtered transactions based on the selected sort type */
 	const sortTransactions = (filteredTxs) => {
+		// Declare a new array to store the sorted transactions
 		let sortedTxs = [];
+		// Check the selected sort type and sort the transactions accordingly
 		if (sortType === 'dateNew') {
+			// Sort the transactions by timestamp in ascending order and then reverse the array to get the latest transactions first
 			sortedTxs = filteredTxs
 				.sort((a, b) => a.timestamp - b.timestamp)
 				.reverse();
 		} else if (sortType === 'dateOld') {
+			// Sort the transactions by timestamp in ascending order
 			sortedTxs = filteredTxs.sort((a, b) => a.timestamp - b.timestamp);
 		} else if (sortType === 'priceLow') {
+			// Sort the transactions by value in ascending order and then reverse the array to get the lowest value transactions first
 			sortedTxs = filteredTxs.sort((a, b) => a.value - b.value).reverse();
 		} else if (sortType === 'priceHigh') {
+			// Sort the transactions by value in ascending order
 			sortedTxs = filteredTxs.sort((a, b) => a.value - b.value);
 		}
+
+		// Set the sorted transactions to the state variables "filteredTransactions" and "transactions"
 		setFilteredTransactions(sortedTxs);
 		setTransactions(sortedTxs);
 	};
 
+	/* This function filtres transactions based on a given date range */
 	const filterByDate = (transactions) => {
+		// Check if both the from and to dates are provided
 		if (dateRange.from !== '' && dateRange.to !== '') {
+			// Check if the from date is before or equal to the to date
 			if (dateRange.from <= dateRange.to) {
+				// If the date range is valid, set the isInvalidDateRange flag to false
 				setIsInvalidDateRange(false);
+				// Filter the transactions based on the date range.
 				const filteredTxs = transactions.filter((tx) => {
 					return tx.timestamp >= dateRange.from && tx.timestamp <= dateRange.to;
 				});
+				// Sort the filtered transactions and update the state variables
 				sortTransactions(filteredTxs);
 			} else {
+				// If the date range is invalid, set the isInvalidDateRange flag to true
 				setIsInvalidDateRange(true);
 			}
 		} else {
+			// If the from and to dates are not provided, sort all the transactions and update the state variables
 			sortTransactions(transactions);
 		}
 	};
 
+	/* This function applies the filters set by the user */
 	const onApplyFilters = () => {
+		// Get transactions
 		getTransactions(account, web3)
 			.then((res) => {
+				// Filter transactions based on selected filters
 				const filteredTxs = res.filter((tx) => {
 					if (priceFrom !== null && priceTo !== null) {
+						// Calculate ETH price of the transaction
 						const txPrice =
 							Math.round(ethPrice * web3.utils.fromWei(tx.value) * 100) / 100;
+						// Check if transaction price is within selected range
 						if (txPrice >= priceFrom && txPrice <= priceTo) {
 							if (showPays && showInc) {
 								return true;
 							}
 							if (showPays) {
+								// Check if transaction is a payment made by the user's account
 								return tx.from === account;
 							}
 							if (showInc) {
+								// Check if transaction is an incoming payment to the user's account
 								return tx.to === account;
 							}
 						}
+						// If transaction is outside price range or does not match payment type, exclude it
 						return false;
 					} else {
+						// If price range is not selected, filter based on payment type only
 						if (showPays && showInc) {
 							return true;
 						}
@@ -203,32 +235,67 @@ function Activity() {
 							return tx.to === account;
 						}
 					}
-
+        			// If payment type is not selected, exclude the transaction
 					return null;
 				});
 
+				// Apply date range filter
 				if (!isInvalidDateRange) {
 					filterByDate(filteredTxs);
 					return;
 				}
-
+			
+      			// Sort transactions based on selected sorting type
 				sortTransactions(filteredTxs);
 			})
 			.catch((err) => console.error(err));
 	};
 
-	useEffect(() => {
+	/* This function decodes the input data of a transaction to extract the contract name and method used in the call */
+	const decodeInput = (input, contractAddr) => {
+		let abi = null;
+		let contractName = '';
+		// Checks if the contract address matches any of the predefined smart contracts and sets the appropriate ABI and contract name
+		if (contractAddr === smartcontracts.RequestMoney) {
+			abi = RequestMoney.abi;
+			contractName = 'RequestMoney';
+		} else if (contractAddr === smartcontracts.Invoices) {
+			abi = InvoicesContract.abi;
+			contractName = 'Invoices';
+		} else if (contractAddr === null || invoices.includes(contractAddr)) {
+			abi = InvoiceContract.abi;
+			contractName = 'Invoice';
+		}
+
+		// If no ABI is found, returns the input data as ASCII
+		if (abi === null) {
+			return web3.utils.hexToAscii(input);
+		} else {
+			// If ABI is found, uses the InputDataDecoder library to decode the input data and extract the method used
+			const decoder = new InputDataDecoder(abi);
+			const result = decoder.decodeData(input);
+			return `${contractName} - method: ${result.method || 'deploy'}`;
+		}
+	};
+
+	useEffect(() => {	
+		// Check if web3 object is defined
 		if (web3 !== undefined) {
+			// Create a new instance of the Invoices smart contract
 			const invoicesSC = new web3.eth.Contract(
 				InvoicesContract.abi,
 				smartcontracts.Invoices
 			);
+
+			// Call the getUserInvoices method from the Invoices smart contract to retrieve the user's invoices and update the state
 			invoicesSC.methods
 				.getUserInvoices(account)
-				.call().then(res => {
-					setInvoices(res[0])
+				.call()
+				.then((res) => {
+					setInvoices(res[0]);
 				});
 
+			// Call the getTransactions function to retrieve the user's transactions and update the state
 			getTransactions(account, web3)
 				.then((res) => {
 					setTransactions(res.reverse());
@@ -239,29 +306,6 @@ function Activity() {
 				});
 		}
 	}, [web3, account]);
-
-	const decodeInput = (input, contractAddr) => {
-		let abi = null;
-		let contractName = '';
-		if (contractAddr === smartcontracts.RequestMoney) {
-			abi = RequestMoney.abi;
-			contractName = 'RequestMoney';
-		} else if (contractAddr === smartcontracts.Invoices) {
-			abi = InvoicesContract.abi;
-			contractName = 'Invoices';
-		} else if (contractAddr === null || invoices.includes(contractAddr)){
-			abi = InvoiceContract.abi;
-			contractName = 'Invoice';
-		}
-
-		if (abi === null) {
-			return web3.utils.hexToAscii(input);
-		} else {
-			const decoder = new InputDataDecoder(abi);
-			const result = decoder.decodeData(input);
-			return `${contractName} - method: ${result.method || 'deploy'}`;
-		}
-	};
 
 	useEffect(() => {
 		getSymbolPrice('ETH', 'USD').then((res) => setEthPrice(res.USD));
