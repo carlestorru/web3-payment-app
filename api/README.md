@@ -1,6 +1,6 @@
 # API
 
-This API is developed using **express.js** and **MongoDB**.
+This API is developed using **Node.js**, **express.js** and **MongoDB**.
 
 ## Getting started
 
