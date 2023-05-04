@@ -2,6 +2,11 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+The first command that you need to execute before run de api is:
+### `npm install`
+
+This will install all the necessary dependencies to be able to start the project correctly.
+
 ## Available Scripts
 
 In the project directory, you can run:
