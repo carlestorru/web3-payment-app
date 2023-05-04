@@ -21,11 +21,16 @@ export function WalletConnector() {
 
 	const connect = useCallback(async () => {
 		try {
+			// Activate the chosen wallet connector
 			await activate(connector, {}, true);
+			// If the user successfully connects to the wallet, set a value of `true` for the `previouslyConnected` key in `localStorage`
 			localStorage.setItem('previouslyConnected', true);
+			// Navigate the user back to the original page if the user was redirected to the connection page from another page
 			if (location.state?.from) navigate(location.state.from);
 		} catch (err) {
+			// If an error occurs during the connection process, set the `showAlert` state to `true` to display an error message to the user
 			setShowAlert(true);
+			// Determine the type of error that occurred and set the `typeErr` variable accordingly
 			const isNoEthereumProviderError = err instanceof NoEthereumProviderError;
 			const isUserRejectedRequestError =
 				err instanceof UserRejectedRequestError;
@@ -38,8 +43,9 @@ export function WalletConnector() {
 			} else if (isUnsupportedChainIdError) {
 				typeErr = 'Unsupported Chain connection:';
 			}
+			// Set typeError
 			setTypeError(typeErr + ' ' + err.message);
-			console.log(typeErr + ' ' + err.message)
+			console.log(typeErr + ' ' + err.message);
 		}
 	}, [activate]);
 
