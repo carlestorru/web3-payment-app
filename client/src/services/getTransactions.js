@@ -34,7 +34,7 @@ async function getTransactionsFromBlockchain(account, web3) {
 	const transactions = [];
 
 	// Iterate over the blocks from the latest to block number zero.
-	for (let blockNum = latestBlock.number; blockNum >= 0; blockNum--) {
+	for (let blockNum = 0; blockNum < latestBlock.number; blockNum++) {
 		// Get the current block.
 		const block = await web3.eth.getBlock(blockNum);
 		// Create a date object from the timestamp of the current block.
