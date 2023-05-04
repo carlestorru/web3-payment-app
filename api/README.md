@@ -1,4 +1,4 @@
-## Info
+# API
 
 This API is developed using **express.js** and **MongoDB**.
 
