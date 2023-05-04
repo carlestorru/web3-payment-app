@@ -1,5 +1,6 @@
 const { Transaction } = require('../models/Transaction');
 
+// Function to get all transactions
 const getAllTransactions = async () => {
 	try {
 		const allTransactions = await Transaction.find();
@@ -18,6 +19,7 @@ const getAllTransactions = async () => {
 	}
 };
 
+// Function to get a transaction by hash or address from or to
 const getTransaction = async (hash) => {
 	try {
 		const transaction = await Transaction.find({
@@ -38,6 +40,7 @@ const getTransaction = async (hash) => {
 	}
 };
 
+// Function to save a transaction
 const saveTransaction = async (body) => {
 	try {
 		const newTransaction = new Transaction({ ...body });
@@ -48,4 +51,5 @@ const saveTransaction = async (body) => {
 	}
 };
 
+// Export functions to be used in other files
 module.exports = { getAllTransactions, getTransaction, saveTransaction };

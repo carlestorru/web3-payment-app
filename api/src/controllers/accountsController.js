@@ -1,5 +1,6 @@
 const accountService = require('../services/accountsService');
 
+// Get all accounts
 const getAllAccounts = async (req, res) => {
 	try {
 		const allAccounts = await accountService.getAllAccounts()
@@ -11,6 +12,7 @@ const getAllAccounts = async (req, res) => {
 	}
 };
 
+// Get a single account by its hash
 const getAccount = async (req, res) => {
 	const { hash } = req.params;
 	try {
@@ -23,6 +25,7 @@ const getAccount = async (req, res) => {
 	}
 };
 
+// Save a new account
 const saveAccount = async (req, res) => {
 	const { hash } = req.params;
 	try {
@@ -35,4 +38,5 @@ const saveAccount = async (req, res) => {
 	}
 };
 
+// Export functions to be used in other files
 module.exports = { getAllAccounts, getAccount, saveAccount };

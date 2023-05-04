@@ -1,5 +1,6 @@
 const transactionService = require('../services/transactionService');
 
+// Get all transactions
 const getAllTransactions = async (req, res) => {
 	try {
 		const allTransactions = await transactionService.getAllTransactions();
@@ -11,6 +12,7 @@ const getAllTransactions = async (req, res) => {
 	}
 };
 
+// Get a specific transaction
 const getTransaction = async (req, res) => {
 	const { hash } = req.params;
 	try {
@@ -23,6 +25,7 @@ const getTransaction = async (req, res) => {
 	}
 };
 
+// Save a new transaction
 const saveTransaction = async (req, res) => {
 	try {
 		const newTransaction = await transactionService.saveTransaction(req.body);
@@ -34,4 +37,5 @@ const saveTransaction = async (req, res) => {
 	}
 };
 
+// Export functions to be used in other files
 module.exports = { getAllTransactions, getTransaction, saveTransaction };
