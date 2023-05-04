@@ -18,7 +18,7 @@ const walletColors = {
 	walletBlue: WalletBackgroundBlue,
 	walletOrange: WalletBackgroundOrange,
 	walletMetamask: WalletBackgroundMetamask,
-	walletEth: WalletBackgroundEth
+	walletEth: WalletBackgroundEth,
 };
 
 function Wallet() {
@@ -31,14 +31,22 @@ function Wallet() {
 	const [nodeInfo, setNodeInfo] = useState('');
 	const [walletBg, setWalletBg] = useState(WalletBackgroundBlue);
 
+	// Define a function called `generatePDF` that creates a PDF document from an HTML element on the page.
 	const generatePDF = () => {
+		// Get a reference to an HTML element with the ID "wallet-card" using `document.getElementById`.
 		const input = document.getElementById('wallet-card');
+		// Use the `html2canvas` library to create a screenshot of the HTML element passed to it as a parameter. This is done using the `html2canvas(input).then((canvas) => { ... })` syntax. The resulting canvas is then passed to the `then` callback function.
 		html2canvas(input).then((canvas) => {
+			// Call the `toDataURL` method on the canvas to get a base64-encoded string representation of the image data.
 			const imgData = canvas.toDataURL('image/jpg');
+			// Create a new `JsPDF` object with a page orientation of "landscape", a unit of measurement of "mm", and a page size of 85mm x 53mm. This object is stored in the `pdf` variable.
 			const pdf = new JsPDF('landscape', 'mm', [85, 53]);
+			// Use the `getWidth` and `getHeight` methods to get the width and height of the PDF page in pixels.
 			const pageWidth = pdf.internal.pageSize.getWidth();
 			const pageHeight = pdf.internal.pageSize.getHeight();
+			// Call the `addImage` method on the `pdf` object to add the image data to the PDF document. The image is positioned at (0, 0) and stretched to fill the entire page.
 			pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+			// Finally, call the `save` method on the `pdf` object to prompt the user to download the PDF file with the name "wallet.pdf".
 			pdf.save('wallet.pdf');
 		});
 	};
@@ -50,17 +58,24 @@ function Wallet() {
 
 	useEffect(() => {
 		async function loadWalletInfo() {
+			// Get the balance of the account
 			const balanceWei = await web3.eth.getBalance(account);
+			// Convert the balance from wei to ether
 			const balanceEther = web3.utils.fromWei(balanceWei, 'ether');
+			// Get the current price of ETH in USD
 			const balance = await getSymbolPrice('ETH', 'USD');
+			// Get the current gas price
 			const gasPrice = await web3.eth.getGasPrice();
+			// Get information about the connected ethereum node
 			const nodeInfo = await web3.eth.getNodeInfo();
+			// Set the different information
 			setBalanceEth(balanceEther);
 			setGasPrice(web3.utils.fromWei(gasPrice));
 			setNodeInfo(nodeInfo);
 			setBalance(balance.USD * balanceEther);
 		}
 
+		// Check if web3 is defined before loadWalletInfo
 		if (web3 !== undefined) {
 			loadWalletInfo();
 		}
@@ -134,11 +149,13 @@ function Wallet() {
 							</div>
 						</div>
 					</div>
-					<section className='flex flex-row gap-6 items-center'>
-						<h3 className='font-medium text-black dark:text-white'>Personaliza tu tarjeta: </h3>
+					<section className='flex flex-row items-center gap-6'>
+						<h3 className='font-medium text-black dark:text-white'>
+							Personaliza tu tarjeta:{' '}
+						</h3>
 						<button id='walletBlue' onClick={onChangeWalletBg}>
 							<img
-								className='h-10 w-10 rounded-full transform transition-transform hover:scale-110'
+								className='h-10 w-10 transform rounded-full transition-transform hover:scale-110'
 								src={WalletBackgroundBlue}
 								alt='bg_blue'
 							/>
