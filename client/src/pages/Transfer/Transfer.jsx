@@ -38,26 +38,33 @@ function Transfer() {
 		setShowAlert(false);
 	};
 
+	/* This function handles the submision event for send money */
 	const onSubmitSend = async (event) => {
+		// Prevent the default form submission behavior
 		event.preventDefault();
+		// Set a state variable to indicate that a transaction is being sent
 		setIsSendingTx(true);
+		// Get the values of the form fields
 		const fields = Object.fromEntries(new window.FormData(event.target));
+		console.log(fields);
+		// Get the nonce for the transaction
 		const nonce = await web3.eth.getTransactionCount(account, 'latest');
 
-		console.log(fields);
-
+		// Validate the quantity field is not 0
 		if (fields.quantity === '0') {
 			setTxError('La cantidad a enviar debe ser mayor de 0');
 			setIsSendingTx(false);
 			return;
 		}
 
+		// Validate the decimal separator in the quantity field
 		if (fields.quantity.includes(',')) {
 			setTxError('Los decimales deben separarse con . Ej: 10.99');
 			setIsSendingTx(false);
 			return;
 		}
 
+		// Convert the quantity to wei, based on the selected currency
 		let value;
 		if (fields.currency === '$') {
 			const symConversion = await getSymbolPrice('USD', 'ETH');
@@ -67,6 +74,7 @@ function Transfer() {
 			value = web3.utils.toWei(fields.quantity);
 		}
 
+		// Create a transaction object
 		const transaction = {
 			from: account,
 			to: fields.address,
@@ -75,6 +83,7 @@ function Transfer() {
 			data: web3.utils.toHex(fields.message),
 		};
 
+		// Send the transaction to the blockchain
 		const signedTx = await web3.eth.sendTransaction(
 			transaction,
 			function (error, hash) {
@@ -96,10 +105,12 @@ function Transfer() {
 			}
 		);
 
+		// Get the details of the mined transaction
 		const transactionMined = await web3.eth.getTransaction(
 			signedTx.transactionHash
 		);
 
+		// Create a new object with the transaction details and the block information
 		const insertedTx = {
 			...transactionMined,
 			blockHash: signedTx.blockHash,
@@ -107,6 +118,7 @@ function Transfer() {
 			transactionIndex: signedTx.transactionIndex,
 		};
 
+		// Post the transaction details to the API
 		fetch('http://localhost:3001/api/v1/transactions', {
 			method: 'POST',
 			body: JSON.stringify(insertedTx),
@@ -118,45 +130,43 @@ function Transfer() {
 			.catch((err) => console.error(err))
 			.then((response) => console.log(response));
 
+		// Reset the state variable indicating that a transaction has been sent
 		setIsSendingTx(false);
+		// Update the user balance after the transaction is sent
 		updateUserBalance(account, web3);
 	};
 
+	/* This function handles the submision event for request money */
 	const onSubmitRequest = async (event) => {
+		// Prevent the default form submission behavior
 		event.preventDefault();
+		// Set a state variable to indicate that a transaction is being requested
 		setIsRequestingTx(true);
+		// Get the values of the form fields
 		const fields = Object.fromEntries(new window.FormData(event.target));
 		console.log(fields);
 
+		// Validate the quantity field is not 0
 		if (fields.quantity === '0') {
 			setReqError('La cantidad a enviar debe ser mayor de 0');
 			setIsRequestingTx(false);
 			return;
 		}
 
+		// Validate the decimal separator in the quantity field
 		if (fields.quantity.includes(',')) {
 			setReqError('Los decimales deben separarse con . Ej: 10.99');
 			setIsRequestingTx(false);
 			return;
 		}
 
+		// Create a new instance of the RequestMoney smart contract
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
 			smartcontracts.RequestMoney
 		);
-		/*
-		contract.methods
-			.insertRequest(account, fields.address, fields.quantity, fields.message)
-			.estimateGas({ from: account })
-			.then(async (amount) => {
-				const gasPrice = await web3.eth.getGasPrice();
-				console.log(gasPrice);
-				const price = amount * gasPrice;
 
-				console.log(web3.utils.fromWei(price.toString()));
-
-				*/
-
+		// Convert the quantity to wei, based on the selected currency
 		let value;
 		if (fields.currency === '$') {
 			const symConversion = await getSymbolPrice('USD', 'ETH');
@@ -166,9 +176,11 @@ function Transfer() {
 			value = web3.utils.toWei(fields.quantity);
 		}
 
+		// Call the insertRequest method of the smart contract and send the transaction
 		contract.methods
 			.insertRequest(account, fields.address, value, fields.message)
 			.send({ from: account, gasPrice: '1' }, function (error, hash) {
+				// Handle the transaction receipt or error
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
 					setAlertMsg(`Transacción realizada correctamente: ${hash}`);
@@ -186,26 +198,34 @@ function Transfer() {
 				}
 			});
 
-		// });
+		// Reset the state variable indicating that a transaction has been requested
 		setIsRequestingTx(false);
 	};
 
+	/* This function find account address due username */
 	const findUsernames = (event) => {
+		// Check if input field is not empty
 		if (event.target.value.length !== 0) {
+			// Clear previous timeout, if any
 			clearTimeout(timer);
-
+			// Set a new timeout to call API after 500ms of user inactivity
 			const newTimer = setTimeout(async () => {
 				try {
+					// Call API to get user results
 					const result = await getUsername(event.target.value);
+					// Set user results state, or an empty array if no results are found
 					setUserResults(result === null ? [] : result);
+					// Reset selected user state
 					setSelectedUser(null);
 				} catch (err) {
 					console.error(`API no disponible: ${err}`);
 				}
 			}, 500);
 
+			// Set new timer
 			setTimer(newTimer);
 		} else {
+			// If input field is empty, reset user results state
 			setUserResults([]);
 		}
 	};

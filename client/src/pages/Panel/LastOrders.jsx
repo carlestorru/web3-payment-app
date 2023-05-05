@@ -18,29 +18,11 @@ export function LastOrders() {
 	const [ethPrice, setEthPrice] = useState(1);
 	const [invoices, setInvoices] = useState([]);
 
-	useEffect(() => {
-		if (web3 !== undefined) {
-			const invoicesSC = new web3.eth.Contract(
-				InvoicesContract.abi,
-				smartcontracts.Invoices
-			);
-			invoicesSC.methods
-				.getUserInvoices(account)
-				.call().then(res => {
-					setInvoices(res[0])
-				});
-
-			getTransactions(account, web3).then((res) => {
-				const lastTenTxs = res.reverse().slice(0, 9);
-				setTransactions(lastTenTxs);
-				isLoading(false);
-			});
-		}
-	}, [web3, account]);
-
+	/* This function decodes the input data of a transaction to extract the contract name and method used in the call */
 	const decodeInput = (input, contractAddr) => {
 		let abi = null;
 		let contractName = '';
+		// Checks if the contract address matches any of the predefined smart contracts and sets the appropriate ABI and contract name
 		if (contractAddr === smartcontracts.RequestMoney) {
 			abi = RequestMoney.abi;
 			contractName = 'RequestMoney';
@@ -52,14 +34,42 @@ export function LastOrders() {
 			contractName = 'Invoice';
 		}
 
+		// If no ABI is found, returns the input data as ASCII
 		if (abi === null) {
 			return web3.utils.hexToAscii(input);
 		} else {
+			// If ABI is found, uses the InputDataDecoder library to decode the input data and extract the method used
 			const decoder = new InputDataDecoder(abi);
 			const result = decoder.decodeData(input);
 			return `${contractName} - method: ${result.method || 'deploy'}`;
 		}
 	};
+
+	useEffect(() => {
+		// Check if web3 object is defined
+		if (web3 !== undefined) {
+			// Create a new instance of the Invoices smart contract
+			const invoicesSC = new web3.eth.Contract(
+				InvoicesContract.abi,
+				smartcontracts.Invoices
+			);
+
+			// Call the getUserInvoices method from the Invoices smart contract to retrieve the user invoices and update the state
+			invoicesSC.methods
+				.getUserInvoices(account)
+				.call()
+				.then((res) => {
+					setInvoices(res[0]);
+				});
+
+			// Call the getTransactions function to retrieve the user transactions and update the state
+			getTransactions(account, web3).then((res) => {
+				const lastTenTxs = res.reverse().slice(0, 9);
+				setTransactions(lastTenTxs);
+				isLoading(false);
+			});
+		}
+	}, [web3, account]);
 
 	useEffect(() => {
 		getSymbolPrice('ETH', 'USD').then((res) => setEthPrice(res.USD));

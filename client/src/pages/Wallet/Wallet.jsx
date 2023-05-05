@@ -31,7 +31,7 @@ function Wallet() {
 	const [nodeInfo, setNodeInfo] = useState('');
 	const [walletBg, setWalletBg] = useState(WalletBackgroundBlue);
 
-	// Define a function called `generatePDF` that creates a PDF document from an HTML element on the page.
+	/* This function creates a PDF document from an HTML element on the page */
 	const generatePDF = () => {
 		// Get a reference to an HTML element with the ID "wallet-card" using `document.getElementById`.
 		const input = document.getElementById('wallet-card');

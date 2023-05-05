@@ -287,7 +287,7 @@ function Activity() {
 				smartcontracts.Invoices
 			);
 
-			// Call the getUserInvoices method from the Invoices smart contract to retrieve the user's invoices and update the state
+			// Call the getUserInvoices method from the Invoices smart contract to retrieve the user invoices and update the state
 			invoicesSC.methods
 				.getUserInvoices(account)
 				.call()
@@ -295,7 +295,7 @@ function Activity() {
 					setInvoices(res[0]);
 				});
 
-			// Call the getTransactions function to retrieve the user's transactions and update the state
+			// Call the getTransactions function to retrieve the user transactions and update the state
 			getTransactions(account, web3)
 				.then((res) => {
 					setTransactions(res.reverse());

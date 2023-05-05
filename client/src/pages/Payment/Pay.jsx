@@ -23,6 +23,7 @@ function Pay() {
 
 	const params = useParams();
 
+	/* This function handle user payment confirmation */
 	const onAcceptPayment = async () => {
 		// Get the current transaction count for the specified account
 		const nonce = await web3.eth.getTransactionCount(account, 'latest');
@@ -55,7 +56,7 @@ function Pay() {
 			transaction.value = value - transactionFee;
 		}
 
-		// Send the transaction to the blockchain and wait for confirmation
+		// Send the transaction to the blockchain
 		const signedTx = await web3.eth.sendTransaction(
 			transaction,
 			function (error, hash) {

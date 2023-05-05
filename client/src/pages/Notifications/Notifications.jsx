@@ -24,12 +24,14 @@ function Notifications() {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedInvoice, setDetailedInvoice] = useState(null);
 
+	/* This function handle user request money confirmation */
 	const onAcceptRequest = async ({ address, amount, concept }, index) => {
 		console.log({ address, amount, concept, index });
+		// Get the nonce for the transaction
 		const nonce = await web3.eth.getTransactionCount(account, 'latest');
-
+		// Convert the requested amount to wei
 		const value = web3.utils.toWei(amount);
-
+		// Create a transaction object
 		const transaction = {
 			from: account,
 			to: address,
@@ -38,6 +40,7 @@ function Notifications() {
 			data: web3.utils.toHex(concept),
 		};
 
+		// Send the transaction to the blockchain
 		const signedTx = await web3.eth.sendTransaction(
 			transaction,
 			async function (error, hash) {
@@ -53,10 +56,12 @@ function Notifications() {
 			}
 		);
 
+		// Get the details of the mined transaction
 		const transactionMined = await web3.eth.getTransaction(
 			signedTx.transactionHash
 		);
 
+		// Create a new object with the transaction details and the block information
 		const insertedTx = {
 			...transactionMined,
 			blockHash: signedTx.blockHash,
@@ -64,6 +69,7 @@ function Notifications() {
 			transactionIndex: signedTx.transactionIndex,
 		};
 
+		// Post the transaction details to the API
 		fetch('http://localhost:3001/api/v1/transactions', {
 			method: 'POST',
 			body: JSON.stringify(insertedTx),
@@ -75,35 +81,43 @@ function Notifications() {
 			.catch((err) => console.error(err))
 			.then((response) => console.log(response));
 
-		// deleteRequest(index);
+		// Update the user balance after the transaction is sent
 		updateUserBalance(account, web3);
 	};
 
+	/* This function handle user request money deny */
 	const onDenyRequest = async (index) => {
 		deleteRequest(index);
 	};
 
+	/* This function deletes user request money when is confirmed or denied */
 	const deleteRequest = async (index) => {
+		// Create a new instance of the RequestMoneyContract contract using the contract's ABI and address.
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
 			smartcontracts.RequestMoney
 		);
+		// Call the deleteUserRequest method of the contract, passing in the user account and the index of the request to delete.
 		await contract.methods
 			.deleteUserRequest(account, index)
 			.send({ from: account, gasPrice: '1' })
 			.then(console.log);
 
+		// Update the state of the requests list by removing the request at the given index.
 		setRequests((prev) => {
 			return [...prev.slice(0, index), ...prev.slice(index + 1)];
 		});
 	};
 
+	/* This function is called when user pays an invoice */
 	const onPayInvoice = async (contractAddr, index) => {
+		// Create a new instance of the InvoiceContract with the contract address.
 		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi, contractAddr);
-
+		// Get the invoice information from the smart contract.
 		const result = await invoiceSC.methods.getInfo().call();
 		const value = result[3];
 
+		// Send a transaction to the smart contract to pay the invoice.
 		const signedTx = await invoiceSC.methods
 			.pay()
 			.send({ from: account, gasPrice: '1', value }, function (error, hash) {
@@ -120,12 +134,12 @@ function Notifications() {
 				}
 			});
 
-		console.log(signedTx);
-
+		// Get the details of the mined transaction
 		const transactionMined = await web3.eth.getTransaction(
 			signedTx.transactionHash
 		);
 
+		// Create a new object with the transaction details and the block information
 		const insertedTx = {
 			...transactionMined,
 			blockHash: signedTx.blockHash,
@@ -133,6 +147,7 @@ function Notifications() {
 			transactionIndex: signedTx.transactionIndex,
 		};
 
+		// Post the transaction details to the API
 		fetch('http://localhost:3001/api/v1/transactions', {
 			method: 'POST',
 			body: JSON.stringify(insertedTx),
@@ -144,25 +159,29 @@ function Notifications() {
 			.catch((err) => console.error(err))
 			.then((response) => console.log(response));
 
+		// Update the user balance after the transaction is sent
 		updateUserBalance(account, web3);
 	};
 
+	/* This function is called when user deny to pay an invoice  */
 	const onDenyInvoice = async (contractAddr, invoiceIndex, index) => {
 		deleteInvoice(invoiceIndex, index);
 	};
 
 	const deleteInvoice = async (invoiceIndex, index) => {
-		console.log(invoiceIndex, index);
-
+		// Create a contract instance for the Invoices smart contract
 		const contract = new web3.eth.Contract(
 			InvoicesContract.abi,
 			smartcontracts.Invoices
 		);
+
+		// Call the setDeniedInvoice function in the smart contract and wait for the transaction to be confirmed
 		await contract.methods
 			.setDeniedInvoice(account, invoiceIndex)
 			.send({ from: account, gasPrice: '1' })
 			.then(console.log);
 
+		// Remove the deleted invoice from the invoices array
 		setInvoices((prev) => {
 			return [...prev.slice(0, index), ...prev.slice(index + 1)];
 		});
@@ -179,18 +198,26 @@ function Notifications() {
 	};
 
 	useEffect(() => {
+		// Check if web3 is defined
 		if (web3 !== undefined) {
+			// Function to get user money requests
 			const getMoneyRequests = async () => {
+				// Instantiate a RequesMoney smart contract object
 				const contract = new web3.eth.Contract(
 					RequestMoneyContract.abi,
 					smartcontracts.RequestMoney
 				);
+				// Call a contract method to get user requests
 				const result = await contract.methods.getUserRequests(account).call();
 				const requests = [];
+				// Get the ETH/USD price
+				const symbolPrice = await getSymbolPrice('ETH', 'USD');
 				for (let i = 0; i < result['0'].length; i++) {
-					const symbolPrice = await getSymbolPrice('ETH', 'USD');
+					// Convert the request amount from Wei to ETH
 					const value = web3.utils.fromWei(result['1'][i]);
+					// Calculate the request amount in USD
 					const priceInUSD = (value * symbolPrice.USD).toString();
+					// Push a new request object to the requests array
 					requests.push({
 						address: result['0'][i],
 						amountUSD: priceInUSD,
@@ -198,40 +225,55 @@ function Notifications() {
 						concept: result['2'][i],
 					});
 				}
+				// Update the state with the requests array and set the loading state to false
 				setRequests(requests);
 				setLoadingRequests(false);
 			};
 
+			// Function to get user pending invoices
+
 			const getPendingInvoices = async () => {
+				// Instantiate a Invoices smartcontract object
 				const invoicesSC = new web3.eth.Contract(
 					InvoicesContract.abi,
 					smartcontracts.Invoices
 				);
+				// Call a contract method to get user invoices
 				const pendingInvoices = await invoicesSC.methods
 					.getUserInvoices(account)
 					.call();
 				const invoicesArray = [];
+				// Get the ETH/USD price
+				const symbolPrice = await getSymbolPrice('ETH', 'USD');
 				for (let i = 0; i < pendingInvoices[0].length; i++) {
+					// Skip invoices that have been denied
 					if (pendingInvoices[1][i]) {
 						continue;
 					}
+					// Instantiate a Invoice smartcontract object for each invoice
 					const contract = new web3.eth.Contract(
 						InvoiceContract.abi,
 						pendingInvoices[0][i]
 					);
 
+					// Check if the invoice has been paid
 					const isPaid = await contract.methods.isPaid().call();
-
+					// Skip paid invoices
 					if (!isPaid) {
+						// Get invoice information
 						const invoiceInfo = await contract.methods.getInfo().call();
-						const symbolPrice = await getSymbolPrice('ETH', 'USD');
+						// Convert the invoice amount from Wei to ETH
 						const value = web3.utils.fromWei(invoiceInfo[3]);
+						// Calculate the invoice total in USD
 						const total = (value * symbolPrice.USD).toString();
+						// Decode the encoded articles parameter
 						const encodedArticles = web3.eth.abi.decodeParameter(
 							'string',
 							invoiceInfo['2']
 						);
+						// Check if the invoice is overdue
 						const isOverdue = await contract.methods.isOverdue().call();
+						// Push a new invoice object to the invoices array
 						invoicesArray.push({
 							contract: pendingInvoices[0][i],
 							contractor: invoiceInfo[0],
@@ -248,6 +290,7 @@ function Notifications() {
 						});
 					}
 				}
+				// Update the state with the invoices array and set the loading state to false
 				setInvoices(invoicesArray);
 				setLoadingInvoices(false);
 			};
