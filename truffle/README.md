@@ -8,12 +8,12 @@ The project structure have the following items:
 - **migrations/**: Directory for scriptable deployment files
 - **test/**: Directory for test files for testing your application and contracts
 - **truffle-config.js**: Truffle configuration file
-- **../client/contracts***: Directory for compiled smartcontracts which contains the artifacts (.json files)
+- **../client/contracts**: Directory for compiled smartcontracts which contains the artifacts (.json files)
 
 ## Commands
 
 ### Install
-> Note: install Truffle is optional, because the blockchain already has deployed the necessary smartcontracts for 3Pay aplication.
+> Note: install Truffle is optional, because the blockchain already has deployed the necessary smartcontracts for 3Pay application. This is just in case that you want to create, test or deploy smartcontracts. 
 
 In order to use the available Truffle commands you need to install it locally.
 ### `npm install -g truffle`
