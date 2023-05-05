@@ -12,8 +12,8 @@ The project structure have the following items:
 
 ## Commands
 
+> Note: install Truffle and use the commands is optional. This section is just as documentation and general information on how it works. The blockchain already has deployed the necessary smartcontracts for 3Pay application. This is just in case that you want to create, test or deploy smartcontracts.
 ### Install
-> Note: install Truffle is optional, because the blockchain already has deployed the necessary smartcontracts for 3Pay application. This is just in case that you want to create, test or deploy smartcontracts. 
 
 In order to use the available Truffle commands you need to install it locally.
 ### `npm install -g truffle`
