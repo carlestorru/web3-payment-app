@@ -32,9 +32,9 @@ This directory contains the project created with the Truffle framework in which 
 Before running the application, it uses [Metamask](https://metamask.io/ "Metamask") as a wallet and gateway to the blockchain. On the other hand, the application is intended to connect to different blockchains, but as it is currently a project for academic purposes, it uses [Ganache](https://trufflesuite.com/ganache/ "Ganache") as a local blockchain, which allows to have several Ethereum accounts with ETH, inspect how the blockchain operates, consult transactions, blocks, etc. without the need to worry about.
 
 ### Download
-Below are the links where to download Metamask and Ganache.
-- Metamask: https://metamask.io/download/ (browser extension)
+Below are the links where to download Ganache and Metamask.
 - Ganache: https://trufflesuite.com/ganache/ (download)
+- Metamask: https://metamask.io/download/ (browser extension)
 
 ### Install
 #####  1. Ganache
