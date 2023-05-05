@@ -22,15 +22,14 @@ import { useBalance } from '../../context/BalanceContext';
 function Transfer() {
 	const { account, library: web3 } = useWeb3React();
 	const [, updateUserBalance] = useBalance();
-	const [txError, setTxError] = useState('');
 	const [isSendingTx, setIsSendingTx] = useState(false);
-	const [reqError, setReqError] = useState('');
 	const [isRequestingTx, setIsRequestingTx] = useState(false);
 	const [timer, setTimer] = useState(null);
 	const [userResults, setUserResults] = useState([]);
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [alertMsg, setAlertMsg] = useState('');
 	const [showAlert, setShowAlert] = useState(false);
+	const [alertType, setAlertType] = useState('info');
 	useAuth();
 	useDocumentTitle('Enviar y solicitar');
 
@@ -52,14 +51,18 @@ function Transfer() {
 
 		// Validate the quantity field is not 0
 		if (fields.quantity === '0') {
-			setTxError('La cantidad a enviar debe ser mayor de 0');
+			setAlertMsg('La cantidad a enviar debe ser mayor de 0');
+			setAlertType('failure');
+			setShowAlert(true);
 			setIsSendingTx(false);
 			return;
 		}
 
 		// Validate the decimal separator in the quantity field
 		if (fields.quantity.includes(',')) {
-			setTxError('Los decimales deben separarse con . Ej: 10.99');
+			setAlertMsg('Los decimales deben separarse con . Ej: 10.99');
+			setAlertType('failure');
+			setShowAlert(true);
 			setIsSendingTx(false);
 			return;
 		}
@@ -78,8 +81,8 @@ function Transfer() {
 		const transaction = {
 			from: account,
 			to: fields.address,
-			value: value,
-			nonce: nonce,
+			value,
+			nonce,
 			data: web3.utils.toHex(fields.message),
 		};
 
@@ -90,6 +93,7 @@ function Transfer() {
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
 					setAlertMsg(`Transacción realizada correctamente: ${hash}`);
+					setAlertType('success');
 					setShowAlert(true);
 					setTimeout(() => {
 						setShowAlert(false);
@@ -99,7 +103,9 @@ function Transfer() {
 						'Something went wrong while submitting your transaction:',
 						error
 					);
-					setTxError(error.message);
+					setAlertType('failure');
+					setAlertMsg(`Error: ${error.message}`);
+					setShowAlert(true);
 					setIsSendingTx(false);
 				}
 			}
@@ -148,17 +154,28 @@ function Transfer() {
 
 		// Validate the quantity field is not 0
 		if (fields.quantity === '0') {
-			setReqError('La cantidad a enviar debe ser mayor de 0');
+			setAlertMsg('La cantidad a enviar debe ser mayor de 0');
+			setAlertType('failure');
+			setShowAlert(true);
 			setIsRequestingTx(false);
 			return;
 		}
 
 		// Validate the decimal separator in the quantity field
 		if (fields.quantity.includes(',')) {
-			setReqError('Los decimales deben separarse con . Ej: 10.99');
+			setAlertMsg('Los decimales deben separarse con . Ej: 10.99');
+			setAlertType('failure');
+			setShowAlert(true);
 			setIsRequestingTx(false);
 			return;
 		}
+
+		// Shows a message informing the user to sign the transaction before add the request to the smart contract
+		setShowAlert(true);
+		setAlertType('info');
+		setAlertMsg(
+			'Firma para almacenarlo en las solicitudes pendientes del contrato.'
+		);
 
 		// Create a new instance of the RequestMoney smart contract
 		const contract = new web3.eth.Contract(
@@ -184,6 +201,7 @@ function Transfer() {
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
 					setAlertMsg(`Transacción realizada correctamente: ${hash}`);
+					setAlertType('success');
 					setShowAlert(true);
 					setTimeout(() => {
 						setShowAlert(false);
@@ -193,7 +211,9 @@ function Transfer() {
 						'Something went wrong while submitting your transaction:',
 						error
 					);
-					setReqError(error.message);
+					setAlertType('failure');
+					setAlertMsg(`Error: ${error.message}`);
+					setShowAlert(true);
 					setIsRequestingTx(false);
 				}
 			});
@@ -338,11 +358,6 @@ function Transfer() {
 								</Button>
 							)}
 						</form>
-						{txError ? (
-							<div className='mt-4 text-sm text-red-500'>{txError}</div>
-						) : (
-							''
-						)}
 					</Tabs.Item>
 					<Tabs.Item title='Solicitar'>
 						<form
@@ -430,11 +445,6 @@ function Transfer() {
 								</Button>
 							)}
 						</form>
-						{reqError ? (
-							<div className='mt-4 text-sm text-red-500'>{reqError}</div>
-						) : (
-							''
-						)}
 					</Tabs.Item>
 				</Tabs.Group>
 			</section>
@@ -442,7 +452,7 @@ function Transfer() {
 				<Alert
 					onDismiss={onCloseAlert}
 					className='fixed right-2 bottom-2 w-[50%] break-all'
-					color='success'
+					color={alertType}
 					icon={HiInformationCircle}>
 					<span>
 						<span className='font-medium'>{alertMsg}</span>

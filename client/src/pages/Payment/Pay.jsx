@@ -39,9 +39,9 @@ function Pay() {
 		const transaction = {
 			from: account,
 			to: ecommerces[params.ecommerce].address,
-			value: value,
-			nonce: nonce,
-			gasPrice: gasPrice,
+			value,
+			nonce,
+			gasPrice,
 			data: web3.utils.toHex(ecommerces[params.ecommerce].name),
 		};
 

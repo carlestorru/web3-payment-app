@@ -3,13 +3,14 @@ import useAuth from '../../hooks/useAuth';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import RequestMoneyContract from '../../contracts/RequestMoney.json';
 import { useWeb3React } from '@web3-react/core';
-import { Card, Button, Modal, Spinner } from 'flowbite-react';
+import { Card, Button, Modal, Spinner, Alert } from 'flowbite-react';
 import { CheckIcon } from '../../components/Icons/Check';
 import { Xmark } from '../../components/Icons/Xmark';
 import smartcontracts from '../../config/smartcontracts';
 import getSymbolPrice from '../../services/getSymbolPrice';
 import InvoiceContract from '../../contracts/Invoice.json';
 import InvoicesContract from '../../contracts/Invoices.json';
+import { HiInformationCircle } from '../../components/Icons/HiInformationCircle';
 import { useBalance } from '../../context/BalanceContext';
 
 function Notifications() {
@@ -23,6 +24,9 @@ function Notifications() {
 	const [loadingInvoices, setLoadingInvoices] = useState(true);
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [detailedInvoice, setDetailedInvoice] = useState(null);
+	const [alertMsg, setAlertMsg] = useState('');
+	const [showAlert, setShowAlert] = useState(false);
+	const [alertType, setAlertType] = useState('info');
 
 	/* This function handle user request money confirmation */
 	const onAcceptRequest = async ({ address, amount, concept }, index) => {
@@ -35,8 +39,8 @@ function Notifications() {
 		const transaction = {
 			from: account,
 			to: address,
-			value: value,
-			nonce: nonce,
+			value,
+			nonce,
 			data: web3.utils.toHex(concept),
 		};
 
@@ -46,12 +50,18 @@ function Notifications() {
 			async function (error, hash) {
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
-					deleteRequest(index);
+					setAlertMsg(`Enviado correctamente. Transacción: ${hash}`);
+					setAlertType('success');
+					setShowAlert(true);
+					deleteRequest(index, false);
 				} else {
 					console.log(
 						'Something went wrong while submitting your transaction:',
 						error
 					);
+					setAlertType('failure');
+					setAlertMsg(`Error: ${error.message}`);
+					setShowAlert(true);
 				}
 			}
 		);
@@ -87,21 +97,44 @@ function Notifications() {
 
 	/* This function handle user request money deny */
 	const onDenyRequest = async (index) => {
-		deleteRequest(index);
+		deleteRequest(index, true);
 	};
 
 	/* This function deletes user request money when is confirmed or denied */
-	const deleteRequest = async (index) => {
+	const deleteRequest = async (index, isDenied) => {
 		// Create a new instance of the RequestMoneyContract contract using the contract's ABI and address.
 		const contract = new web3.eth.Contract(
 			RequestMoneyContract.abi,
 			smartcontracts.RequestMoney
 		);
+
+		if (isDenied) {
+			setAlertMsg(
+				'Pago rechazado! Firma para interactuar con el contrato y rechazar la solicitud.'
+			);
+		} else {
+			setAlertMsg(
+				'Pago realizado! Firma para interactuar con el contrato y completar la solicitud.'
+			);
+		}
+		setAlertType('info');
+		setShowAlert(true);
+
 		// Call the deleteUserRequest method of the contract, passing in the user account and the index of the request to delete.
 		await contract.methods
 			.deleteUserRequest(account, index)
 			.send({ from: account, gasPrice: '1' })
-			.then(console.log);
+			.on('error', function (error) {
+				setAlertType('failure');
+				setAlertMsg(`Error:, ${error.message}`);
+			})
+			.then(() => {
+				setAlertMsg('Transacción realizada correctamente!');
+				setAlertType('success');
+				setTimeout(() => {
+					setShowAlert(false);
+				}, 5000);
+			});
 
 		// Update the state of the requests list by removing the request at the given index.
 		setRequests((prev) => {
@@ -123,6 +156,9 @@ function Notifications() {
 			.send({ from: account, gasPrice: '1', value }, function (error, hash) {
 				if (!error) {
 					console.log('The hash of your transaction is: ', hash);
+					setAlertMsg(`Factura pagada correctamente. Transacción: ${hash}`);
+					setAlertType('success');
+					setShowAlert(true);
 					setInvoices((prev) => {
 						return [...prev.slice(0, index), ...prev.slice(index + 1)];
 					});
@@ -131,6 +167,9 @@ function Notifications() {
 						'Something went wrong while submitting your transaction:',
 						error
 					);
+					setAlertType('failure');
+					setAlertMsg(`Error: ${error.message}`);
+					setShowAlert(true);
 				}
 			});
 
@@ -175,11 +214,27 @@ function Notifications() {
 			smartcontracts.Invoices
 		);
 
+		setAlertMsg(
+			'Firma para interactuar con el contrato y rechazar la factura.'
+		);
+		setAlertType('info');
+		setShowAlert(true);
 		// Call the setDeniedInvoice function in the smart contract and wait for the transaction to be confirmed
 		await contract.methods
 			.setDeniedInvoice(account, invoiceIndex)
 			.send({ from: account, gasPrice: '1' })
-			.then(console.log);
+			.on('error', function (error) {
+				setAlertType('failure');
+				setAlertMsg(`Error:, ${error.message}`);
+			})
+			.then(() => {
+				setAlertMsg('Transacción realizada correctamente!');
+				setAlertType('success');
+				setShowAlert(true);
+				setTimeout(() => {
+					setShowAlert(false);
+				}, 5000);
+			});
 
 		// Remove the deleted invoice from the invoices array
 		setInvoices((prev) => {
@@ -195,6 +250,10 @@ function Notifications() {
 	const onCloseModal = () => {
 		setDetailedInvoice(null);
 		setIsModalVisible(!isModalVisible);
+	};
+
+	const onCloseAlert = () => {
+		setShowAlert(false);
 	};
 
 	useEffect(() => {
@@ -456,6 +515,19 @@ function Notifications() {
 						<Button onClick={onCloseModal}>Cerrar</Button>
 					</Modal.Footer>
 				</Modal>
+			) : (
+				''
+			)}
+			{showAlert ? (
+				<Alert
+					onDismiss={onCloseAlert}
+					className='fixed right-2 bottom-2 w-[50%] break-all'
+					color={alertType}
+					icon={HiInformationCircle}>
+					<span>
+						<span className='font-medium'>{alertMsg}</span>
+					</span>
+				</Alert>
 			) : (
 				''
 			)}
