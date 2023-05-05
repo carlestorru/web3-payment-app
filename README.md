@@ -56,8 +56,23 @@ This way when we open the Ganache application we should see the workspace, doubl
 
 ![Ganache Launch](screenshots/ganache-launch.png)
 
-##### 2. Metamask
+Once you enter the workspace you should see the following:
 
+![Ganache Workspace](screenshots/ganache-workspace.png)
+
+##### 2. Metamask
+Once Metamask is installed you will need to follow the steps to create a wallet. This process is private as it asks for a security phrase, password, etc. so it is left to the user. The following explains how to add Ganache network and how to import the accounts.
+**- Add network**
+
+**- Import accounts**
+
+1. Go to the Ganache application, choose the account you want to import into Metamask and click on the key icon and then copy the private key.
+
+![Ganache Private key](screenshots/ganache-secretkey.png)
+
+2. Go to the browser, open the Metamask extension, go to My Accounts > Import account and paste the private key copied earlier and hit import.
+
+![Metamask Import Account](screenshots/metamask-importacc.png)
 
 ## Run
 
