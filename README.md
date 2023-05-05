@@ -45,7 +45,7 @@ Below are the links where to download Metamask and Ganache.
 
 
 ### Configuration
-#####  1. Ganache
+####  1. Ganache
 Download and unzip the *"chilly-crowd.zip"* file. This file contains the blockchain data with transaction and block history, accounts and deployed smart contracts. 
 
 Una vez descargado y descomprimido copiar la carpeta entera en `C:\Users\user\AppData\Roaming\Ganache\workspaces` (Windows).
@@ -60,7 +60,7 @@ Once you enter the workspace you should see the following:
 
 ![Ganache Workspace](screenshots/ganache-workspace.png)
 
-##### 2. Metamask
+#### 2. Metamask
 Once Metamask is installed you will need to follow the steps to create a wallet. This process is private as it asks for a security phrase, password, etc. so it is left to the user. The following explains how to add Ganache network and how to import the accounts.
 **- Add network**
 
