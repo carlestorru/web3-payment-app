@@ -147,7 +147,7 @@ function Notifications() {
 		// Create a new instance of the InvoiceContract with the contract address.
 		const invoiceSC = new web3.eth.Contract(InvoiceContract.abi, contractAddr);
 		// Get the invoice information from the smart contract.
-		const result = await invoiceSC.methods.getInfo().call();
+		const result = await invoiceSC.methods.getInfo().call({from: account});
 		const value = result[3];
 
 		// Send a transaction to the smart contract to pay the invoice.
@@ -267,7 +267,7 @@ function Notifications() {
 					smartcontracts.RequestMoney
 				);
 				// Call a contract method to get user requests
-				const result = await contract.methods.getUserRequests(account).call();
+				const result = await contract.methods.getUserRequests(account).call({from: account});
 				const requests = [];
 				// Get the ETH/USD price
 				const symbolPrice = await getSymbolPrice('ETH', 'USD');
@@ -302,6 +302,7 @@ function Notifications() {
 					.getUserInvoices(account)
 					.call();
 				const invoicesArray = [];
+				console.log(pendingInvoices)
 				// Get the ETH/USD price
 				const symbolPrice = await getSymbolPrice('ETH', 'USD');
 				for (let i = 0; i < pendingInvoices[0].length; i++) {
@@ -315,12 +316,15 @@ function Notifications() {
 						pendingInvoices[0][i]
 					);
 
+					console.log(contract)
+
 					// Check if the invoice has been paid
-					const isPaid = await contract.methods.isPaid().call();
+					const isPaid = await contract.methods.isPaid().call({from: account});
+					console.log('pas')
 					// Skip paid invoices
 					if (!isPaid) {
 						// Get invoice information
-						const invoiceInfo = await contract.methods.getInfo().call();
+						const invoiceInfo = await contract.methods.getInfo().call({from: account});
 						// Convert the invoice amount from Wei to ETH
 						const value = web3.utils.fromWei(invoiceInfo[3]);
 						// Calculate the invoice total in USD
@@ -331,7 +335,7 @@ function Notifications() {
 							invoiceInfo['2']
 						);
 						// Check if the invoice is overdue
-						const isOverdue = await contract.methods.isOverdue().call();
+						const isOverdue = await contract.methods.isOverdue().call({from: account});
 						// Push a new invoice object to the invoices array
 						invoicesArray.push({
 							contract: pendingInvoices[0][i],

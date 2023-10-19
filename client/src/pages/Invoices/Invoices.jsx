@@ -327,10 +327,10 @@ function Invoices() {
 					);
 
 					// Get the payment status of the invoice
-					const isPaid = await contract.methods.isPaid().call();
+					const isPaid = await contract.methods.isPaid().call({from: account});
 					
 					// Get the information of the invoice
-					const invoiceInfo = await contract.methods.getInfo().call();
+					const invoiceInfo = await contract.methods.getInfo().call({from: account});
 					// Get the symbol price of ETH to USD
 					const symbolPrice = await getSymbolPrice('ETH', 'USD');
 					// Convert the invoice value from wei to ether
@@ -345,7 +345,7 @@ function Invoices() {
 					);
 					
 					// Get if invoice is overdue
-					const isOverdue = await contract.methods.isOverdue().call();
+					const isOverdue = await contract.methods.isOverdue().call({from: account});
 					// Add the invoice information to the invoicesArray
 					invoicesArray.push({
 						contract: userInvoices[0][i],
