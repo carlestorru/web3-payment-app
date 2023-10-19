@@ -25,6 +25,9 @@ This directory contains the project that simulates a small ecommerce, with some 
 **4. truffle**
 This directory contains the project created with the Truffle framework in which the smart contracts and the configuration and deployment scripts to the blockchain are located.
 
+## Architecture
+
+![Components archicture](screenshots/componentes-arquitectura.drawio.png)
 
 ## Set up
 
